@@ -54,6 +54,7 @@
 		<!--begin::Required Plugin(AdminLTE)-->
 		<link rel="stylesheet" href="./css/adminlte.css" />
 		<!--end::Required Plugin(AdminLTE)-->
+		<link rel="stylesheet" href="./css/custom.css" />
 		<!-- apexcharts -->
 		<link
 			rel="stylesheet"

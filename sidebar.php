@@ -39,9 +39,15 @@
 									<!-- Copy and Paste this one to create new links -->
 									<!-- 👇 -->
 									<li class="nav-item">
-										<a href="book.php" class="nav-link">
+										<a href="copy_this_for_new_page.php" class="nav-link">
 											<i class="nav-icon bi bi-circle"></i>
-											<p>Add Books</p>
+											<p>Template</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="book_list.php" class="nav-link">
+											<i class="nav-icon bi bi-circle"></i>
+											<p>Books List</p>
 										</a>
 									</li>
 

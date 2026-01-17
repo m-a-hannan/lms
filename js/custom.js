@@ -28,3 +28,10 @@ function showPreview(file) {
     };
     reader.readAsDataURL(file);
 }
+
+// Book cover change event
+function previewNewCover(event) {
+	const img = document.getElementById("previewImage");
+	img.src = URL.createObjectURL(event.target.files[0]);
+	img.classList.remove("d-none");
+}

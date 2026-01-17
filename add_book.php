@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     if ($stmt->execute()) {
-        header("Location: book.php?success=1");
+        header("Location: book_list.php?success=1");
         exit;
     } else {
         die("Database error: " . $stmt->error);
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 						<!--begin::Form-->
 						<div class="card card-primary card-outline mb-4">
 							<!-- must add form action -->
-							<form action="book.php" method="post" enctype="multipart/form-data">
+							<form action="add_book.php" method="post" enctype="multipart/form-data">
 								<!--begin::Body-->
 								<div class="card-body">
 									<div class="mb-3">
@@ -147,3 +147,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <script src="js/custom.js"></script>
 <?php include('include/footer_resources.php') ?>
+
+<?php if (isset($_GET["success"])): ?>
+    <div class="alert alert-success">Book added successfully.</div>
+<?php endif; ?>
