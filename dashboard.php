@@ -1,11 +1,11 @@
-<?php include('includes/header_resources.php') ?>
+<?php include('include/header_resources.php') ?>
 
-<?php include('includes/header.php') ?>
-<?php include('includes/sidebar.php') ?>
+<?php include('include/header.php') ?>
+<?php include('sidebar.php') ?>
 			<!--begin::App Main-->
 			<main class="app-main">
-
+				<!-- Main Content Goes Here -->
 			</main>
 			<!--end::App Main-->
-<?php include('includes/footer.php') ?>
-<?php include('includes/footer_resources.php') ?>
+<?php include('include/footer.php') ?>
+<?php include('include/footer_resources.php') ?>
