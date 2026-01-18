@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy-to-proxmox-vm:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy files to Apache folder (keep server .env)
+        run: |
+          set -e
+
+          TARGET="/var/www/html/lms"
+
+          echo "Creating target folder if missing..."
+          sudo mkdir -p "$TARGET"
+
+          echo "Rsync project to server (excluding .env)..."
+          sudo rsync -a --delete \
+            --exclude ".env" \
+            --exclude ".git" \
+            ./ "$TARGET/"
+
+          echo "Fix ownership to www-data..."
+          sudo chown -R www-data:www-data "$TARGET"
+
+          echo "Done deploying."
+
+      - name: Reload Apache
+        run: |
+          sudo systemctl reload apache2
+          echo "Apache reloaded."

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 17, 2026 at 07:35 PM
+-- Generation Time: Jan 18, 2026 at 09:18 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -152,13 +152,6 @@ CREATE TABLE `books` (
   `deleted_by` int(11) DEFAULT NULL,
   `deleted_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `books`
---
-
-INSERT INTO `books` (`book_id`, `title`, `author`, `isbn`, `publisher`, `publication_year`, `book_cover_path`, `created_by`, `created_date`, `modified_by`, `modified_date`, `deleted_by`, `deleted_date`) VALUES
-(1, 'Digital Fortress ', 'Dan Brown', '0-312-18087-X', 'St. Martin\'s Press', 1998, 'uploads/book_cover/1768674712_Dan-Brown_Digital-Fortress_book-cover-2025.jpg', NULL, '2026-01-18 00:31:52', NULL, '2026-01-18 00:31:52', NULL, NULL);
 
 --
 -- Triggers `books`
@@ -1208,7 +1201,7 @@ ALTER TABLE `backups`
 -- AUTO_INCREMENT for table `books`
 --
 ALTER TABLE `books`
-  MODIFY `book_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `book_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `book_categories`
