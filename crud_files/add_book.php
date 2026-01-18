@@ -1,5 +1,6 @@
 <?php
-require_once "include/connection.php";
+require_once dirname(__DIR__) . "/include/config.php";
+require_once ROOT_PATH . "/include/connection.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -10,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $publisher         = trim($_POST["publisher"]);
     $publication_year  = (int) $_POST["publication_year"];
 
-    $uploadDir = "uploads/book_cover/";
+    $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = null;
 
     // Handle image upload
@@ -34,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             die("Failed to upload image.");
         }
 
-        $imagePath = $targetFile;
+        $imagePath = "uploads/book_cover/" . $fileName;
     }
 
     // Insert into database
@@ -54,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     if ($stmt->execute()) {
-        header("Location: book_list.php?success=1");
+        header("Location: " . BASE_URL . "book_list.php?success=1");
         exit;
     } else {
         die("Database error: " . $stmt->error);
@@ -63,13 +64,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 ?>
 
-<?php include('include/header_resources.php') ?>
+<?php include(ROOT_PATH . '/include/header_resources.php') ?>
 
-<?php include('include/header.php') ?>
-<?php include('sidebar.php') ?>
-
-
-<link rel="stylesheet" href="css/custom.css">
+<?php include(ROOT_PATH . '/include/header.php') ?>
+<?php include(ROOT_PATH . '/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
 	<!--begin::App Content-->
@@ -82,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 				<!-- Add contents Below-->
 					<div class="mb-4 d-flex justify-content-between">
 						<h3>Edit Book</h3>
-						<a href="book_list.php" class="btn btn-secondary btn-sm">Back</a>
+						<a href="<?php echo BASE_URL; ?>book_list.php" class="btn btn-secondary btn-sm">Back</a>
 					</div>
 					<!-- FORM ELELEMNTS -->
 					<div class="row mt">
@@ -90,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 							<!--begin::Form-->
 							<div class="card card-primary card-outline mb-4">
 								<!-- must add form action -->
-								<form action="add_book.php" method="post" enctype="multipart/form-data">
+								<form action="<?php echo BASE_URL; ?>crud_files/add_book.php" method="post" enctype="multipart/form-data">
 									<!--begin::Body-->
 									<div class="card-body">
 										<div class="mb-3">
@@ -148,10 +146,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	</div>
 </main>
 <!--end::App Main-->
-<?php include('include/footer.php') ?>
-
-<script src="js/custom.js"></script>
-<?php include('include/footer_resources.php') ?>
+<?php include(ROOT_PATH . '/include/footer.php') ?>
+<?php include(ROOT_PATH . '/include/footer_resources.php') ?>
 
 <?php if (isset($_GET["success"])): ?>
 <div class="alert alert-success">Book added successfully.</div>

@@ -21,7 +21,7 @@ if ($result === false) {
 				<div class="container py-5">
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<h3 class="mb-0">Available Books</h3>
-						<a href="/crud_files/add_book.php" class="btn btn-primary btn-sm">Add Book</a>
+						<a href="<?php echo BASE_URL; ?>crud_files/add_book.php" class="btn btn-primary btn-sm">Add Book</a>
 					</div>
 
 					<div class="card shadow-sm">

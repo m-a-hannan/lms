@@ -3,9 +3,9 @@
 				<!--begin::Sidebar Brand-->
 				<div class="sidebar-brand">
 					<!--begin::Brand Link-->
-					<a href="./index.php" class="brand-link">
+					<a href="<?php echo BASE_URL; ?>index.php" class="brand-link">
 						<!--begin::Brand Image-->
-						<img src="./assets/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
+						<img src="<?php echo BASE_URL; ?>assets/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
 						<!--end::Brand Image-->
 						<!--begin::Brand Text-->
 						<span class="brand-text fw-light">AdminLTE 4</span>
@@ -21,7 +21,7 @@
 						<ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
 							aria-label="Main navigation" data-accordion="false" id="navigation">
 							<li class="nav-item menu-open">
-								<a href="dashboard.php" class="nav-link active">
+								<a href="<?php echo BASE_URL; ?>dashboard.php" class="nav-link active">
 									<i class="nav-icon bi bi-speedometer"></i>
 									<p>Dashboard</p>
 								</a>
@@ -39,7 +39,7 @@
 									<!-- Copy and Paste this one to create new links -->
 									<!-- 👇 -->
 									<li class="nav-item">
-										<a href="template_blank_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>template_blank_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
 											<p>Template</p>
 										</a>
@@ -59,7 +59,7 @@
 							<!-- Copy and Paste this one to create new links -->
 							<!-- 👇 -->
 							<li class="nav-item">
-								<a href="book_list.php" class="nav-link">
+								<a href="<?php echo BASE_URL; ?>book_list.php" class="nav-link">
 									<i class="bi bi-link-45deg"></i>
 									<p>Books List</p>
 								</a>
