@@ -14,6 +14,7 @@
 				<div class="container py-5">
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<!-- Content will be added here-->
+						 <h1>Dashboard content will be added here</h1>
 					</div>
 				</div>
 			</div>
