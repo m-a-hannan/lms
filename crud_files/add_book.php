@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 				<div class="container py-5">
 				<!-- Add contents Below-->
 					<div class="mb-4 d-flex justify-content-between">
-						<h3>Edit Book</h3>
+						<h3>Add Book</h3>
 						<a href="<?php echo BASE_URL; ?>book_list.php" class="btn btn-secondary btn-sm">Back</a>
 					</div>
 					<!-- FORM ELELEMNTS -->

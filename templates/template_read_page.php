@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__) . '/include/config.php';
+require_once __DIR__ . '/include/config.php';
 ?>
 <?php include(ROOT_PATH . '/include/header_resources.php') ?>
 <?php include(ROOT_PATH . '/include/header.php') ?>
@@ -15,6 +15,7 @@ require_once dirname(__DIR__) . '/include/config.php';
 				<div class="container py-5">
 					<!-- Content title -->
 					<h1>Copy This page to Create New Read/View Page</h1>
+					<h3>Create Read/View page at project root</h3>
 					<!-- Add Contents below -->
 				</div>
 			</div>

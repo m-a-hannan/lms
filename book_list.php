@@ -85,6 +85,7 @@ if ($result === false) {
 
 						</div>
 					</div>
+					
 				</div>
 			</div>
 			<!-- row end -->
