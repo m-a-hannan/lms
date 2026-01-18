@@ -2,6 +2,12 @@
 require_once dirname(__DIR__) . "/include/config.php";
 require_once ROOT_PATH . "/include/connection.php";
 
+// Fetch categories for dropdown.
+$categoryResult = $conn->query("SELECT category_id, category_name FROM categories ORDER BY category_name");
+if ($categoryResult === false) {
+    die("Category query failed: " . $conn->error);
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Sanitize inputs
@@ -10,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $isbn              = trim($_POST["isbn"]);
     $publisher         = trim($_POST["publisher"]);
     $publication_year  = (int) $_POST["publication_year"];
+    $category_id       = (int) $_POST["category_id"];
 
     $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = null;
@@ -40,17 +47,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Insert into database
     $stmt = $conn->prepare(
-        "INSERT INTO books (title, author, isbn, publisher, publication_year, book_cover_path)
-         VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO books (title, author, isbn, publisher, publication_year, category_id, book_cover_path)
+         VALUES (?, ?, ?, ?, ?, ?, ?)"
     );
 
     $stmt->bind_param(
-        "ssssis",
+        "ssssiss",
         $title,
         $author,
         $isbn,
         $publisher,
         $publication_year,
+        $category_id,
         $imagePath
     );
 
@@ -107,10 +115,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											<label class="form-label">Publisher</label>
 											<input type="text" class="form-control" name="publisher" aria-describedby="#" />
 										</div>
-										<div class="mb-3">
-											<label class="form-label">Publication Year</label>
-											<input type="text" class="form-control" name="publication_year" aria-describedby="#" />
-										</div>
+									<div class="mb-3">
+										<label class="form-label">Publication Year</label>
+										<input type="text" class="form-control" name="publication_year" aria-describedby="#" />
+									</div>
+									<div class="mb-3">
+										<label class="form-label">Category</label>
+										<select class="form-select" name="category_id" required>
+											<option value="" selected disabled>Select a category</option>
+											<?php while ($category = $categoryResult->fetch_assoc()): ?>
+											<option value="<?= (int) $category["category_id"] ?>">
+												<?= htmlspecialchars($category["category_name"]) ?>
+											</option>
+											<?php endwhile; ?>
+										</select>
+									</div>
 										<div class="mb-3">
 											<label class="form-label">Book Cover</label>
 											<input type="file" id="fileInput" accept="image/*" class="form-control" name="book_cover">

@@ -22,6 +22,12 @@ if ($result->num_rows !== 1) {
 
 $book = $result->fetch_assoc();
 
+// Fetch categories for dropdown.
+$categoryResult = $conn->query("SELECT category_id, category_name FROM categories ORDER BY category_name");
+if ($categoryResult === false) {
+    die("Category query failed: " . $conn->error);
+}
+
 /* ---------------------------
    Handle update submission
 ---------------------------- */
@@ -32,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $isbn             = trim($_POST["isbn"]);
     $publisher        = trim($_POST["publisher"]);
     $publication_year = (int) $_POST["publication_year"];
+    $category_id      = (int) $_POST["category_id"];
 
     $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = $book["book_cover_path"]; // default: keep existing
@@ -70,17 +77,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $update = $conn->prepare(
         "UPDATE books 
-         SET title = ?, author = ?, isbn = ?, publisher = ?, publication_year = ?, book_cover_path = ?
+         SET title = ?, author = ?, isbn = ?, publisher = ?, publication_year = ?, category_id = ?, book_cover_path = ?
          WHERE book_id = ?"
     );
 
     $update->bind_param(
-        "ssssisi",
+        "ssssissi",
         $title,
         $author,
         $isbn,
         $publisher,
         $publication_year,
+        $category_id,
         $imagePath,
         $book_id
     );
@@ -149,6 +157,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											<label class="form-label">Publication Year</label>
 											<input type="number" name="publication_year" class="form-control"
 												value="<?= htmlspecialchars($book["publication_year"]) ?>">
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Category</label>
+											<select class="form-select" name="category_id" required>
+												<option value="" disabled>Select a category</option>
+												<?php while ($category = $categoryResult->fetch_assoc()): ?>
+												<option value="<?= (int) $category["category_id"] ?>"
+													<?php if ((int) $book["category_id"] === (int) $category["category_id"]) echo 'selected'; ?>>
+													<?= htmlspecialchars($category["category_name"]) ?>
+												</option>
+												<?php endwhile; ?>
+											</select>
 										</div>
 
 										<div class="mb-3">
