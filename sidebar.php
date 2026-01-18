@@ -3,7 +3,7 @@
 				<!--begin::Sidebar Brand-->
 				<div class="sidebar-brand">
 					<!--begin::Brand Link-->
-					<a href="./index.html" class="brand-link">
+					<a href="./index.php" class="brand-link">
 						<!--begin::Brand Image-->
 						<img src="./assets/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
 						<!--end::Brand Image-->
@@ -39,7 +39,7 @@
 									<!-- Copy and Paste this one to create new links -->
 									<!-- 👇 -->
 									<li class="nav-item">
-										<a href="copy_this_for_new_page.php" class="nav-link">
+										<a href="template_blank_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
 											<p>Template</p>
 										</a>

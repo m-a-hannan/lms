@@ -79,8 +79,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			<!--begin::Row-->
 			<div class="row">
 				<div class="container py-5">
-					<!-- Content title -->
-					<h1>Add Book</h1>
+				<!-- Add contents Below-->
+					<div class="mb-4 d-flex justify-content-between">
+						<h3>Edit Book</h3>
+						<a href="book_list.php" class="btn btn-secondary btn-sm">Back</a>
+					</div>
 					<!-- FORM ELELEMNTS -->
 					<div class="row mt">
 						<div class="col-md-6">
