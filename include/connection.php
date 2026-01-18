@@ -1,7 +1,6 @@
 <?php
-
 $envPath = dirname(__DIR__) . '/.env';
-$requiredKeys = ['DB_HOST', 'DB_NAME', 'DB_USER'];
+$requiredKeys = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
 $env = [];
 
 foreach ($requiredKeys as $key) {
@@ -28,7 +27,7 @@ if ($missing) {
 
 $servername = $env['DB_HOST'];
 $username = $env['DB_USER'];
-$password = isset($env['DB_PASS']) ? $env['DB_PASS'] : '';
+$password = $env['DB_PASS'];
 $dbname = $env['DB_NAME'];
 
 $conn = new mysqli($servername, $username, $password, $dbname);

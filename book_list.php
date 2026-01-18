@@ -2,6 +2,9 @@
 require_once "include/connection.php";
 
 $result = $conn->query("SELECT * FROM books ORDER BY book_id DESC");
+if ($result === false) {
+	die("Query failed: " . $conn->error);
+}
 ?>
 <?php include('include/header_resources.php') ?>
 
