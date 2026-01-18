@@ -1,4 +1,4 @@
-name: LMS CI
+name: LMS CI/Check
 
 on:
   push:
