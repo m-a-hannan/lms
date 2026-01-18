@@ -25,6 +25,7 @@ jobs:
           sudo rsync -a --delete \
             --exclude ".env" \
             --exclude ".git" \
+            --exclude "include/config.php" \
             ./ "$TARGET/"
 
           echo "Fix ownership to www-data..."
