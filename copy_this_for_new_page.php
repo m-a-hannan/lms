@@ -12,6 +12,7 @@
 			<div class="row">
 				<!-- Content title -->
 				<h1>Copy_This_Page_To_Create_New_Page</h1>
+				<h1>Testing CI/CD</h1>
 				<!-- Add contents Below-->
 				
 			</div>
