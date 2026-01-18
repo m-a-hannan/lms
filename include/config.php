@@ -5,4 +5,6 @@ if (!defined('ROOT_PATH')) {
 if (!defined('BASE_URL')) {
 	define('BASE_URL', '/lms/');
 }
+
 ?>
+
