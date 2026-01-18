@@ -78,67 +78,69 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		<div class="container-fluid">
 			<!--begin::Row-->
 			<div class="row">
-				<!-- Content title -->
-				<h1>Add Book</h1>
-				<!-- FORM ELELEMNTS -->
-				<div class="row mt">
-					<div class="col-md-6">
-						<!--begin::Form-->
-						<div class="card card-primary card-outline mb-4">
-							<!-- must add form action -->
-							<form action="add_book.php" method="post" enctype="multipart/form-data">
-								<!--begin::Body-->
-								<div class="card-body">
-									<div class="mb-3">
-										<label class="form-label">Book Title</label>
-										<input type="text" class="form-control" name="title" aria-describedby="#" />
+				<div class="container py-5">
+					<!-- Content title -->
+					<h1>Add Book</h1>
+					<!-- FORM ELELEMNTS -->
+					<div class="row mt">
+						<div class="col-md-6">
+							<!--begin::Form-->
+							<div class="card card-primary card-outline mb-4">
+								<!-- must add form action -->
+								<form action="add_book.php" method="post" enctype="multipart/form-data">
+									<!--begin::Body-->
+									<div class="card-body">
+										<div class="mb-3">
+											<label class="form-label">Book Title</label>
+											<input type="text" class="form-control" name="title" aria-describedby="#" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Author Name</label>
+											<input type="text" class="form-control" name="author" aria-describedby="#" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">ISBN</label>
+											<input type="text" class="form-control" name="isbn" aria-describedby="#" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Publisher</label>
+											<input type="text" class="form-control" name="publisher" aria-describedby="#" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Publication Year</label>
+											<input type="text" class="form-control" name="publication_year" aria-describedby="#" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Book Cover</label>
+											<input type="file" id="fileInput" accept="image/*" class="form-control" name="book_cover">
+										</div>
 									</div>
-									<div class="mb-3">
-										<label class="form-label">Author Name</label>
-										<input type="text" class="form-control" name="author" aria-describedby="#" />
+									<!--end::Body-->
+									<!--begin::Footer-->
+									<div class="card-footer">
+										<button type="submit" class="btn btn-primary">Submit</button>
 									</div>
-									<div class="mb-3">
-										<label class="form-label">ISBN</label>
-										<input type="text" class="form-control" name="isbn" aria-describedby="#" />
-									</div>
-									<div class="mb-3">
-										<label class="form-label">Publisher</label>
-										<input type="text" class="form-control" name="publisher" aria-describedby="#" />
-									</div>
-									<div class="mb-3">
-										<label class="form-label">Publication Year</label>
-										<input type="text" class="form-control" name="publication_year" aria-describedby="#" />
-									</div>
-									<div class="mb-3">
-										<label class="form-label">Book Cover</label>
-										<input type="file" id="fileInput" accept="image/*" class="form-control" name="book_cover">
-									</div>
-								</div>
-								<!--end::Body-->
-								<!--begin::Footer-->
-								<div class="card-footer">
-									<button type="submit" class="btn btn-primary">Submit</button>
-								</div>
-								<!--end::Footer-->
-							</form>
+									<!--end::Footer-->
+								</form>
+								<!--end::Form-->
+							</div>
 							<!--end::Form-->
 						</div>
-						<!--end::Form-->
-					</div>
-					<!-- col-md-6-->
-					<div class="col-md-6">
-						<div class="card card-primary card-outline mb-4">
-							<div class="preview-box">
-								<h6 class="mb-3">Preview</h6>
-								<div class="preview-area">
-									<img id="previewImage" class="img-fluid d-none" alt="Preview">
+						<!-- col-md-6-->
+						<div class="col-md-6">
+							<div class="card card-primary card-outline mb-4">
+								<div class="preview-box">
+									<h6 class="mb-3">Preview</h6>
+									<div class="preview-area">
+										<img id="previewImage" class="img-fluid d-none" alt="Preview">
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				<!-- row end -->
 			</div>
-			<!-- row end -->
 		</div>
 	</div>
 </main>
@@ -149,5 +151,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <?php include('include/footer_resources.php') ?>
 
 <?php if (isset($_GET["success"])): ?>
-    <div class="alert alert-success">Book added successfully.</div>
+<div class="alert alert-success">Book added successfully.</div>
 <?php endif; ?>

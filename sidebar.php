@@ -29,9 +29,9 @@
 
 							<li class="nav-item">
 								<a href="#" class="nav-link">
-									<i class="bi bi-signpost-split-fill"></i>
+								<i class="bi bi-ui-checks"></i>
 									<p>
-										Add New Links Below
+										CRUD Templates
 										<i class="nav-arrow bi bi-chevron-right"></i>
 									</p>
 								</a>
@@ -40,34 +40,30 @@
 									<!-- 👇 -->
 									<li class="nav-item">
 										<a href="copy_this_for_new_page.php" class="nav-link">
-											<i class="nav-icon bi bi-circle"></i>
+										<i class="bi bi-link-45deg"></i>
 											<p>Template</p>
 										</a>
 									</li>
-									<li class="nav-item">
-										<a href="book_list.php" class="nav-link">
-											<i class="nav-icon bi bi-circle"></i>
-											<p>Books List</p>
-										</a>
-									</li>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 								</ul>
 							</li>
 
+							<li class="nav-item">
+								<a href="#" class="nav-link">
+								<i class="bi bi-diagram-3-fill"></i>
+									<p>
+										Add New Links Below 👇
+									</p>
+								</a>
+							</li>
+
+							<!-- Copy and Paste this one to create new links -->
+							<!-- 👇 -->
+							<li class="nav-item">
+								<a href="book_list.php" class="nav-link">
+									<i class="bi bi-link-45deg"></i>
+									<p>Books List</p>
+								</a>
+							</li>
 
 
 

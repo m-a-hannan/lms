@@ -102,81 +102,82 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		<div class="container-fluid">
 			<!--begin::Row-->
 			<div class="row">
-				<!-- Add contents Below-->
-				<div class="mb-4 d-flex justify-content-between">
-					<h3>Edit Book</h3>
-					<a href="book_list.php" class="btn btn-secondary btn-sm">Back</a>
-				</div>
 
-				<div class="card shadow-sm">
-					<div class="card-body">
+				<div class="container py-5">
+					<!-- Add contents Below-->
+					<div class="mb-4 d-flex justify-content-between">
+						<h3>Edit Book</h3>
+						<a href="book_list.php" class="btn btn-secondary btn-sm">Back</a>
+					</div>
 
-						<form method="post" enctype="multipart/form-data">
-							<div class="row g-4">
+					<div class="card shadow-sm">
+						<div class="card-body">
 
-								<div class="col-md-6">
-									<div class="mb-3">
-										<label class="form-label">Book Title</label>
-										<input type="text" name="title" class="form-control" value="<?= htmlspecialchars($book["title"]) ?>"
-											required>
+							<form method="post" enctype="multipart/form-data">
+								<div class="row g-4">
+
+									<div class="col-md-6">
+										<div class="mb-3">
+											<label class="form-label">Book Title</label>
+											<input type="text" name="title" class="form-control"
+												value="<?= htmlspecialchars($book["title"]) ?>" required>
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">Author</label>
+											<input type="text" name="author" class="form-control"
+												value="<?= htmlspecialchars($book["author"]) ?>" required>
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">ISBN</label>
+											<input type="text" name="isbn" class="form-control"
+												value="<?= htmlspecialchars($book["isbn"]) ?>">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">Publisher</label>
+											<input type="text" name="publisher" class="form-control"
+												value="<?= htmlspecialchars($book["publisher"]) ?>">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">Publication Year</label>
+											<input type="number" name="publication_year" class="form-control"
+												value="<?= htmlspecialchars($book["publication_year"]) ?>">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">Replace Book Cover</label>
+											<input type="file" name="book_cover" class="form-control" accept="image/*"
+												onchange="previewNewCover(event)">
+										</div>
+
+										<button type="submit" class="btn btn-primary">Update Book</button>
 									</div>
 
-									<div class="mb-3">
-										<label class="form-label">Author</label>
-										<input type="text" name="author" class="form-control"
-											value="<?= htmlspecialchars($book["author"]) ?>" required>
-									</div>
+									<div class="col-md-6">
+										<div class="card card-primary card-outline mb-4">
+											<div class="preview-box">
+												<h6 class="mb-3">Current Cover</h6>
+												<div class="preview-area">
 
-									<div class="mb-3">
-										<label class="form-label">ISBN</label>
-										<input type="text" name="isbn" class="form-control" value="<?= htmlspecialchars($book["isbn"]) ?>">
-									</div>
-
-									<div class="mb-3">
-										<label class="form-label">Publisher</label>
-										<input type="text" name="publisher" class="form-control"
-											value="<?= htmlspecialchars($book["publisher"]) ?>">
-									</div>
-
-									<div class="mb-3">
-										<label class="form-label">Publication Year</label>
-										<input type="number" name="publication_year" class="form-control"
-											value="<?= htmlspecialchars($book["publication_year"]) ?>">
-									</div>
-
-									<div class="mb-3">
-										<label class="form-label">Replace Book Cover</label>
-										<input type="file" name="book_cover" class="form-control" accept="image/*" onchange="previewNewCover(event)">
-									</div>
-
-									<button type="submit" class="btn btn-primary">Update Book</button>
-								</div>
-
-								<div class="col-md-6">
-									<div class="card card-primary card-outline mb-4">
-										<div class="preview-box">
-											<h6 class="mb-3">Current Cover</h6>
-											<div class="preview-area">
-
-												<?php if (!empty($book["book_cover_path"])): ?>
-												<img id="previewImage" src="<?= htmlspecialchars($book["book_cover_path"]) ?>"
-													class="img-fluid cover-preview" alt="Book Cover">
-												<?php else: ?>
-												<p class="text-muted">No cover uploaded</p>
-												<?php endif; ?>
-
+													<?php if (!empty($book["book_cover_path"])): ?>
+													<img id="previewImage" src="<?= htmlspecialchars($book["book_cover_path"]) ?>"
+														class="img-fluid cover-preview" alt="Book Cover">
+													<?php else: ?>
+													<p class="text-muted">No cover uploaded</p>
+													<?php endif; ?>
+												</div>
 											</div>
 										</div>
 									</div>
 								</div>
-
-							</div>
-						</form>
-
+							</form>
+						</div>
 					</div>
-
+					<!-- row end -->
 				</div>
-				<!-- row end -->
 			</div>
 </main>
 <!--end::App Main-->
