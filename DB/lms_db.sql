@@ -144,6 +144,7 @@ CREATE TABLE `books` (
   `isbn` varchar(50) DEFAULT NULL,
   `publisher` varchar(255) DEFAULT NULL,
   `publication_year` int(11) DEFAULT NULL,
+  `category_id` int(11) DEFAULT NULL,
   `book_cover_path` varchar(255) NOT NULL,
   `created_by` int(11) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
@@ -1364,7 +1365,8 @@ ALTER TABLE `backups`
 ALTER TABLE `books`
   ADD CONSTRAINT `books_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `books_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `books_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `books_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `books_ibfk_4` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`);
 
 --
 -- Constraints for table `book_categories`

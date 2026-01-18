@@ -15,9 +15,9 @@
 			crossorigin="anonymous"
 		></script>
 		<!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
-		<script src="./js/adminlte.js"></script>
+		<script src="<?php echo BASE_URL; ?>js/adminlte.js"></script>
 		<!--end::Required Plugin(AdminLTE)-->
-		<script src="./js/custom.js"></script>
+		<script src="<?php echo BASE_URL; ?>js/custom.js"></script>
 		<!--begin::OverlayScrollbars Configure-->
 		<script>
 			const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';

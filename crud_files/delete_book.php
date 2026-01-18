@@ -1,5 +1,6 @@
 <?php
-require_once "include/connection.php";
+require_once dirname(__DIR__) . "/include/config.php";
+require_once ROOT_PATH . "/include/connection.php";
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
     die("Invalid request.");
@@ -25,11 +26,14 @@ $del->bind_param("i", $book_id);
 
 if ($del->execute()) {
 
-    if (!empty($book["book_cover_path"]) && file_exists($book["book_cover_path"])) {
-        unlink($book["book_cover_path"]);
+    if (!empty($book["book_cover_path"])) {
+        $filePath = ROOT_PATH . '/' . ltrim($book["book_cover_path"], '/');
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
     }
 
-    header("Location: book_list.php");
+    header("Location: " . BASE_URL . "book_list.php");
     exit;
 }
 

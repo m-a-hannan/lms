@@ -1,7 +1,12 @@
 <?php
 require_once "include/connection.php";
 
-$result = $conn->query("SELECT * FROM books ORDER BY book_id DESC");
+$result = $conn->query(
+	"SELECT books.*, categories.category_name
+	 FROM books
+	 LEFT JOIN categories ON categories.category_id = books.category_id
+	 ORDER BY books.book_id DESC"
+);
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
@@ -21,7 +26,7 @@ if ($result === false) {
 				<div class="container py-5">
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<h3 class="mb-0">Available Books</h3>
-						<a href="add_book.php" class="btn btn-primary btn-sm">Add Book</a>
+						<a href="<?php echo BASE_URL; ?>crud_files/add_book.php" class="btn btn-primary btn-sm">Add Book</a>
 					</div>
 
 					<div class="card shadow-sm">
@@ -35,11 +40,12 @@ if ($result === false) {
 											<th>Cover</th>
 											<th>Title</th>
 											<th>Author</th>
-											<th>ISBN</th>
-											<th>Publisher</th>
-											<th>Year</th>
-											<th class="text-center">Actions</th>
-										</tr>
+										<th>ISBN</th>
+										<th>Publisher</th>
+										<th>Year</th>
+										<th>Category</th>
+										<th class="text-center">Actions</th>
+									</tr>
 									</thead>
 									<tbody>
 
@@ -59,12 +65,13 @@ if ($result === false) {
 											<td><?= htmlspecialchars($row["isbn"]) ?></td>
 											<td><?= htmlspecialchars($row["publisher"]) ?></td>
 											<td><?= htmlspecialchars($row["publication_year"]) ?></td>
+											<td><?= htmlspecialchars($row["category_name"] ?? '') ?></td>
 											<td class="text-center">
-												<a href="edit_book.php?id=<?= $row['book_id'] ?>" class="text-primary me-2" title="Edit">
+												<a href="<?php echo BASE_URL; ?>crud_files/edit_book.php?id=<?= $row['book_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 
-												<a href="delete_book.php?id=<?= $row['book_id'] ?>" class="text-danger" title="Delete"
+												<a href="<?php echo BASE_URL; ?>crud_files/delete_book.php?id=<?= $row['book_id'] ?>" class="text-danger" title="Delete"
 													onclick="return confirm('Are you sure you want to delete this book?');">
 													<i class="bi bi-trash fs-5"></i>
 												</a>
@@ -85,6 +92,7 @@ if ($result === false) {
 
 						</div>
 					</div>
+					
 				</div>
 			</div>
 			<!-- row end -->

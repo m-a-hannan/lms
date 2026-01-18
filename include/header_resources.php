@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/config.php'; ?>
 <!doctype html>
 <html lang="en">
 	<!--begin::Head-->
@@ -25,7 +26,7 @@
 		<!--begin::Accessibility Features-->
 		<!-- Skip links will be dynamically added by accessibility.js -->
 		<meta name="supported-color-schemes" content="light dark" />
-		<link rel="preload" href="./css/adminlte.css" as="style" />
+		<link rel="preload" href="<?php echo BASE_URL; ?>css/adminlte.css" as="style" />
 		<!--end::Accessibility Features-->
 		<!--begin::Fonts-->
 		<link
@@ -52,9 +53,9 @@
 		/>
 		<!--end::Third Party Plugin(Bootstrap Icons)-->
 		<!--begin::Required Plugin(AdminLTE)-->
-		<link rel="stylesheet" href="./css/adminlte.css" />
+		<link rel="stylesheet" href="<?php echo BASE_URL; ?>css/adminlte.css" />
 		<!--end::Required Plugin(AdminLTE)-->
-		<link rel="stylesheet" href="./css/custom.css" />
+		<link rel="stylesheet" href="<?php echo BASE_URL; ?>css/custom.css" />
 		<!-- apexcharts -->
 		<link
 			rel="stylesheet"
