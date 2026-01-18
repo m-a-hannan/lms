@@ -1,4 +1,4 @@
-name: Deploy
+name: LMS CD/Deploy
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         run: |
           set -e
 
-          TARGET="/var/www/html/lms"
+          TARGET="/var/www/html"
 
           echo "Creating target folder if missing..."
           sudo mkdir -p "$TARGET"
