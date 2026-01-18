@@ -36,12 +36,34 @@
 									</p>
 								</a>
 								<ul class="nav nav-treeview">
-									<!-- Copy and Paste this one to create new links -->
-									<!-- 👇 -->
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>template_blank_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>templates/template_blank_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
-											<p>Template</p>
+											<p>Blank  Page Template</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>templates/template_create_page.php" class="nav-link">
+										<i class="bi bi-link-45deg"></i>
+											<p>Create Page Template</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>templates/template_read_page.php" class="nav-link">
+										<i class="bi bi-link-45deg"></i>
+											<p>View Page Template</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>templates/template_update_page.php" class="nav-link">
+										<i class="bi bi-link-45deg"></i>
+											<p>Update Page Template</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>templates/template_delete_page.php" class="nav-link">
+										<i class="bi bi-link-45deg"></i>
+											<p>Delete Page Template</p>
 										</a>
 									</li>
 								</ul>

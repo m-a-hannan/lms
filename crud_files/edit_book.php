@@ -1,5 +1,6 @@
 <?php
-require_once "include/connection.php";
+require_once dirname(__DIR__) . "/include/config.php";
+require_once ROOT_PATH . "/include/connection.php";
 
 /* ---------------------------
    Validate & fetch book
@@ -32,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $publisher        = trim($_POST["publisher"]);
     $publication_year = (int) $_POST["publication_year"];
 
-    $uploadDir = "uploads/book_cover/";
+    $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = $book["book_cover_path"]; // default: keep existing
 
     if (!empty($_FILES["book_cover"]["name"])) {
@@ -54,11 +55,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (move_uploaded_file($_FILES["book_cover"]["tmp_name"], $target)) {
 
             // delete old image if exists
-            if (!empty($book["book_cover_path"]) && file_exists($book["book_cover_path"])) {
-                unlink($book["book_cover_path"]);
+            if (!empty($book["book_cover_path"])) {
+                $oldPath = ROOT_PATH . '/' . ltrim($book["book_cover_path"], '/');
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
             }
 
-            $imagePath = $target;
+            $imagePath = "uploads/book_cover/" . $fileName;
         } else {
             die("Image upload failed.");
         }
@@ -82,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     if ($update->execute()) {
-        header("Location: book_list.php");
+        header("Location: " . BASE_URL . "book_list.php");
         exit;
     } else {
         die("Update failed: " . $update->error);
@@ -90,10 +94,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<?php include('include/header_resources.php') ?>
+<?php include(ROOT_PATH . '/include/header_resources.php') ?>
 
-<?php include('include/header.php') ?>
-<?php include('sidebar.php') ?>
+<?php include(ROOT_PATH . '/include/header.php') ?>
+<?php include(ROOT_PATH . '/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
 	<!--begin::App Content-->
@@ -107,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 					<!-- Add contents Below-->
 					<div class="mb-4 d-flex justify-content-between">
 						<h3>Edit Book</h3>
-						<a href="book_list.php" class="btn btn-secondary btn-sm">Back</a>
+						<a href="<?php echo BASE_URL; ?>book_list.php" class="btn btn-secondary btn-sm">Back</a>
 					</div>
 
 					<div class="card shadow-sm">
@@ -163,7 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 												<div class="preview-area">
 
 													<?php if (!empty($book["book_cover_path"])): ?>
-													<img id="previewImage" src="<?= htmlspecialchars($book["book_cover_path"]) ?>"
+													<img id="previewImage" src="<?= htmlspecialchars(BASE_URL . $book["book_cover_path"]) ?>"
 														class="img-fluid cover-preview" alt="Book Cover">
 													<?php else: ?>
 													<p class="text-muted">No cover uploaded</p>
@@ -181,5 +185,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			</div>
 </main>
 <!--end::App Main-->
-<?php include('include/footer.php') ?>
-<?php include('include/footer_resources.php') ?>
+<?php include(ROOT_PATH . '/include/footer.php') ?>
+<?php include(ROOT_PATH . '/include/footer_resources.php') ?>

@@ -60,11 +60,11 @@ if ($result === false) {
 											<td><?= htmlspecialchars($row["publisher"]) ?></td>
 											<td><?= htmlspecialchars($row["publication_year"]) ?></td>
 											<td class="text-center">
-												<a href="edit_book.php?id=<?= $row['book_id'] ?>" class="text-primary me-2" title="Edit">
+												<a href="<?php echo BASE_URL; ?>crud_files/edit_book.php?id=<?= $row['book_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 
-												<a href="delete_book.php?id=<?= $row['book_id'] ?>" class="text-danger" title="Delete"
+												<a href="<?php echo BASE_URL; ?>crud_files/delete_book.php?id=<?= $row['book_id'] ?>" class="text-danger" title="Delete"
 													onclick="return confirm('Are you sure you want to delete this book?');">
 													<i class="bi bi-trash fs-5"></i>
 												</a>

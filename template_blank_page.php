@@ -10,13 +10,12 @@
 		<div class="container-fluid">
 			<!--begin::Row-->
 			<div class="row">
-				
 				<div class="container py-5">
 					<!-- Content title -->
-					<h1>Copy This page to Create New New Page</h1>
+					<h1>Copy This page to Create New Blank Page</h1>
 				</div>
 			</div>
-			<!-- row end -->
+			<!-- end::Row -->
 		</div>
 	</div>
 </main>
