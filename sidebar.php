@@ -37,31 +37,31 @@
 								</a>
 								<ul class="nav nav-treeview">
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/template_blank_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>templates/blank_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
-											<p>Blank  Page Template</p>
+											<p>Blank Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/template_create_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>templates/add_or_create_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
 											<p>Create Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/template_read_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>templates/read_or_view_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
 											<p>View Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/template_update_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>templates/edit_or_update_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
 											<p>Update Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/template_delete_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>templates/delete_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
 											<p>Delete Page Template</p>
 										</a>

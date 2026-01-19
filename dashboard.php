@@ -15,6 +15,7 @@
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<!-- Content will be added here-->
 						 <h1>Dashboard content will be added here</h1>
+						 <h6>Removed unnecessary files</h6>
 					</div>
 				</div>
 			</div>

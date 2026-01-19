@@ -1,1 +1,1 @@
-# lms
+# Library Management Project for PGDICT#49 Group A
