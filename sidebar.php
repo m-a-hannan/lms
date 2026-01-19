@@ -43,7 +43,7 @@
 										</a>
 									</li>
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/add_or_create_page.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>templates/create_or_add_page.php" class="nav-link">
 										<i class="bi bi-link-45deg"></i>
 											<p>Create Page Template</p>
 										</a>

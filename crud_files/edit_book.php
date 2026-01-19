@@ -11,10 +11,7 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
 
 $book_id = (int) $_GET["id"];
 
-$stmt = $conn->prepare("SELECT * FROM books WHERE book_id = ?");
-$stmt->bind_param("i", $book_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $conn->query("SELECT * FROM books WHERE book_id = $book_id");
 
 if ($result->num_rows !== 1) {
     die("Book not found.");
@@ -33,10 +30,10 @@ if ($categoryResult === false) {
 ---------------------------- */
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $title            = trim($_POST["title"]);
-    $author           = trim($_POST["author"]);
-    $isbn             = trim($_POST["isbn"]);
-    $publisher        = trim($_POST["publisher"]);
+    $title            = $conn->real_escape_string(trim($_POST["title"]));
+    $author           = $conn->real_escape_string(trim($_POST["author"]));
+    $isbn             = $conn->real_escape_string(trim($_POST["isbn"]));
+    $publisher        = $conn->real_escape_string(trim($_POST["publisher"]));
     $publication_year = (int) $_POST["publication_year"];
     $category_id      = (int) $_POST["category_id"];
 
@@ -75,29 +72,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    $update = $conn->prepare(
-        "UPDATE books 
-         SET title = ?, author = ?, isbn = ?, publisher = ?, publication_year = ?, category_id = ?, book_cover_path = ?
-         WHERE book_id = ?"
-    );
+    $imageValue = $conn->real_escape_string($imagePath);
+    $sql = "UPDATE books
+            SET title = '$title',
+                author = '$author',
+                isbn = '$isbn',
+                publisher = '$publisher',
+                publication_year = $publication_year,
+                category_id = $category_id,
+                book_cover_path = '$imageValue'
+            WHERE book_id = $book_id";
 
-    $update->bind_param(
-        "ssssissi",
-        $title,
-        $author,
-        $isbn,
-        $publisher,
-        $publication_year,
-        $category_id,
-        $imagePath,
-        $book_id
-    );
-
-    if ($update->execute()) {
+    if ($conn->query($sql)) {
         header("Location: " . BASE_URL . "book_list.php");
         exit;
     } else {
-        die("Update failed: " . $update->error);
+        die("Update failed: " . $conn->error);
     }
 }
 ?>

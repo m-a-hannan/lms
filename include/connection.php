@@ -1,37 +1,15 @@
 <?php
 $envPath = dirname(__DIR__) . '/.env';
-$requiredKeys = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
-$env = [];
+$required = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
+$env = loadEnvFile($envPath);
 
-foreach ($requiredKeys as $key) {
-	$value = getenv($key);
-	if ($value !== false) {
-		$env[$key] = $value;
-	}
-}
-
-if (count($env) < count($requiredKeys) && file_exists($envPath)) {
-	$env = array_merge($env, loadEnvFile($envPath));
-}
-
-$missing = [];
-foreach ($requiredKeys as $key) {
+foreach ($required as $key) {
 	if (!isset($env[$key]) || $env[$key] === '') {
-		$missing[] = $key;
+		die('Missing required database env var(s): ' . $key);
 	}
 }
 
-if ($missing) {
-	die('Missing required database env var(s): ' . implode(', ', $missing));
-}
-
-$servername = $env['DB_HOST'];
-$username = $env['DB_USER'];
-$password = $env['DB_PASS'];
-$dbname = $env['DB_NAME'];
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
+$conn = new mysqli($env['DB_HOST'], $env['DB_USER'], $env['DB_PASS'], $env['DB_NAME']);
 if ($conn->connect_error) {
 	die('Database connection failed: ' . $conn->connect_error);
 }
@@ -39,28 +17,18 @@ if ($conn->connect_error) {
 function loadEnvFile($path)
 {
 	$values = [];
-	$lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-	if ($lines === false) {
-		return $values;
-	}
-
+	$lines = file_exists($path) ? file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
 	foreach ($lines as $line) {
 		$line = trim($line);
 		if ($line === '' || $line[0] === '#' || $line[0] === ';') {
 			continue;
 		}
-		if (strpos($line, '=') === false) {
+		$parts = explode('=', $line, 2);
+		if (count($parts) !== 2) {
 			continue;
 		}
-		list($key, $value) = explode('=', $line, 2);
-		$key = trim($key);
-		$value = trim($value);
-		if ($value !== '' && ($value[0] === '"' || $value[0] === "'")) {
-			$quote = $value[0];
-			if (substr($value, -1) === $quote) {
-				$value = substr($value, 1, -1);
-			}
-		}
+		$key = trim($parts[0]);
+		$value = trim($parts[1], " \t\n\r\0\x0B\"'");
 		$values[$key] = $value;
 	}
 

@@ -11,10 +11,7 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
 
 $category_id = (int) $_GET["id"];
 
-$stmt = $conn->prepare("SELECT * FROM categories WHERE category_id = ?");
-$stmt->bind_param("i", $category_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $conn->query("SELECT * FROM categories WHERE category_id = $category_id");
 
 if ($result->num_rows !== 1) {
     die("Category not found.");
@@ -28,29 +25,17 @@ $category = $result->fetch_assoc();
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Read the updated category name from the form.
-    $category_name = trim($_POST["category_name"]);
+    $category_name = $conn->real_escape_string(trim($_POST["category_name"]));
     if ($category_name === '') {
         die("Category name is required.");
     }
 
-    // Update category
-    $update = $conn->prepare(
-        "UPDATE categories 
-         SET category_name = ?
-         WHERE category_id = ?"
-    );
-
-    $update->bind_param(
-        "si",
-        $category_name,
-        $category_id
-    );
-
-    if ($update->execute()) {
+    $sql = "UPDATE categories SET category_name = '$category_name' WHERE category_id = $category_id";
+    if ($conn->query($sql)) {
         header("Location: " . BASE_URL . "category_list.php");
         exit;
     } else {
-        die("Update failed: " . $update->error);
+        die("Update failed: " . $conn->error);
     }
 }
 ?>
@@ -87,7 +72,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											<input type="text" name="category_name" class="form-control"
 												value="<?= htmlspecialchars($category["category_name"]) ?>" required>
 										</div>
-
 
 										<button type="submit" class="btn btn-primary">Update category</button>
 									</div>

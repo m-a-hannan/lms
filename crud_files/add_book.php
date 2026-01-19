@@ -10,13 +10,13 @@ if ($categoryResult === false) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // Sanitize inputs
-    $title             = trim($_POST["title"]);
-    $author            = trim($_POST["author"]);
-    $isbn              = trim($_POST["isbn"]);
-    $publisher         = trim($_POST["publisher"]);
-    $publication_year  = (int) $_POST["publication_year"];
-    $category_id       = (int) $_POST["category_id"];
+    // Basic input handling
+    $title            = $conn->real_escape_string(trim($_POST["title"]));
+    $author           = $conn->real_escape_string(trim($_POST["author"]));
+    $isbn             = $conn->real_escape_string(trim($_POST["isbn"]));
+    $publisher        = $conn->real_escape_string(trim($_POST["publisher"]));
+    $publication_year = (int) $_POST["publication_year"];
+    $category_id      = (int) $_POST["category_id"];
 
     $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = null;
@@ -45,28 +45,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $imagePath = "uploads/book_cover/" . $fileName;
     }
 
-    // Insert into database
-    $stmt = $conn->prepare(
-        "INSERT INTO books (title, author, isbn, publisher, publication_year, category_id, book_cover_path)
-         VALUES (?, ?, ?, ?, ?, ?, ?)"
-    );
+    $imageValue = $imagePath !== null ? "'" . $conn->real_escape_string($imagePath) . "'" : "NULL";
+    $sql = "INSERT INTO books (title, author, isbn, publisher, publication_year, category_id, book_cover_path)
+            VALUES ('$title', '$author', '$isbn', '$publisher', $publication_year, $category_id, $imageValue)";
 
-    $stmt->bind_param(
-        "ssssiss",
-        $title,
-        $author,
-        $isbn,
-        $publisher,
-        $publication_year,
-        $category_id,
-        $imagePath
-    );
-
-    if ($stmt->execute()) {
+    if ($conn->query($sql)) {
         header("Location: " . BASE_URL . "book_list.php?success=1");
         exit;
     } else {
-        die("Database error: " . $stmt->error);
+        die("Database error: " . $conn->error);
     }
 }
 
