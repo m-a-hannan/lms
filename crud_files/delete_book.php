@@ -9,10 +9,7 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
 $book_id = (int) $_GET["id"];
 
 /* Fetch image path */
-$stmt = $conn->prepare("SELECT book_cover_path FROM books WHERE book_id = ?");
-$stmt->bind_param("i", $book_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $conn->query("SELECT book_cover_path FROM books WHERE book_id = $book_id");
 
 if ($result->num_rows !== 1) {
     die("Book not found.");
@@ -21,10 +18,8 @@ if ($result->num_rows !== 1) {
 $book = $result->fetch_assoc();
 
 /* Delete DB record */
-$del = $conn->prepare("DELETE FROM books WHERE book_id = ?");
-$del->bind_param("i", $book_id);
-
-if ($del->execute()) {
+$deleted = $conn->query("DELETE FROM books WHERE book_id = $book_id");
+if ($deleted) {
 
     if (!empty($book["book_cover_path"])) {
         $filePath = ROOT_PATH . '/' . ltrim($book["book_cover_path"], '/');
