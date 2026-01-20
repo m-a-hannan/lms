@@ -93,6 +93,13 @@
 									<p>Category List</p>
 								</a>
 							</li>
+
+							<li class="nav-item">
+								<a href="<?php echo BASE_URL; ?>role_list.php" class="nav-link">
+									<i class="bi bi-link-45deg"></i>
+									<p>Role List</p>
+								</a>
+							</li>
 							
 
 
