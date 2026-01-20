@@ -124,3 +124,16 @@ body {
     font-size: 28px;
     box-shadow: 0 15px 30px rgba(0,0,0,0.2);
 }
+
+
+/* RBAC Table */
+.rbac-scroll {
+    overflow: auto;
+    max-height: 70vh;
+}
+
+.matrix-table th,
+.matrix-table td {
+    white-space: nowrap;
+		text-align:center;
+}
