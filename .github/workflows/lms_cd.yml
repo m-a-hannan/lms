@@ -4,29 +4,61 @@ on:
   push:
     branches: ["main"]
 
+# Optional: prevents two deploys from running at the same time
+concurrency:
+  group: lms-deploy-main
+  cancel-in-progress: false
+
 jobs:
   deploy-to-proxmox-vm:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout code
+      - name: Checkout code (clean)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          clean: true
+
+      - name: Show commit being deployed
+        run: |
+          set -e
+          echo "Deploying commit: $GITHUB_SHA"
+          git log -1 --oneline
 
       - name: Deploy files to Apache folder (keep server .env)
         run: |
-          set -e
+          set -euo pipefail
 
           TARGET="/var/www/html"
+          STAGE="/tmp/lms-deploy-$GITHUB_SHA"
+
+          echo "Creating staging dir: $STAGE"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
+
+          echo "Copy repo to staging (so we can add deploy markers)..."
+          rsync -a --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude ".env" \
+            --exclude "include/config.php" \
+            ./ "$STAGE/"
+
+          echo "Writing deploy markers..."
+          echo "$GITHUB_SHA" > "$STAGE/DEPLOYED_SHA.txt"
+          date -Is > "$STAGE/DEPLOYED_AT.txt"
 
           echo "Creating target folder if missing..."
           sudo mkdir -p "$TARGET"
 
-          echo "Rsync project to server (excluding .env)..."
-          sudo rsync -a --delete \
+          # Keep server's .env and include/config.php exactly as you wanted.
+          # --delete-delay is safer than immediate delete during sync.
+          echo "Rsync staging -> target..."
+          sudo rsync -a --delete-delay \
             --exclude ".env" \
-            --exclude ".git" \
             --exclude "include/config.php" \
-            ./ "$TARGET/"
+            "$STAGE/" "$TARGET/"
 
           echo "Fix ownership to www-data..."
           sudo chown -R www-data:www-data "$TARGET"
@@ -35,5 +67,14 @@ jobs:
 
       - name: Reload Apache
         run: |
+          set -e
           sudo systemctl reload apache2
           echo "Apache reloaded."
+
+      - name: Verify deployed version
+        run: |
+          set -e
+          echo "Deployed SHA on server:"
+          sudo cat /var/www/html/DEPLOYED_SHA.txt || true
+          echo "Deployed time on server:"
+          sudo cat /var/www/html/DEPLOYED_AT.txt || true
