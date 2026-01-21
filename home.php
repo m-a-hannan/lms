@@ -10,6 +10,7 @@
 
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/home.css">
@@ -25,9 +26,15 @@
 
   <span class="navbar-brand ms-2">Booklore</span>
 
-  <div class="ms-auto d-flex align-items-center gap-2">
-    <input type="text" class="form-control form-control-sm search-input"
-           placeholder="Title, Author, Genre…" disabled>
+  <div class="mx-auto search-wrap">
+    <div id="searchBox" class="search-box">
+      <i class="fab fa-google" id="googleIcon"></i>
+      <input type="text" placeholder="Search Google or type URL">
+      <i class="fas fa-microphone mic-icon"></i>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center gap-2">
     <button class="btn btn-icon" id="themeToggle">
       <i class="bi bi-moon"></i>
     </button>
@@ -38,15 +45,15 @@
 <div class="layout">
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar collapsed">
+  <aside id="sidebar" class="sidebar">
     <div class="sidebar-section">
-      <small class="text-muted">HOME</small>
+      <small>HOME</small>
       <a class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
       <a><i class="bi bi-book"></i> All Books</a>
     </div>
 
     <div class="sidebar-section">
-      <small class="text-muted">LIBRARIES</small>
+      <small>LIBRARIES</small>
       <a><i class="bi bi-journal-bookmark"></i> Novels</a>
       <a><i class="bi bi-cpu"></i> Technology</a>
       <a><i class="bi bi-brush"></i> Comics</a>

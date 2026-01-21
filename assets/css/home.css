@@ -54,11 +54,56 @@ small {
   font-size: 1.25rem;
 }
 
-.search-input {
-  max-width: 260px;
-  background: transparent;
+.search-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.search-box {
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) inset;
+  height: 36px;
+}
+
+.search-box i {
   color: var(--text);
-  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 1rem;
+}
+
+.search-box input {
+  font-size: 0.9rem;
+  width: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: var(--text);
+  transition: width 0.4s ease;
+}
+
+.search-box.active input {
+  width: 260px;
+  padding: 4px 4px;
+}
+
+.search-box .mic-icon {
+  transition: transform 0.2s ease;
+}
+
+.search-box.active .mic-icon {
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .search-box.active input {
+    width: 160px;
+  }
 }
 
 /* ==============================
@@ -174,11 +219,14 @@ section h5 {
 .book-card {
   position: relative;
   width: 140px;
+  height: 230px;
   flex-shrink: 0;
 }
 
 .book-card img {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 10px;
   display: block;
 }
