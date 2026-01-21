@@ -40,13 +40,13 @@
   <!-- Sidebar -->
   <aside id="sidebar" class="sidebar collapsed">
     <div class="sidebar-section">
-      <small class="text-muted">HOME</small>
+      <small>HOME</small>
       <a class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
       <a><i class="bi bi-book"></i> All Books</a>
     </div>
 
     <div class="sidebar-section">
-      <small class="text-muted">LIBRARIES</small>
+      <small>LIBRARIES</small>
       <a><i class="bi bi-journal-bookmark"></i> Novels</a>
       <a><i class="bi bi-cpu"></i> Technology</a>
       <a><i class="bi bi-brush"></i> Comics</a>
@@ -95,6 +95,23 @@
       </div>
     </section>
 
+    <section>
+      <h5>Ebook</h5>
+      <div class="book-row">
+        <div class="book-card">
+          <img src="assets/img/book3.jpg">
+          <div class="book-overlay">
+            <i class="bi bi-eye"></i>
+          </div>
+        </div>
+        <div class="book-card">
+          <img src="assets/img/book4.jpg">
+          <div class="book-overlay">
+            <i class="bi bi-eye"></i>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
