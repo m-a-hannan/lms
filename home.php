@@ -72,8 +72,9 @@
 					<!-- start:book card -->
 					<div class="book-card">
 						<img src="assets/img/book3.jpg">
-						<div class="book-overlay" data-bs-toggle="modal" data-bs-target="#exampleModal">
-							<i class="bi bi-eye"></i>
+						<div class="book-overlay">
+							<i class="bi bi-eye" data-bs-toggle="modal" data-bs-target="#exampleModal" title="View details"></i>
+							<i class="bi bi-collection" title="Add to shelf"></i>
 						</div>
 					</div>
 					<!-- end::book card -->
