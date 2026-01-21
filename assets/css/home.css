@@ -1,0 +1,215 @@
+/* ==============================
+   THEME VARIABLES
+============================== */
+
+:root {
+  --bg: #0e1114;
+  --panel: #151a1e;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #22c55e;
+}
+
+[data-theme="light"] {
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+}
+
+/* ==============================
+   BASE
+============================== */
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+small {
+  color: var(--muted);
+}
+
+/* ==============================
+   TOP NAVBAR
+============================== */
+
+.navbar {
+  background: var(--panel);
+  height: 56px;
+  z-index: 1100;
+}
+
+.btn-icon {
+  color: var(--text);
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+}
+
+.search-input {
+  max-width: 260px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ==============================
+   LAYOUT
+============================== */
+
+.layout {
+  display: flex;
+  margin-top: 56px;
+}
+
+/* ==============================
+   SIDEBAR
+============================== */
+
+.sidebar {
+  width: 240px;
+  background: var(--panel);
+  min-height: calc(100vh - 56px);
+  padding: 1rem;
+  transition: width 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-section {
+  margin-bottom: 1.5rem;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+/* ==============================
+   SIDEBAR – DESKTOP COLLAPSE
+============================== */
+
+@media (min-width: 769px) {
+  .sidebar.collapsed {
+    width: 0;
+    padding: 0;
+  }
+
+  .sidebar.collapsed .sidebar-section {
+    display: none;
+  }
+}
+
+/* ==============================
+   SIDEBAR – MOBILE OFFCANVAS
+============================== */
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    transform: translateX(-100%);
+    z-index: 1050;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+}
+
+/* ==============================
+   MAIN CONTENT
+============================== */
+
+.content {
+  flex: 1;
+  padding: 1.5rem;
+  transition: margin-left 0.3s ease;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+section h5 {
+  margin-bottom: 1rem;
+}
+
+/* ==============================
+   BOOK ROWS
+============================== */
+
+.book-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+/* ==============================
+   BOOK CARDS
+============================== */
+
+.book-card {
+  position: relative;
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.book-card img {
+  width: 100%;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Hover Overlay */
+.book-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #ffffff;
+  transition: opacity 0.2s ease;
+  border-radius: 10px;
+}
+
+.book-card:hover .book-overlay {
+  opacity: 1;
+}
+
+/* ==============================
+   READING PROGRESS
+============================== */
+
+.progress-bar {
+  height: 4px;
+  background: var(--accent);
+  margin-top: 6px;
+  border-radius: 2px;
+  width: 40%;
+}

@@ -165,3 +165,41 @@ body {
     white-space: nowrap;
 		text-align:center;
 }
+
+
+/* Navbar multilevel dropdown hover behavior */
+.navbar .dropdown,
+.navbar .dropdown-submenu {
+    position: relative;
+}
+
+.navbar .dropdown:hover > .dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: 0.1rem;
+}
+
+.dropdown-submenu > .dropdown-toggle::after {
+    transform: rotate(-90deg);
+    float: right;
+    margin-top: 0.35rem;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+@media (max-width: 991.98px) {
+    .navbar .dropdown:hover > .dropdown-menu {
+        display: none;
+    }
+
+    .dropdown-submenu > .dropdown-menu {
+        position: static;
+        margin-left: 0;
+    }
+}

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 18, 2026 at 09:18 AM
+-- Generation Time: Jan 20, 2026 at 05:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -155,6 +155,15 @@ CREATE TABLE `books` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `books`
+--
+
+INSERT INTO `books` (`book_id`, `title`, `author`, `isbn`, `publisher`, `publication_year`, `category_id`, `book_cover_path`, `created_by`, `created_date`, `modified_by`, `modified_date`, `deleted_by`, `deleted_date`) VALUES
+(8, 'Digital Fortress', 'Dan Brown', '0-312-18087-X (US)', 'St. Martin\'s Press (US)', 1998, 4, 'uploads/book_cover/1768924607_Dan-Brown_Digital-Fortress_book-cover-2025.jpg', NULL, '2026-01-20 21:56:47', NULL, '2026-01-20 21:56:47', NULL, NULL),
+(9, 'The Lost Symbol', 'Dan Brown', '978-0385504225 (US)', 'St. Martin\'s Press (US)', 2009, 5, 'uploads/book_cover/1768924665_Dan-Brown_The_Lost_Symbol_book-cover.jpg', NULL, '2026-01-20 21:57:45', NULL, '2026-01-20 21:57:45', NULL, NULL),
+(10, 'Harry Poter and The Sorcerer\'s Stone', 'J. K. Rowling', '0-385-50420-9 (US)', 'Bloomsbury', 1997, 3, 'uploads/book_cover/1768924708_Harry-Potter-and-the-sorcorers-stone.jpg', NULL, '2026-01-20 21:58:28', NULL, '2026-01-20 21:58:28', NULL, NULL);
+
+--
 -- Triggers `books`
 --
 DELIMITER $$
@@ -296,6 +305,15 @@ CREATE TABLE `categories` (
   `deleted_by` int(11) DEFAULT NULL,
   `deleted_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`category_id`, `category_name`, `created_by`, `created_date`, `modified_by`, `modified_date`, `deleted_by`, `deleted_date`) VALUES
+(3, 'Fantasy', NULL, '2026-01-20 21:55:15', NULL, '2026-01-20 21:55:15', NULL, NULL),
+(4, 'Thriller', NULL, '2026-01-20 21:55:21', NULL, '2026-01-20 21:55:21', NULL, NULL),
+(5, 'Mystery', NULL, '2026-01-20 21:55:32', NULL, '2026-01-20 21:55:32', NULL, NULL);
 
 --
 -- Triggers `categories`
@@ -770,6 +788,15 @@ CREATE TABLE `roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`role_id`, `role_name`, `created_by`, `created_date`, `modified_by`, `modified_date`, `deleted_by`, `deleted_date`) VALUES
+(6, 'Librarian', NULL, '2026-01-20 21:53:54', NULL, '2026-01-20 21:54:40', NULL, NULL),
+(7, 'Admin', NULL, '2026-01-20 21:54:06', NULL, '2026-01-20 21:54:31', NULL, NULL),
+(8, 'User', NULL, '2026-01-20 21:54:46', NULL, '2026-01-20 21:54:46', NULL, NULL);
+
+--
 -- Triggers `roles`
 --
 DELIMITER $$
@@ -970,7 +997,8 @@ ALTER TABLE `books`
   ADD PRIMARY KEY (`book_id`),
   ADD KEY `created_by` (`created_by`),
   ADD KEY `modified_by` (`modified_by`),
-  ADD KEY `deleted_by` (`deleted_by`);
+  ADD KEY `deleted_by` (`deleted_by`),
+  ADD KEY `books_ibfk_4` (`category_id`);
 
 --
 -- Indexes for table `book_categories`
@@ -1202,7 +1230,7 @@ ALTER TABLE `backups`
 -- AUTO_INCREMENT for table `books`
 --
 ALTER TABLE `books`
-  MODIFY `book_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `book_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `book_categories`
@@ -1226,7 +1254,7 @@ ALTER TABLE `book_editions`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `digital_files`
@@ -1304,7 +1332,7 @@ ALTER TABLE `returns`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `system_settings`
