@@ -5,7 +5,8 @@
 					<!--begin::Brand Link-->
 					<a href="<?php echo BASE_URL; ?>index.php" class="brand-link">
 						<!--begin::Brand Image-->
-						<img src="<?php echo BASE_URL; ?>assets/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
+						<img src="<?php echo BASE_URL; ?>assets/img/AdminLTELogo.png" alt="AdminLTE Logo"
+							class="brand-image opacity-75 shadow" />
 						<!--end::Brand Image-->
 						<!--begin::Brand Text-->
 						<span class="brand-text fw-light">AdminLTE 4</span>
@@ -29,7 +30,7 @@
 
 							<li class="nav-item">
 								<a href="#" class="nav-link">
-								<i class="bi bi-ui-checks"></i>
+									<i class="bi bi-ui-checks"></i>
 									<p>
 										CRUD Templates
 										<i class="nav-arrow bi bi-chevron-right"></i>
@@ -38,31 +39,31 @@
 								<ul class="nav nav-treeview">
 									<li class="nav-item">
 										<a href="<?php echo BASE_URL; ?>templates/blank_page.php" class="nav-link">
-										<i class="bi bi-link-45deg"></i>
+											<i class="bi bi-link-45deg"></i>
 											<p>Blank Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
 										<a href="<?php echo BASE_URL; ?>templates/create_or_add_page.php" class="nav-link">
-										<i class="bi bi-link-45deg"></i>
+											<i class="bi bi-link-45deg"></i>
 											<p>Create Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
 										<a href="<?php echo BASE_URL; ?>templates/read_or_view_page.php" class="nav-link">
-										<i class="bi bi-link-45deg"></i>
+											<i class="bi bi-link-45deg"></i>
 											<p>View Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
 										<a href="<?php echo BASE_URL; ?>templates/edit_or_update_page.php" class="nav-link">
-										<i class="bi bi-link-45deg"></i>
+											<i class="bi bi-link-45deg"></i>
 											<p>Update Page Template</p>
 										</a>
 									</li>
 									<li class="nav-item">
 										<a href="<?php echo BASE_URL; ?>templates/delete_page.php" class="nav-link">
-										<i class="bi bi-link-45deg"></i>
+											<i class="bi bi-link-45deg"></i>
 											<p>Delete Page Template</p>
 										</a>
 									</li>
@@ -71,7 +72,7 @@
 
 							<li class="nav-item">
 								<a href="#" class="nav-link">
-								<i class="bi bi-diagram-3-fill"></i>
+									<i class="bi bi-diagram-3-fill"></i>
 									<p>
 										Manage Library
 										<i class="nav-arrow bi bi-chevron-right"></i>
@@ -302,7 +303,37 @@
 									</li>
 								</ul>
 							</li>
-							
+
+							<li class="nav-item">
+								<a href="#" class="nav-link">
+									<i class="bi bi-cash-stack"></i>
+									<p>
+										System Settings
+										<i class="nav-arrow bi bi-chevron-right"></i>
+									</p>
+								</a>
+								<ul class="nav nav-treeview">
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>system_settings/index.php" class="nav-link">
+											<i class="bi bi-link-45deg"></i>
+											<p>Menu Items</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>system_settings/home.php" class="nav-link">
+											<i class="bi bi-link-45deg"></i>
+											<p>Add Menu</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>system_settings/home.php?refresh=1" class="nav-link">
+											<i class="bi bi-link-45deg"></i>
+											<p>Refresh Page List</p>
+										</a>
+									</li>
+								</ul>
+							</li>
+
 
 
 
