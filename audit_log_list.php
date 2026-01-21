@@ -34,7 +34,7 @@ if ($result === false) {
 									<th>Action</th>
 									<th>Target Table</th>
 									<th>Target Id</th>
-									<th>Timestamp</th>
+									<th>Time Stamp</th>
 									<th>Created By</th>
 									<th>Created Date</th>
 									<th>Modified By</th>
@@ -53,7 +53,7 @@ if ($result === false) {
 									<td><?= htmlspecialchars($row['action']) ?></td>
 									<td><?= htmlspecialchars($row['target_table']) ?></td>
 									<td><?= htmlspecialchars($row['target_id']) ?></td>
-									<td><?= htmlspecialchars($row['timestamp']) ?></td>
+									<td><?= htmlspecialchars($row['time_stamp']) ?></td>
 									<td><?= htmlspecialchars($row['created_by']) ?></td>
 									<td><?= htmlspecialchars($row['created_date']) ?></td>
 									<td><?= htmlspecialchars($row['modified_by']) ?></td>

@@ -7,7 +7,7 @@ if (isset($_POST['save'])) {
     $action = $conn->real_escape_string(trim($_POST['action']));
     $target_table = $conn->real_escape_string(trim($_POST['target_table']));
     $target_id = (int) $_POST['target_id'];
-    $timestamp = $conn->real_escape_string(trim($_POST['timestamp']));
+    $time_stamp = $conn->real_escape_string(trim($_POST['time_stamp']));
     $created_by = (int) $_POST['created_by'];
     $created_date = $conn->real_escape_string(trim($_POST['created_date']));
     $modified_by = (int) $_POST['modified_by'];
@@ -15,7 +15,7 @@ if (isset($_POST['save'])) {
     $deleted_by = (int) $_POST['deleted_by'];
     $deleted_date = $conn->real_escape_string(trim($_POST['deleted_date']));
 
-    $sql = "INSERT INTO audit_logs (user_id, action, target_table, target_id, timestamp, created_by, created_date, modified_by, modified_date, deleted_by, deleted_date) VALUES ($user_id, '$action', '$target_table', $target_id, '$timestamp', $created_by, '$created_date', $modified_by, '$modified_date', $deleted_by, '$deleted_date')";
+    $sql = "INSERT INTO audit_logs (user_id, action, target_table, target_id, time_stamp, created_by, created_date, modified_by, modified_date, deleted_by, deleted_date) VALUES ($user_id, '$action', '$target_table', $target_id, '$time_stamp', $created_by, '$created_date', $modified_by, '$modified_date', $deleted_by, '$deleted_date')";
     $result = $conn->query($sql);
 
     if ($result) {
@@ -61,8 +61,8 @@ if (isset($_POST['save'])) {
 								<input type="number" class="form-control" name="target_id" />
 							</div>
 							<div class="mb-3">
-								<label class="form-label">Timestamp</label>
-								<input type="date" class="form-control" name="timestamp" />
+								<label class="form-label">Time Stamp</label>
+								<input type="date" class="form-control" name="time_stamp" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Created By</label>

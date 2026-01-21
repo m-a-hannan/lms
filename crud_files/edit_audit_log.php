@@ -18,7 +18,7 @@ if (isset($_POST['save'])) {
     $action = $conn->real_escape_string(trim($_POST['action']));
     $target_table = $conn->real_escape_string(trim($_POST['target_table']));
     $target_id = (int) $_POST['target_id'];
-    $timestamp = $conn->real_escape_string(trim($_POST['timestamp']));
+    $time_stamp = $conn->real_escape_string(trim($_POST['time_stamp']));
     $created_by = (int) $_POST['created_by'];
     $created_date = $conn->real_escape_string(trim($_POST['created_date']));
     $modified_by = (int) $_POST['modified_by'];
@@ -26,7 +26,7 @@ if (isset($_POST['save'])) {
     $deleted_by = (int) $_POST['deleted_by'];
     $deleted_date = $conn->real_escape_string(trim($_POST['deleted_date']));
 
-    $sql = "UPDATE audit_logs SET user_id = $user_id, action = '$action', target_table = '$target_table', target_id = $target_id, timestamp = '$timestamp', created_by = $created_by, created_date = '$created_date', modified_by = $modified_by, modified_date = '$modified_date', deleted_by = $deleted_by, deleted_date = '$deleted_date' WHERE log_id = $log_id";
+    $sql = "UPDATE audit_logs SET user_id = $user_id, action = '$action', target_table = '$target_table', target_id = $target_id, time_stamp = '$time_stamp', created_by = $created_by, created_date = '$created_date', modified_by = $modified_by, modified_date = '$modified_date', deleted_by = $deleted_by, deleted_date = '$deleted_date' WHERE log_id = $log_id";
     $updated = $conn->query($sql);
 
     if ($updated) {
@@ -72,8 +72,8 @@ if (isset($_POST['save'])) {
 								<input type="number" class="form-control" name="target_id" value="<?= htmlspecialchars($row['target_id']) ?>" />
 							</div>
 							<div class="mb-3">
-								<label class="form-label">Timestamp</label>
-								<input type="date" class="form-control" name="timestamp" value="<?= htmlspecialchars($row['timestamp']) ?>" />
+								<label class="form-label">Time Stamp</label>
+								<input type="date" class="form-control" name="time_stamp" value="<?= htmlspecialchars($row['time_stamp']) ?>" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Created By</label>

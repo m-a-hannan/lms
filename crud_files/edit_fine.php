@@ -15,14 +15,14 @@ $row = $result->fetch_assoc();
 
 if (isset($_POST['save'])) {
     $loan_id = (int) $_POST['loan_id'];
-    $amount = (int) $_POST['amount'];
+    $amount = (float) $_POST['amount'];
     $fine_date = $conn->real_escape_string(trim($_POST['fine_date']));
     $created_by = (int) $_POST['created_by'];
-    $created_date = $conn->real_escape_string(trim($_POST['created_date']));
+    $created_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['created_date'])));
     $modified_by = (int) $_POST['modified_by'];
-    $modified_date = $conn->real_escape_string(trim($_POST['modified_date']));
+    $modified_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['modified_date'])));
     $deleted_by = (int) $_POST['deleted_by'];
-    $deleted_date = $conn->real_escape_string(trim($_POST['deleted_date']));
+    $deleted_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['deleted_date'])));
 
     $sql = "UPDATE fines SET loan_id = $loan_id, amount = $amount, fine_date = '$fine_date', created_by = $created_by, created_date = '$created_date', modified_by = $modified_by, modified_date = '$modified_date', deleted_by = $deleted_by, deleted_date = '$deleted_date' WHERE fine_id = $fine_id";
     $updated = $conn->query($sql);
@@ -59,7 +59,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Amount</label>
-								<input type="number" class="form-control" name="amount" value="<?= htmlspecialchars($row['amount']) ?>" />
+								<input type="number" class="form-control" name="amount" step="0.01" value="<?= htmlspecialchars($row['amount']) ?>" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Fine Date</label>
@@ -71,7 +71,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Created Date</label>
-								<input type="date" class="form-control" name="created_date" value="<?= htmlspecialchars($row['created_date']) ?>" />
+								<input type="datetime-local" class="form-control" name="created_date" value="<?= htmlspecialchars(str_replace(' ', 'T', $row['created_date'])) ?>" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Modified By</label>
@@ -79,7 +79,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Modified Date</label>
-								<input type="date" class="form-control" name="modified_date" value="<?= htmlspecialchars($row['modified_date']) ?>" />
+								<input type="datetime-local" class="form-control" name="modified_date" value="<?= htmlspecialchars(str_replace(' ', 'T', $row['modified_date'])) ?>" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Deleted By</label>
@@ -87,7 +87,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Deleted Date</label>
-								<input type="date" class="form-control" name="deleted_date" value="<?= htmlspecialchars($row['deleted_date']) ?>" />
+								<input type="datetime-local" class="form-control" name="deleted_date" value="<?= htmlspecialchars(str_replace(' ', 'T', $row['deleted_date'])) ?>" />
 							</div>
 										<button type="submit" name="save" class="btn btn-primary">Update</button>
 									</div>

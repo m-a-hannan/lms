@@ -6,14 +6,14 @@ if (isset($_POST['save'])) {
     $user_id = (int) $_POST['user_id'];
     $title = $conn->real_escape_string(trim($_POST['title']));
     $message = $conn->real_escape_string(trim($_POST['message']));
-    $created_at = $conn->real_escape_string(trim($_POST['created_at']));
+    $created_at = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['created_at'])));
     $read_status = (int) $_POST['read_status'];
     $created_by = (int) $_POST['created_by'];
-    $created_date = $conn->real_escape_string(trim($_POST['created_date']));
+    $created_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['created_date'])));
     $modified_by = (int) $_POST['modified_by'];
-    $modified_date = $conn->real_escape_string(trim($_POST['modified_date']));
+    $modified_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['modified_date'])));
     $deleted_by = (int) $_POST['deleted_by'];
-    $deleted_date = $conn->real_escape_string(trim($_POST['deleted_date']));
+    $deleted_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['deleted_date'])));
 
     $sql = "INSERT INTO notifications (user_id, title, message, created_at, read_status, created_by, created_date, modified_by, modified_date, deleted_by, deleted_date) VALUES ($user_id, '$title', '$message', '$created_at', $read_status, $created_by, '$created_date', $modified_by, '$modified_date', $deleted_by, '$deleted_date')";
     $result = $conn->query($sql);
@@ -58,7 +58,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Created At</label>
-								<input type="date" class="form-control" name="created_at" />
+								<input type="datetime-local" class="form-control" name="created_at" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Read Status</label>
@@ -70,7 +70,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Created Date</label>
-								<input type="date" class="form-control" name="created_date" />
+								<input type="datetime-local" class="form-control" name="created_date" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Modified By</label>
@@ -78,7 +78,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Modified Date</label>
-								<input type="date" class="form-control" name="modified_date" />
+								<input type="datetime-local" class="form-control" name="modified_date" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Deleted By</label>
@@ -86,7 +86,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Deleted Date</label>
-								<input type="date" class="form-control" name="deleted_date" />
+								<input type="datetime-local" class="form-control" name="deleted_date" />
 							</div>
 									</div>
 									<div class="card-footer">

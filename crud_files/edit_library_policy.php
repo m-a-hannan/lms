@@ -18,11 +18,11 @@ if (isset($_POST['save'])) {
     $description = $conn->real_escape_string(trim($_POST['description']));
     $effective_date = $conn->real_escape_string(trim($_POST['effective_date']));
     $created_by = (int) $_POST['created_by'];
-    $created_date = $conn->real_escape_string(trim($_POST['created_date']));
+    $created_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['created_date'])));
     $modified_by = (int) $_POST['modified_by'];
-    $modified_date = $conn->real_escape_string(trim($_POST['modified_date']));
+    $modified_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['modified_date'])));
     $deleted_by = (int) $_POST['deleted_by'];
-    $deleted_date = $conn->real_escape_string(trim($_POST['deleted_date']));
+    $deleted_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['deleted_date'])));
 
     $sql = "UPDATE library_policies SET name = '$name', description = '$description', effective_date = '$effective_date', created_by = $created_by, created_date = '$created_date', modified_by = $modified_by, modified_date = '$modified_date', deleted_by = $deleted_by, deleted_date = '$deleted_date' WHERE policy_id = $policy_id";
     $updated = $conn->query($sql);
@@ -71,7 +71,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Created Date</label>
-								<input type="date" class="form-control" name="created_date" value="<?= htmlspecialchars($row['created_date']) ?>" />
+								<input type="datetime-local" class="form-control" name="created_date" value="<?= htmlspecialchars(str_replace(' ', 'T', $row['created_date'])) ?>" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Modified By</label>
@@ -79,7 +79,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Modified Date</label>
-								<input type="date" class="form-control" name="modified_date" value="<?= htmlspecialchars($row['modified_date']) ?>" />
+								<input type="datetime-local" class="form-control" name="modified_date" value="<?= htmlspecialchars(str_replace(' ', 'T', $row['modified_date'])) ?>" />
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Deleted By</label>
@@ -87,7 +87,7 @@ if (isset($_POST['save'])) {
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Deleted Date</label>
-								<input type="date" class="form-control" name="deleted_date" value="<?= htmlspecialchars($row['deleted_date']) ?>" />
+								<input type="datetime-local" class="form-control" name="deleted_date" value="<?= htmlspecialchars(str_replace(' ', 'T', $row['deleted_date'])) ?>" />
 							</div>
 										<button type="submit" name="save" class="btn btn-primary">Update</button>
 									</div>
