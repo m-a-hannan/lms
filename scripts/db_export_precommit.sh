@@ -5,7 +5,7 @@ set -euo pipefail
 # Config (you can edit safely)
 # -----------------------------
 TZ_NAME="Asia/Dhaka"
-EXPORT_DIR="/home/db-export"
+EXPORT_DIR="/home/hannan/db-export"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_DB_DIR="${PROJECT_ROOT}/DB"
 ENV_FILE="${PROJECT_ROOT}/.env"
@@ -72,13 +72,18 @@ main() {
   # Full dump includes schema + data + routines/triggers/events
   # --databases adds CREATE DATABASE and USE, helpful for full recreate on server
   # --add-drop-database/table makes re-import safe
+  GTID_FLAG=()
+  if "$MYSQLDUMP" --help 2>/dev/null | grep -q "set-gtid-purged"; then
+    GTID_FLAG=(--set-gtid-purged=OFF)
+  fi
+
   if ! "$MYSQLDUMP" \
       -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" \
       --databases "$DB_NAME" \
       --single-transaction \
-      --routines --triggers --events \
+      --triggers \
       --add-drop-database --add-drop-table \
-      --set-gtid-purged=OFF \
+      "${GTID_FLAG[@]}" \
       > "$DUMP_PATH" 2> "${DUMP_PATH}.err"
   then
     err "mysqldump failed. Commit blocked."
