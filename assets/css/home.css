@@ -26,6 +26,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
 }
 
 a {
@@ -54,11 +55,60 @@ small {
   font-size: 1.25rem;
 }
 
-.search-input {
-  max-width: 260px;
-  background: transparent;
+.search-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.search-box {
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) inset;
+  height: 36px;
+  cursor: pointer;
+}
+
+.search-box i {
   color: var(--text);
-  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 1rem;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.search-box input {
+  font-size: 0.9rem;
+  width: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: var(--text);
+  transition: width 0.4s ease;
+  cursor: text;
+}
+
+.search-box.active input {
+  width: 260px;
+  padding: 4px 4px;
+}
+
+.search-box .mic-icon {
+  transition: transform 0.2s ease;
+}
+
+.search-box.active .mic-icon {
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .search-box.active input {
+    width: 160px;
+  }
 }
 
 /* ==============================
@@ -146,6 +196,7 @@ small {
   flex: 1;
   padding: 1.5rem;
   transition: margin-left 0.3s ease;
+  overflow-x: hidden;
 }
 
 section {
@@ -165,6 +216,28 @@ section h5 {
   gap: 1rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
+  scrollbar-color: rgba(255,255,255,0.35) transparent;
+}
+
+.book-row::-webkit-scrollbar {
+  height: 8px;
+}
+
+.book-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.book-row::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.35);
+  border-radius: 999px;
+}
+
+[data-theme="light"] .book-row {
+  scrollbar-color: rgba(0,0,0,0.35) transparent;
+}
+
+[data-theme="light"] .book-row::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.35);
 }
 
 /* ==============================
@@ -174,13 +247,123 @@ section h5 {
 .book-card {
   position: relative;
   width: 140px;
+  height: 230px;
   flex-shrink: 0;
 }
 
 .book-card img {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 10px;
   display: block;
+}
+
+/* ==============================
+   BOOK DETAILS MODAL CARD
+============================== */
+
+.book-details-card {
+  background: #1b2024;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  color: var(--text);
+}
+
+.book-details-modal .modal-dialog {
+  min-width: 850px;
+  max-width: 1100px;
+}
+
+@media (max-width: 1024px) {
+  .book-details-modal .modal-dialog {
+    min-width: 0;
+    width: 95%;
+  }
+}
+
+.book-details-header {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(to bottom, #20262b, #1b2024);
+  position: relative;
+}
+
+.close-book-detail {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  filter: invert(1);
+  opacity: 0.9;
+}
+
+.book-details-body {
+  padding: 1.5rem;
+}
+
+.book-cover {
+  width: 100%;
+  max-width: 220px;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.author-name {
+  color: #4da3ff;
+  text-decoration: none;
+}
+
+.author-name:hover {
+  text-decoration: underline;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stars i {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.book-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ==============================
+   BOOK DETAILS MODAL (LIGHT)
+============================== */
+
+[data-theme="light"] .book-details-card {
+  background: #f7f8fb;
+  border: 1px solid rgba(17,24,39,0.08);
+  color: #111827;
+}
+[data-theme="light"] .close-book-detail {
+  filter: invert(0);
+  opacity: 0.8;
+}
+[data-theme="light"] .book-details-header {
+  border-bottom: 1px solid rgba(17,24,39,0.08);
+  background: linear-gradient(to bottom, #ffffff, #f2f4f8);
+}
+
+[data-theme="light"] .author-name {
+  color: #2563eb;
+}
+
+[data-theme="light"] .stars i {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .book-cover {
+  box-shadow: 0 10px 24px rgba(15,23,42,0.15);
 }
 
 /* Hover Overlay */
@@ -192,10 +375,22 @@ section h5 {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 12px;
   font-size: 2rem;
   color: #ffffff;
   transition: opacity 0.2s ease;
   border-radius: 10px;
+}
+
+.book-overlay i {
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.book-overlay i:hover {
+  color: var(--accent);
+  transform: scale(1.05);
 }
 
 .book-card:hover .book-overlay {

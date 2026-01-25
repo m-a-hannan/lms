@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Basic input handling
     $title            = $conn->real_escape_string(trim($_POST["title"]));
+    $book_excerpt     = $conn->real_escape_string(trim($_POST["book_excerpt"]));
     $author           = $conn->real_escape_string(trim($_POST["author"]));
     $isbn             = $conn->real_escape_string(trim($_POST["isbn"]));
     $publisher        = $conn->real_escape_string(trim($_POST["publisher"]));
@@ -23,6 +24,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Handle image upload
     if (!empty($_FILES["book_cover"]["name"])) {
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                die("Upload directory not available.");
+            }
+        }
+        if (!is_writable($uploadDir)) {
+            die("Upload directory is not writable.");
+        }
+
+        if (!empty($_FILES["book_cover"]["error"]) && $_FILES["book_cover"]["error"] !== UPLOAD_ERR_OK) {
+            die("Image upload error: " . (int) $_FILES["book_cover"]["error"]);
+        }
 
         $fileName   = time() . "_" . basename($_FILES["book_cover"]["name"]);
         $targetFile = $uploadDir . $fileName;
@@ -46,8 +59,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     $imageValue = $imagePath !== null ? "'" . $conn->real_escape_string($imagePath) . "'" : "NULL";
-    $sql = "INSERT INTO books (title, author, isbn, publisher, publication_year, category_id, book_cover_path)
-            VALUES ('$title', '$author', '$isbn', '$publisher', $publication_year, $category_id, $imageValue)";
+    $sql = "INSERT INTO books (title, book_excerpt, author, isbn, publisher, publication_year, category_id, book_cover_path)
+            VALUES ('$title', '$book_excerpt', '$author', '$isbn', '$publisher', $publication_year, $category_id, $imageValue)";
 
     if ($conn->query($sql)) {
         header("Location: " . BASE_URL . "book_list.php?success=1");
@@ -72,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			<!--begin::Row-->
 			<div class="row">
 				<div class="container py-5">
-				<!-- Add contents Below-->
+					<!-- Add contents Below-->
 					<div class="mb-4 d-flex justify-content-between">
 						<h3>Add Book</h3>
 						<a href="<?php echo BASE_URL; ?>book_list.php" class="btn btn-secondary btn-sm">Back</a>
@@ -83,12 +96,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 							<!--begin::Form-->
 							<div class="card card-primary card-outline mb-4">
 								<!-- must add form action -->
-								<form action="<?php echo BASE_URL; ?>crud_files/add_book.php" method="post" enctype="multipart/form-data">
+								<form action="<?php echo BASE_URL; ?>crud_files/add_book.php" method="post"
+									enctype="multipart/form-data">
 									<!--begin::Body-->
 									<div class="card-body">
 										<div class="mb-3">
 											<label class="form-label">Book Title</label>
 											<input type="text" class="form-control" name="title" aria-describedby="#" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Book Excerpt</label>
+											<textarea type="text" class="form-control" name="book_excerpt" rows="2" cols="40" maxlength="150" placeholder="Excerpt should be within 150 character" aria-describedby="#"></textarea>
 										</div>
 										<div class="mb-3">
 											<label class="form-label">Author Name</label>
@@ -102,21 +120,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											<label class="form-label">Publisher</label>
 											<input type="text" class="form-control" name="publisher" aria-describedby="#" />
 										</div>
-									<div class="mb-3">
-										<label class="form-label">Publication Year</label>
-										<input type="text" class="form-control" name="publication_year" aria-describedby="#" />
-									</div>
-									<div class="mb-3">
-										<label class="form-label">Category</label>
-										<select class="form-select" name="category_id" required>
-											<option value="" selected disabled>Select a category</option>
-											<?php while ($category = $categoryResult->fetch_assoc()): ?>
-											<option value="<?= (int) $category["category_id"] ?>">
-												<?= htmlspecialchars($category["category_name"]) ?>
-											</option>
-											<?php endwhile; ?>
-										</select>
-									</div>
+										<div class="mb-3">
+											<label class="form-label">Publication Year</label>
+											<input type="text" class="form-control" name="publication_year" aria-describedby="#" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Category</label>
+											<select class="form-select" name="category_id" required>
+												<option value="" selected disabled>Select a category</option>
+												<?php while ($category = $categoryResult->fetch_assoc()): ?>
+												<option value="<?= (int) $category["category_id"] ?>">
+													<?= htmlspecialchars($category["category_name"]) ?>
+												</option>
+												<?php endwhile; ?>
+											</select>
+										</div>
 										<div class="mb-3">
 											<label class="form-label">Book Cover</label>
 											<input type="file" id="fileInput" accept="image/*" class="form-control" name="book_cover">
