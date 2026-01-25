@@ -16,6 +16,7 @@
 
 	<!-- Custom CSS -->
 	<link rel="stylesheet" href="style.css">
+	
 </head>
 
 <body>
@@ -23,7 +24,7 @@
 	<!-- ================= NAVBAR ================= -->
 	<nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
 		<div class="container">
-			<a class="navbar-brand fw-bold" href="#">
+			<a class="navbar-brand fw-bold" href="home.php">
 				<span class="logo-dot"></span> Library
 			</a>
 
@@ -34,12 +35,49 @@
 			<div class="collapse navbar-collapse" id="navMenu">
 				<ul class="navbar-nav mx-auto mb-2 mb-lg-0">
 					<li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
-					<li class="nav-item"><a class="nav-link" href="#">Managers</a></li>
-					<li class="nav-item"><a class="nav-link" href="erd.php">ERD</a></li>
-					<li class="nav-item"><a class="nav-link" href="library_rbac_matrix.php">RBAC</a></li>
+					<li class="nav-item"><a class="nav-link" href="home.php">Library</a></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Catalog
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="book_list.php">Books</a></li>
+							<li><a class="dropdown-item" href="category_list.php">Categories</a></li>
+							<li><a class="dropdown-item" href="book_edition_list.php">Editions</a></li>
+							<li><a class="dropdown-item" href="book_copy_list.php">Copies</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Users
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="user_list.php">Users</a></li>
+							<li><a class="dropdown-item" href="user_profile_list.php">Profiles</a></li>
+							<li><a class="dropdown-item" href="role_list.php">Roles</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Operations
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="loan_list.php">Loans</a></li>
+							<li><a class="dropdown-item" href="reservation_list.php">Reservations</a></li>
+							<li><a class="dropdown-item" href="return_list.php">Returns</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Systems
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="erd.php">ERD</a></li>
+							<li><a class="dropdown-item" href="library_rbac_matrix.php">RBAC</a></li>
+							<li><a class="dropdown-item" href="audit_log_list.php">Audit Logs</a></li>
+						</ul>
+					</li>
 				</ul>
-
-				<a href="dashboard.php" class="btn btn-gradient px-4"><i class="nav-icon bi bi-speedometer"></i> Dashboard</a>
 			</div>
 		</div>
 	</nav>
@@ -175,6 +213,20 @@
 	// Placeholder for future interactions
 	document.querySelector('.add-btn').addEventListener('click', () => {
 		alert("Add new book feature coming soon!");
+	});
+
+	// Close dropdown after selecting a menu item
+	document.querySelectorAll('.dropdown-menu .dropdown-item').forEach((item) => {
+		item.addEventListener('click', () => {
+			const dropdown = item.closest('.dropdown');
+			if (!dropdown) {
+				return;
+			}
+			const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
+			if (toggle) {
+				toggle.click();
+			}
+		});
 	});
 	</script>
 </body>
