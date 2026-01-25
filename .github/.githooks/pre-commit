@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run DB export before every commit; if it fails, commit is blocked.
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+bash "$REPO_ROOT/scripts/db_export_precommit.sh"
+
+# Automatically stage the new dump + pointer file (so commit includes it)
+git add "$REPO_ROOT/DB" || true
