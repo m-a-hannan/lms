@@ -37,9 +37,10 @@ if ($result === false) {
 									<thead class="table-light">
 										<tr>
 											<th>#</th>
-											<th>Cover</th>
-											<th>Title</th>
-											<th>Author</th>
+										<th>Cover</th>
+										<th>Title</th>
+										<th>Excerpt</th>
+										<th>Author</th>
 										<th>ISBN</th>
 										<th>Publisher</th>
 										<th>Year</th>
@@ -61,6 +62,7 @@ if ($result === false) {
 												<?php endif; ?>
 											</td>
 											<td><?= htmlspecialchars($row["title"]) ?></td>
+											<td><?= htmlspecialchars($row["book_excerpt"]) ?></td>
 											<td><?= htmlspecialchars($row["author"]) ?></td>
 											<td><?= htmlspecialchars($row["isbn"]) ?></td>
 											<td><?= htmlspecialchars($row["publisher"]) ?></td>
@@ -80,7 +82,7 @@ if ($result === false) {
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
-											<td colspan="7" class="text-center text-muted">
+											<td colspan="9" class="text-center text-muted">
 												No books found.
 											</td>
 										</tr>

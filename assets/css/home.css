@@ -71,11 +71,14 @@ small {
   border: 1px solid rgba(255,255,255,0.18);
   box-shadow: 0 0 0 1px rgba(0,0,0,0.1) inset;
   height: 36px;
+  cursor: pointer;
 }
 
 .search-box i {
   color: var(--text);
   font-size: 1rem;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .search-box input {
@@ -86,6 +89,7 @@ small {
   outline: none;
   color: var(--text);
   transition: width 0.4s ease;
+  cursor: text;
 }
 
 .search-box.active input {

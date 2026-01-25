@@ -1,9 +1,43 @@
+<?php
+require_once __DIR__ . "/include/config.php";
+require_once ROOT_PATH . "/include/connection.php";
+
+$book = null;
+$bookResult = $conn->query(
+	"SELECT books.*, categories.category_name
+	 FROM books
+	 LEFT JOIN categories ON categories.category_id = books.category_id
+	 ORDER BY books.book_id DESC
+	 LIMIT 1"
+);
+if ($bookResult && $bookResult->num_rows > 0) {
+	$book = $bookResult->fetch_assoc();
+}
+
+function display_value($value)
+{
+	if ($value === null) {
+		return "-";
+	}
+	if (is_string($value)) {
+		$value = trim($value);
+	}
+	if ($value === "") {
+		return "-";
+	}
+	return htmlspecialchars((string) $value);
+}
+
+$coverPath = $book && !empty($book["book_cover_path"])
+	? htmlspecialchars($book["book_cover_path"])
+	: "assets/img/book-cover.jpg";
+?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 
 <head>
 	<meta charset="UTF-8" />
-	<title>Booklore – Demo</title>
+	<title>LMS - Group A</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<!-- Bootstrap -->
@@ -11,7 +45,6 @@
 
 	<!-- Bootstrap Icons -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
 	<!-- Custom CSS -->
 	<link rel="stylesheet" href="assets/css/home.css">
@@ -25,13 +58,13 @@
 			<i class="bi bi-list"></i>
 		</button>
 
-		<span class="navbar-brand ms-2">Booklore</span>
+		<span class="navbar-brand ms-2">LMS</span>
 
 		<div class="mx-auto search-wrap">
 			<div id="searchBox" class="search-box">
-				<i class="fab fa-google" id="googleIcon"></i>
-				<input type="text" placeholder="Search Google or type URL">
-				<i class="fas fa-microphone mic-icon"></i>
+				<i class="bi bi-binoculars-fill"></i>
+				<input type="text" placeholder="Type book or author name">
+				<i class="bi bi-mic-fill"></i>
 			</div>
 		</div>
 
@@ -58,6 +91,7 @@
 				<a><i class="bi bi-journal-bookmark"></i> Novels</a>
 				<a><i class="bi bi-cpu"></i> Technology</a>
 				<a><i class="bi bi-brush"></i> Comics</a>
+				<a href="dashboard.php"><i class="bi bi-brush"></i> Admin Dashboard</a>
 			</div>
 		</aside>
 
@@ -71,7 +105,7 @@
 				<div class="book-row">
 					<!-- start:book card -->
 					<div class="book-card">
-						<img src="assets/img/book3.jpg">
+						<img src="<?php echo $coverPath; ?>">
 						<div class="book-overlay">
 							<i class="bi bi-eye" data-bs-toggle="modal" data-bs-target="#exampleModal" title="View details"></i>
 							<i class="bi bi-collection" title="Add to shelf"></i>
@@ -98,12 +132,12 @@
 								<span class="text-success fw-semibold">
 									<i class="bi bi-journal-text"></i> Book Details
 								</span>
-								<span>
+								<!-- <span>
 									<i class="bi bi-pencil"></i> Edit Metadata
 								</span>
 								<span>
 									<i class="bi bi-search"></i> Search Metadata
-								</span>
+								</span> -->
 							</div>
 							<button type="button" class="btn-close close-book-detail" data-bs-dismiss="modal"
 								aria-label="Close"></button>
@@ -112,16 +146,16 @@
 						<div class="book-details-body row g-4">
 
 							<div class="col-md-3 text-center">
-								<img src="assets/img/book-cover.jpg" class="book-cover" alt="Book cover">
+								<img src="<?php echo $coverPath; ?>" class="book-cover" alt="Book cover">
 							</div>
 
 							<div class="col-md-9">
 								<div class="d-flex align-items-center gap-2">
-									<h2 class="mb-0">Passage to anywhere</h2>
+									<h2 class="mb-0"><?php echo display_value($book["title"] ?? null); ?></h2>
 									<i class="bi bi-unlock text-success fs-5"></i>
 								</div>
 
-								<a href="#" class="author-name">Sam Merwin Jr.</a>
+								<a href="#" class="author-name"><?php echo display_value($book["author"] ?? null); ?></a>
 
 								<div class="rating-row mt-2">
 									<i class="bi bi-hand-thumbs-up-fill text-warning"></i>
@@ -136,22 +170,22 @@
 
 								<div class="row mt-4 small">
 									<div class="col-md-6">
-										<div><strong>Library:</strong> <span class="text-success">Novels</span></div>
-										<div><strong>Published:</strong> -</div>
-										<div><strong>File Type:</strong> <span class="badge bg-primary">MOBI</span></div>
-										<div><strong>Metadata Match:</strong> <span class="badge bg-success">24%</span></div>
+										<div><strong>Category:</strong> <span
+												class="text-success"><?php echo display_value($book["category_name"] ?? null); ?></span></div>
+										<div><strong>Published:</strong> <?php echo display_value($book["publication_year"] ?? null); ?>
+										</div>
+										<div><strong>File Type:</strong> <span class="badge bg-primary">-</span></div>
 										<div><strong>Read Status:</strong> <span class="badge bg-secondary">UNSET</span> <i
 												class="bi bi-pencil"></i></div>
-										<div><strong>File Size:</strong> <span class="text-success">0.58 MB</span></div>
-										<div><strong>File Path:</strong> <i class="bi bi-eye"></i></div>
+										<div><strong>File Size:</strong> <span class="text-success">-</span></div>
+										<div><strong>File Path:</strong> -</div>
 									</div>
 
 									<div class="col-md-6">
-										<div><strong>Publisher:</strong> -</div>
-										<div><strong>Language:</strong> <span class="text-success">en</span></div>
-										<div><strong>BookLore Progress:</strong> <span class="badge bg-secondary">N/A</span></div>
-										<div><strong>ISBN:</strong> -</div>
-										<div><strong>Page Count:</strong> -</div>
+										<div><strong>Publisher:</strong> <?php echo display_value($book["publisher"] ?? null); ?></div>
+										<div><strong>Language:</strong> <span class="text-success">-</span></div>
+										<div><strong>ISBN:</strong> <?php echo display_value($book["isbn"] ?? null); ?></div>
+										<div><strong>Excerpt:</strong> <?php echo display_value($book["book_excerpt"] ?? null); ?></div>
 									</div>
 								</div>
 

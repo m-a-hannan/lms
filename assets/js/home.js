@@ -18,6 +18,8 @@ themeBtn.addEventListener('click', () => {
 
 const searchBox = document.getElementById('searchBox');
 const googleIcon = document.getElementById('googleIcon');
+const binocularsIcon = searchBox ? searchBox.querySelector('.bi-binoculars-fill') : null;
+const micIcon = searchBox ? searchBox.querySelector('.bi-mic-fill') : null;
 
 if (searchBox) {
   const searchInput = searchBox.querySelector('input');
@@ -36,9 +38,17 @@ if (searchBox) {
     searchBox.classList.remove('active');
   };
 
-  if (googleIcon) {
-    googleIcon.addEventListener('click', expandSearch);
-  }
+  const bindExpandTrigger = (element) => {
+    if (!element) {
+      return;
+    }
+    element.addEventListener('pointerdown', expandSearch);
+    element.addEventListener('click', expandSearch);
+  };
+
+  bindExpandTrigger(binocularsIcon);
+  bindExpandTrigger(micIcon);
+  bindExpandTrigger(searchBox);
 
   if (searchInput) {
     searchInput.addEventListener('focus', expandSearch);
