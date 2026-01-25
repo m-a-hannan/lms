@@ -1,16 +1,19 @@
-name: LMS CD/Deploy
+name: LMS CD
 
 on:
-  push:
+  workflow_run:
+    workflows: ["LMS CI"]
     branches: ["main"]
+    types:
+      - completed
 
-# Optional: prevents two deploys from running at the same time
 concurrency:
   group: lms-deploy-main
   cancel-in-progress: false
 
 jobs:
   deploy-to-proxmox-vm:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
     steps:
@@ -19,6 +22,14 @@ jobs:
         with:
           fetch-depth: 1
           clean: true
+
+      - name: Capture commit info for logs/UI
+        run: |
+          set -e
+          echo "GITHUB_SHA=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_ENV
+          echo "GITHUB_COMMIT_MESSAGE<<EOF" >> $GITHUB_ENV
+          git log -1 --pretty=%B >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Show commit being deployed
         run: |
@@ -37,7 +48,7 @@ jobs:
           rm -rf "$STAGE"
           mkdir -p "$STAGE"
 
-          echo "Copy repo to staging (so we can add deploy markers)..."
+          echo "Copy repo to staging..."
           rsync -a --delete \
             --exclude ".git" \
             --exclude ".github" \
@@ -52,8 +63,6 @@ jobs:
           echo "Creating target folder if missing..."
           sudo mkdir -p "$TARGET"
 
-          # Keep server's .env and include/config.php exactly as you wanted.
-          # --delete-delay is safer than immediate delete during sync.
           echo "Rsync staging -> target..."
           sudo rsync -a --delete-delay \
             --exclude ".env" \
@@ -64,6 +73,11 @@ jobs:
           sudo chown -R www-data:www-data "$TARGET"
 
           echo "Done deploying."
+
+      - name: Restore DB (drop & recreate & import latest dump)
+        run: |
+          set -euo pipefail
+          sudo bash /var/www/html/scripts/restore_db_on_server.sh
 
       - name: Reload Apache
         run: |
@@ -78,3 +92,5 @@ jobs:
           sudo cat /var/www/html/DEPLOYED_SHA.txt || true
           echo "Deployed time on server:"
           sudo cat /var/www/html/DEPLOYED_AT.txt || true
+          echo "Deploy status JSON:"
+          sudo cat /var/www/html/deploy/status.json || true
