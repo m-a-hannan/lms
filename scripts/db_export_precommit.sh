@@ -76,6 +76,10 @@ main() {
   if "$MYSQLDUMP" --help 2>/dev/null | grep -q "set-gtid-purged"; then
     GTID_FLAG=(--set-gtid-purged=OFF)
   fi
+  DEFINER_FLAG=()
+  if "$MYSQLDUMP" --help 2>/dev/null | grep -q "skip-definer"; then
+    DEFINER_FLAG=(--skip-definer)
+  fi
 
   if ! "$MYSQLDUMP" \
       -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" \
@@ -84,6 +88,7 @@ main() {
       --triggers \
       --add-drop-database --add-drop-table \
       "${GTID_FLAG[@]}" \
+      "${DEFINER_FLAG[@]}" \
       > "$DUMP_PATH" 2> "${DUMP_PATH}.err"
   then
     err "mysqldump failed. Commit blocked."
