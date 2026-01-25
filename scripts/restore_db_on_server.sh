@@ -84,7 +84,9 @@ main() {
     mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS \`${DB_NAME}\`; CREATE DATABASE \`${DB_NAME}\`;" 2>&1
 
     info "Importing dump..."
-    mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" < "$dump" 2>&1
+    # Strip DEFINER clauses to avoid SUPER/SET_USER_ID requirement on import.
+    sed -E 's/\/\*![0-9]+ DEFINER=[^*]*\*\///g; s/DEFINER=`[^`]+`@`[^`]+`//g' "$dump" \
+      | mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" 2>&1
 
     info "Writing status JSON for UI..."
     cat > "$STATUS_JSON" <<EOF
