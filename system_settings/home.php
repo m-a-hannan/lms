@@ -23,7 +23,7 @@ function scan_pages($root)
 		}
 		$relative = str_replace($root . DIRECTORY_SEPARATOR, '', $file->getPathname());
 		$relative = str_replace(DIRECTORY_SEPARATOR, '/', $relative);
-		if (preg_match('#^(include|crud_files|templates|DB|system_settings)/#', $relative)) {
+		if (preg_match('#^(include|crud_files|DB)/#', $relative)) {
 			continue;
 		}
 		if (strpos($relative, '.git/') !== false) {

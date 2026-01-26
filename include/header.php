@@ -11,6 +11,10 @@ $profileImage = BASE_URL . 'assets/img/user2-160x160.jpg';
 $memberSince = '';
 
 if ($userId > 0) {
+	if (!empty($_SESSION['user_username'])) {
+		$displayName = $_SESSION['user_username'];
+	}
+
 $profileResult = $conn->query("SELECT first_name, last_name, designation, profile_picture, created_date FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
 if ($profileResult && $profileResult->num_rows === 1) {
 	$row = $profileResult->fetch_assoc();
@@ -26,6 +30,41 @@ if ($profileResult && $profileResult->num_rows === 1) {
 		}
 		if (!empty($row['created_date'])) {
 			$memberSince = date('M Y', strtotime($row['created_date']));
+		}
+	}
+
+	if ($displayRole === 'Member') {
+		$roleResult = $conn->query("SELECT role_name FROM user_roles WHERE user_id = $userId ORDER BY user_role_id DESC LIMIT 1");
+		if ($roleResult && $roleResult->num_rows === 1) {
+			$roleRow = $roleResult->fetch_assoc();
+			if (!empty($roleRow['role_name'])) {
+				$displayRole = $roleRow['role_name'];
+			}
+		}
+	}
+
+	if ($displayName === 'User') {
+		$userResult = $conn->query("SELECT username, email, created_date FROM users WHERE user_id = $userId LIMIT 1");
+		if ($userResult && $userResult->num_rows === 1) {
+			$userRow = $userResult->fetch_assoc();
+			if (!empty($userRow['username'])) {
+				$displayName = $userRow['username'];
+			} elseif (!empty($userRow['email'])) {
+				$displayName = $userRow['email'];
+			}
+			if ($memberSince === '' && !empty($userRow['created_date'])) {
+				$memberSince = date('M Y', strtotime($userRow['created_date']));
+			}
+		}
+	}
+
+	if ($memberSince === '') {
+		$userResult = $conn->query("SELECT created_date FROM users WHERE user_id = $userId LIMIT 1");
+		if ($userResult && $userResult->num_rows === 1) {
+			$userRow = $userResult->fetch_assoc();
+			if (!empty($userRow['created_date'])) {
+				$memberSince = date('M Y', strtotime($userRow['created_date']));
+			}
 		}
 	}
 }

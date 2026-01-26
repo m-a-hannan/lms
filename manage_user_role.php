@@ -50,6 +50,14 @@ if (isset($_POST['save'])) {
 	if ($userId <= 0 || $roleId <= 0) {
 		$errors[] = 'Please select both a user and a role.';
 	} else {
+		if ($userRoleId <= 0 && $hasUserId) {
+			$existingRole = $conn->query("SELECT user_role_id FROM user_roles WHERE user_id = $userId LIMIT 1");
+			if ($existingRole && $existingRole->num_rows === 1) {
+				$existingRow = $existingRole->fetch_assoc();
+				$userRoleId = (int) ($existingRow['user_role_id'] ?? 0);
+			}
+		}
+
 		$usernameValue = '';
 		$roleNameValue = '';
 

@@ -7,6 +7,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 $profile = null;
+$profileMissing = false;
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 if ($userId <= 0) {
 	header('Location: ' . BASE_URL . 'login.php');
@@ -17,7 +18,11 @@ if ($result && $result->num_rows === 1) {
 	$profile = $result->fetch_assoc();
 }
 if (!$profile) {
-	die('Profile not found.');
+	$profileMissing = true;
+}
+
+if (!is_array($profile)) {
+	$profile = [];
 }
 
 function display_value($value)
@@ -189,15 +194,21 @@ p {
 			<div class="row">
 				<div class="container py-5">
 					<div class="col-md-12">
-						<div class="d-flex justify-content-between align-items-center mb-4">
-							<h3 class="mb-0">Profile Details</h3>
-							<a href="<?php echo BASE_URL; ?>edit_profile.php" class="btn btn-primary btn-sm">Edit</a>
-						</div>
+							<div class="d-flex justify-content-between align-items-center mb-4">
+								<h3 class="mb-0">Profile Details</h3>
+								<a href="<?php echo BASE_URL; ?>edit_profile.php" class="btn btn-primary btn-sm">Edit</a>
+							</div>
 
-						<div class="page-content" id="page-content">
-							<div class="padding">
-								<div class="row">
-									<div class="col-12">
+							<?php if ($profileMissing): ?>
+								<div class="alert alert-warning">
+									Profile not found. Please create your profile first.
+									<a href="<?php echo BASE_URL; ?>edit_profile.php" class="btn btn-primary btn-sm ms-2">Create Profile</a>
+								</div>
+							<?php else: ?>
+							<div class="page-content" id="page-content">
+								<div class="padding">
+									<div class="row">
+										<div class="col-12">
 										<div class="card user-card-full">
 											<div class="row m-l-0 m-r-0">
 												<div class="col-sm-4 bg-c-lite-green user-profile">
@@ -271,6 +282,7 @@ p {
 									</div>
 								</div>
 							</div>
+							<?php endif; ?>
 						</div>
 					</div>
 				</div>

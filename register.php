@@ -47,7 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				} else {
 					$insert->bind_param('sss', $username, $email, $passwordHash);
 					if ($insert->execute()) {
+						$newUserId = (int) $insert->insert_id;
 						$insert->close();
+						if ($newUserId > 0) {
+							$conn->query("INSERT INTO user_profiles (user_id) VALUES ($newUserId)");
+						}
 						header('Location: ' . BASE_URL . 'login.php?registered=1');
 						exit;
 					}
