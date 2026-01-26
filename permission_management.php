@@ -93,7 +93,7 @@ if (isset($_POST['save'])) {
 	}
 
 	if (empty($errors)) {
-		header("Location: " . BASE_URL . "permission_managemnt.php?role_id=$roleId&saved=1");
+		header("Location: " . BASE_URL . "permission_management.php?role_id=$roleId&saved=1");
 		exit;
 	}
 }
@@ -130,7 +130,7 @@ function is_checked($pageId, $key, $stored, $posted)
 					<?php if (!empty($errors)): ?>
 					<div class="alert alert-warning">
 						<?php foreach ($errors as $message): ?>
-							<div><?php echo htmlspecialchars($message); ?></div>
+						<div><?php echo htmlspecialchars($message); ?></div>
 						<?php endforeach; ?>
 					</div>
 					<?php endif; ?>
@@ -143,10 +143,10 @@ function is_checked($pageId, $key, $stored, $posted)
 									<select class="form-select w-100" name="role_id" onchange="this.form.submit()">
 										<option value="">Select Role</option>
 										<?php foreach ($roles as $role): ?>
-											<?php $selected = ((int) $role['role_id'] === (int) $roleId) ? 'selected' : ''; ?>
-											<option value="<?php echo (int) $role['role_id']; ?>" <?php echo $selected; ?>>
-												<?php echo htmlspecialchars($role['role_name'] ?? ''); ?>
-											</option>
+										<?php $selected = ((int) $role['role_id'] === (int) $roleId) ? 'selected' : ''; ?>
+										<option value="<?php echo (int) $role['role_id']; ?>" <?php echo $selected; ?>>
+											<?php echo htmlspecialchars($role['role_name'] ?? ''); ?>
+										</option>
 										<?php endforeach; ?>
 									</select>
 								</div>
@@ -157,24 +157,24 @@ function is_checked($pageId, $key, $stored, $posted)
 					<div class="card shadow-sm">
 						<div class="card-body">
 							<?php if (empty($pages)): ?>
-								<div class="text-muted">No pages found in page_list.</div>
+							<div class="text-muted">No pages found in page_list.</div>
 							<?php else: ?>
-								<form method="post">
-									<input type="hidden" name="role_id" value="<?php echo (int) $roleId; ?>">
-									<div class="table-responsive">
-										<table class="table table-bordered table-hover align-middle">
-											<thead class="table-light">
-												<tr>
-													<th>Page</th>
-													<th>Path</th>
-													<th class="text-center">Read</th>
-													<th class="text-center">Write</th>
-													<th class="text-center">Deny</th>
-												</tr>
-											</thead>
-											<tbody>
-												<?php foreach ($pages as $page): ?>
-													<?php
+							<form method="post">
+								<input type="hidden" name="role_id" value="<?php echo (int) $roleId; ?>">
+								<div class="table-responsive">
+									<table class="table table-bordered table-hover align-middle">
+										<thead class="table-light">
+											<tr>
+												<th>Page</th>
+												<th>Path</th>
+												<th class="text-center">Read</th>
+												<th class="text-center">Write</th>
+												<th class="text-center">Deny</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php foreach ($pages as $page): ?>
+											<?php
 														$pageId = (int) $page['page_id'];
 														$readChecked = is_checked($pageId, 'read', $stored, $posted);
 														$writeChecked = is_checked($pageId, 'write', $stored, $posted);
@@ -184,27 +184,30 @@ function is_checked($pageId, $key, $stored, $posted)
 															$writeChecked = false;
 														}
 													?>
-													<tr>
-														<td><?php echo htmlspecialchars($page['page_name'] ?? ''); ?></td>
-														<td><?php echo htmlspecialchars($page['page_path'] ?? ''); ?></td>
-														<td class="text-center">
-															<input type="checkbox" class="form-check-input perm-read" name="perm[<?php echo $pageId; ?>][read]" <?php echo $readChecked ? 'checked' : ''; ?>>
-														</td>
-														<td class="text-center">
-															<input type="checkbox" class="form-check-input perm-write" name="perm[<?php echo $pageId; ?>][write]" <?php echo $writeChecked ? 'checked' : ''; ?>>
-														</td>
-														<td class="text-center">
-															<input type="checkbox" class="form-check-input perm-deny" name="perm[<?php echo $pageId; ?>][deny]" <?php echo $denyChecked ? 'checked' : ''; ?>>
-														</td>
-													</tr>
-												<?php endforeach; ?>
-											</tbody>
-										</table>
-									</div>
-									<div class="d-flex justify-content-end">
-										<button type="submit" name="save" class="btn btn-primary">Save Permissions</button>
-									</div>
-								</form>
+											<tr>
+												<td><?php echo htmlspecialchars($page['page_name'] ?? ''); ?></td>
+												<td><?php echo htmlspecialchars($page['page_path'] ?? ''); ?></td>
+												<td class="text-center">
+													<input type="checkbox" class="form-check-input perm-read"
+														name="perm[<?php echo $pageId; ?>][read]" <?php echo $readChecked ? 'checked' : ''; ?>>
+												</td>
+												<td class="text-center">
+													<input type="checkbox" class="form-check-input perm-write"
+														name="perm[<?php echo $pageId; ?>][write]" <?php echo $writeChecked ? 'checked' : ''; ?>>
+												</td>
+												<td class="text-center">
+													<input type="checkbox" class="form-check-input perm-deny"
+														name="perm[<?php echo $pageId; ?>][deny]" <?php echo $denyChecked ? 'checked' : ''; ?>>
+												</td>
+											</tr>
+											<?php endforeach; ?>
+										</tbody>
+									</table>
+								</div>
+								<div class="d-flex justify-content-end">
+									<button type="submit" name="save" class="btn btn-primary">Save Permissions</button>
+								</div>
+							</form>
 							<?php endif; ?>
 						</div>
 					</div>
@@ -217,9 +220,9 @@ function is_checked($pageId, $key, $stored, $posted)
 </main>
 <!--end::App Main-->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-	document.querySelectorAll('.perm-deny').forEach(function (checkbox) {
-		checkbox.addEventListener('change', function () {
+document.addEventListener('DOMContentLoaded', function() {
+	document.querySelectorAll('.perm-deny').forEach(function(checkbox) {
+		checkbox.addEventListener('change', function() {
 			var row = checkbox.closest('tr');
 			if (!row) {
 				return;

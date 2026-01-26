@@ -25,7 +25,7 @@ $userRolePages = [
 	'user_role_list.php',
 	'manage_user_role.php',
 	'role_list.php',
-	'permission_managemnt.php',
+	'permission_management.php',
 ];
 $digitalPages = [
 	'digital_resource_list.php',
@@ -280,9 +280,9 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 										</a>
 									</li>
 									<?php endif; ?>
-									<?php if (rbac_can_access($conn, 'permission_managemnt.php')): ?>
+									<?php if (rbac_can_access($conn, 'permission_management.php')): ?>
 									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>permission_managemnt.php" class="nav-link">
+										<a href="<?php echo BASE_URL; ?>permission_management.php" class="nav-link">
 											<i class="bi bi-link-45deg"></i>
 											<p>Permission Management</p>
 										</a>
