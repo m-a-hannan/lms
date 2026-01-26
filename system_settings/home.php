@@ -40,13 +40,34 @@ function refresh_page_list($conn)
 {
 	$root = dirname(__DIR__);
 	$paths = scan_pages($root);
-	$conn->query('DELETE FROM page_list');
+	$existing = [];
+	$existingResult = $conn->query('SELECT page_id, page_path FROM page_list');
+	if ($existingResult) {
+		while ($row = $existingResult->fetch_assoc()) {
+			$existing[$row['page_path']] = (int) $row['page_id'];
+		}
+	}
 
+	$seen = [];
 	foreach ($paths as $path) {
+		$seen[$path] = true;
 		$name = normalize_page_name($path);
 		$pathEsc = $conn->real_escape_string($path);
 		$nameEsc = $conn->real_escape_string($name);
-		$conn->query("INSERT INTO page_list (page_name, page_path, is_active) VALUES ('$nameEsc', '$pathEsc', 1)");
+
+		if (isset($existing[$path])) {
+			$pageId = (int) $existing[$path];
+			$conn->query("UPDATE page_list SET page_name = '$nameEsc', is_active = 1 WHERE page_id = $pageId");
+		} else {
+			$conn->query("INSERT INTO page_list (page_name, page_path, is_active) VALUES ('$nameEsc', '$pathEsc', 1)");
+		}
+	}
+
+	foreach ($existing as $path => $pageId) {
+		if (!isset($seen[$path])) {
+			$pageId = (int) $pageId;
+			$conn->query("UPDATE page_list SET is_active = 0 WHERE page_id = $pageId");
+		}
 	}
 }
 
