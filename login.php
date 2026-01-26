@@ -37,9 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				$errors[] = 'Invalid credentials.';
 			} else {
 				session_regenerate_id(true);
-				$_SESSION['user_id'] = (int) $user['user_id'];
+				$userId = (int) $user['user_id'];
+				$_SESSION['user_id'] = $userId;
 				$_SESSION['user_email'] = $user['email'] ?? '';
 				$_SESSION['user_username'] = $user['username'] ?? '';
+
+				if ($userId > 0) {
+					$profileCheck = $conn->query("SELECT profile_id FROM user_profiles WHERE user_id = $userId LIMIT 1");
+					if (!$profileCheck || $profileCheck->num_rows === 0) {
+						$conn->query("INSERT INTO user_profiles (user_id) VALUES ($userId)");
+					}
+				}
 
 				$next = $_GET['next'] ?? '';
 				$redirect = BASE_URL . 'home.php';
