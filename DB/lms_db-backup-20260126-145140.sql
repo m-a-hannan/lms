@@ -1602,7 +1602,7 @@ CREATE TABLE `roles` (
   CONSTRAINT `roles_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `roles_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `roles_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1611,6 +1611,7 @@ CREATE TABLE `roles` (
 
 LOCK TABLES `roles` WRITE;
 /*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (1,'Admin',NULL,'2026-01-26 12:33:40',NULL,'2026-01-26 12:33:40',NULL,NULL),(2,'User',NULL,'2026-01-26 12:44:16',NULL,'2026-01-26 12:44:16',NULL,NULL),(3,'Librarian',NULL,'2026-01-26 12:44:21',NULL,'2026-01-26 12:44:21',NULL,NULL);
 /*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1733,9 +1734,9 @@ CREATE TABLE `user_profiles` (
   `dob` date DEFAULT NULL,
   `address` text DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `photo` varchar(255) DEFAULT NULL,
   `institution_name` varchar(255) DEFAULT NULL,
   `designation` varchar(255) DEFAULT NULL,
+  `profile_picture` varchar(255) NOT NULL,
   `created_by` int(11) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `modified_by` int(11) DEFAULT NULL,
@@ -1751,7 +1752,7 @@ CREATE TABLE `user_profiles` (
   CONSTRAINT `user_profiles_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1760,6 +1761,7 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
+INSERT INTO `user_profiles` VALUES (1,1,'LMS','Admin','2024-01-01',';saijf;adsjf;asj;ajd;aj;','1234567890','lms inc.','Admin','uploads/profile_picture/1769403805_avatar.png',NULL,'2026-01-26 11:03:25',NULL,'2026-01-26 12:04:04',NULL,NULL);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1808,7 +1810,9 @@ DROP TABLE IF EXISTS `user_roles`;
 CREATE TABLE `user_roles` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
+  `username` varchar(150) NOT NULL,
   `role_id` int(11) DEFAULT NULL,
+  `role_name` varchar(150) NOT NULL,
   `created_by` int(11) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `modified_by` int(11) DEFAULT NULL,
@@ -1826,7 +1830,7 @@ CREATE TABLE `user_roles` (
   CONSTRAINT `user_roles_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_roles_ibfk_4` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_roles_ibfk_5` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1835,6 +1839,7 @@ CREATE TABLE `user_roles` (
 
 LOCK TABLES `user_roles` WRITE;
 /*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
+INSERT INTO `user_roles` VALUES (1,3,'tahmid',3,'Librarian',NULL,'2026-01-26 14:27:25',NULL,'2026-01-26 14:27:33',NULL,NULL),(2,2,'kasem',2,'User',NULL,'2026-01-26 14:27:40',NULL,'2026-01-26 14:27:40',NULL,NULL);
 /*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1882,6 +1887,7 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
   `created_by` int(11) DEFAULT NULL,
@@ -1891,7 +1897,7 @@ CREATE TABLE `users` (
   `deleted_by` int(11) DEFAULT NULL,
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1900,6 +1906,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'lms_admin','lms_admin@karigori.site','$2y$10$Qcs6B9zb2/wO3kNz8rK1oeYP0D7at6dCdsBh.0kDUS/J5K56rES1i',NULL,'2026-01-26 09:31:29',NULL,'2026-01-26 09:31:29',NULL,NULL),(2,'kasem','kasem@karigori.site','$2y$10$K0I/E4BgJxRnIyXZDTbLIujo/y2SETklrsCjvlt63DFmkAb9T0VK6',NULL,'2026-01-26 12:29:04',NULL,'2026-01-26 12:29:04',NULL,NULL),(3,'tahmid','tahmid@karigori.site','$2y$10$gnvL2hZoxmqE17G/v4yYPOf3yPU4dEiIxGwrhN6IVBF429CcyMvnK',NULL,'2026-01-26 12:29:45',NULL,'2026-01-26 12:29:45',NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1947,4 +1954,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-26  8:46:28
+-- Dump completed on 2026-01-26 14:51:40

@@ -11,9 +11,9 @@ $profileImage = BASE_URL . 'assets/img/user2-160x160.jpg';
 $memberSince = '';
 
 if ($userId > 0) {
-	$result = $conn->query("SELECT first_name, last_name, designation, profile_picture, created_date FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
-	if ($result && $result->num_rows === 1) {
-		$row = $result->fetch_assoc();
+$profileResult = $conn->query("SELECT first_name, last_name, designation, profile_picture, created_date FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
+if ($profileResult && $profileResult->num_rows === 1) {
+	$row = $profileResult->fetch_assoc();
 		$fullName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
 		if ($fullName !== '') {
 			$displayName = $fullName;

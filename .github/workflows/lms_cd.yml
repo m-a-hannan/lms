@@ -65,8 +65,10 @@ jobs:
 
           echo "Rsync staging -> target..."
           sudo rsync -a --delete-delay \
+            --exclude-from ".gitignore" \
             --exclude ".env" \
             --exclude "include/config.php" \
+            --exclude "uploads/" \
             "$STAGE/" "$TARGET/"
 
           echo "Fix ownership to www-data..."

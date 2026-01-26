@@ -105,6 +105,9 @@ main() {
   info "Copying latest dump into repo: $LATEST_IN_REPO"
   cp -f "$DUMP_PATH" "$LATEST_IN_REPO"
 
+  info "Removing older DB exports from repo DB/..."
+  find "$PROJECT_DB_DIR" -maxdepth 1 -type f -name "lms_db-backup-*.sql" ! -name "$DUMP_NAME" -print -delete || true
+
   # Optional convenience pointer file
   info "Updating DB/LATEST_DB_EXPORT.txt"
   echo "$DUMP_NAME" > "${PROJECT_DB_DIR}/LATEST_DB_EXPORT.txt"
