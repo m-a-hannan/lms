@@ -1,3 +1,64 @@
+<?php
+require_once __DIR__ . '/include/config.php';
+require_once ROOT_PATH . '/include/connection.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+	session_start();
+}
+
+if (!empty($_SESSION['user_id'])) {
+	header('Location: ' . BASE_URL . 'home.php');
+	exit;
+}
+
+$errors = [];
+$username = '';
+$email = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$username = trim($_POST['username'] ?? '');
+	$email = trim($_POST['email'] ?? '');
+	$password = $_POST['password'] ?? '';
+
+	if ($username === '' || $email === '' || $password === '') {
+		$errors[] = 'Username, email, and password are required.';
+	} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		$errors[] = 'Please enter a valid email address.';
+	} elseif (strlen($password) < 6) {
+		$errors[] = 'Password must be at least 6 characters.';
+	} else {
+		$stmt = $conn->prepare('SELECT user_id FROM users WHERE email = ? OR username = ? LIMIT 1');
+		if ($stmt === false) {
+			$errors[] = 'Registration failed. Please try again.';
+		} else {
+			$stmt->bind_param('ss', $email, $username);
+			$stmt->execute();
+			$result = $stmt->get_result();
+			$existing = $result ? $result->fetch_assoc() : null;
+			$stmt->close();
+
+			if ($existing) {
+				$errors[] = 'Email or username already exists.';
+			} else {
+				$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+				$insert = $conn->prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)');
+				if ($insert === false) {
+					$errors[] = 'Registration failed. Please try again.';
+				} else {
+					$insert->bind_param('sss', $username, $email, $passwordHash);
+					if ($insert->execute()) {
+						$insert->close();
+						header('Location: ' . BASE_URL . 'login.php?registered=1');
+						exit;
+					}
+					$insert->close();
+					$errors[] = 'Registration failed. Please try again.';
+				}
+			}
+		}
+	}
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,10 +111,11 @@ section {
   width: 420px;
   padding: 36px 28px;
 	margin: 25px 0;
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 	backdrop-filter: blur(15px) brightness(80%);
   border-radius: 20px;
+  overflow: hidden;
   backdrop-filter: blur(16px);
   display: flex;
   justify-content: center;
@@ -84,10 +146,6 @@ h2 {
   transition: 0.5s;
 }
 
-input:focus ~ label,
-input:valid ~ label {
-  top: -5px;
-}
 
 .inputbox input {
   width: 100%;
@@ -105,7 +163,8 @@ input:valid ~ label {
   right: 8px;
   color: #1a1c20;
   font-size: 1.2em;
-  top: 20px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 button {
@@ -145,32 +204,83 @@ button {
   }
 }
 
-	</style>
+	
+	
+
+.forget {
+  margin: -6px 0 18px;
+  font-size: 0.9em;
+  color: #111827;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forget a {
+  color: #111827;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.forget a:hover {
+  text-decoration: underline;
+}
+
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.inputbox input:focus,
+.inputbox input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.inputbox input::placeholder {
+  color: #111827;
+  opacity: 0.8;
+}
+</style>
 </head>
 
 <body>
 	<section>
 		<div class="form-box">
 			<div class="form-value">
-				<form>
+				<form method="post">
 					<h2>Register</h2>
+
+					<?php if (!empty($errors)): ?>
+						<div class="alert alert-danger">
+							<?php echo htmlspecialchars(implode(' ', $errors)); ?>
+						</div>
+					<?php endif; ?>
 
 					<div class="inputbox">
 						<i class="bi bi-person input-icon"></i>
-						<input type="text" name="username" required>
-						<label>Username</label>
+						<input type="text" name="username" placeholder="Username" aria-label="Username" value="<?php echo htmlspecialchars($username); ?>" required>
+						<label class="sr-only">Username</label>
 					</div>
 
 					<div class="inputbox">
 						<i class="bi bi-envelope input-icon"></i>
-						<input type="email" name="email" required>
-						<label>Email</label>
+						<input type="email" name="email" placeholder="Email" aria-label="Email" value="<?php echo htmlspecialchars($email); ?>" required>
+						<label class="sr-only">Email</label>
 					</div>
 
 					<div class="inputbox">
 						<i class="bi bi-lock input-icon"></i>
-						<input type="password" name="password" required>
-						<label>Password</label>
+						<input type="password" name="password" placeholder="Password" aria-label="Password" required>
+						<label class="sr-only">Password</label>
 					</div>
 
 					<button type="submit">Create Account</button>

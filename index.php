@@ -79,10 +79,10 @@
 					</li>
 				</ul>
 				<div class="d-flex align-items-center gap-2">
-					<button class="btn btn-gradient px-4" id="loginOpen" type="button">
+					<a class="btn btn-gradient px-4" href="login.php">
 						<i class="bi bi-box-arrow-in-right me-1"></i>
 						Login
-					</button>
+					</a>
 				</div>
 			</div>
 		</div>
@@ -210,14 +210,6 @@
 	<button class="add-btn">+</button>
 	</section>
 
-	<!-- Login Modal -->
-	<div class="login-modal" id="loginModal" aria-hidden="true" hidden>
-		<div class="login-modal__overlay" data-login-close></div>
-		<div class="login-modal__panel" role="dialog" aria-modal="true" aria-label="Login">
-			<iframe class="login-modal__frame" src="login.php" title="Login"></iframe>
-		</div>
-	</div>
-
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -243,37 +235,6 @@
 		});
 	});
 
-	const loginModal = document.getElementById('loginModal');
-	const loginOpen = document.getElementById('loginOpen');
-	const loginCloseEls = document.querySelectorAll('[data-login-close]');
-	const loginPanel = loginModal ? loginModal.querySelector('.login-modal__panel') : null;
-
-	if (loginModal && loginOpen) {
-		loginOpen.addEventListener('click', () => {
-			loginModal.classList.add('is-open');
-			loginModal.setAttribute('aria-hidden', 'false');
-			loginModal.removeAttribute('hidden');
-			document.body.style.overflow = 'hidden';
-
-			if (loginPanel) {
-				loginPanel.style.top = '';
-				loginPanel.style.left = '';
-			}
-		});
-
-		loginCloseEls.forEach((el) => {
-			el.addEventListener('click', () => {
-				loginModal.classList.remove('is-open');
-				loginModal.setAttribute('aria-hidden', 'true');
-				loginModal.setAttribute('hidden', '');
-				document.body.style.overflow = '';
-				if (loginPanel) {
-					loginPanel.style.top = '';
-					loginPanel.style.left = '';
-				}
-			});
-		});
-	}
 	</script>
 </body>
 
