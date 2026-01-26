@@ -69,6 +69,7 @@ $coverPath = $book && !empty($book["book_cover_path"])
 		</div>
 
 		<div class="d-flex align-items-center gap-2">
+			<a href="<?php echo BASE_URL; ?>logout.php" class="btn btn-outline-light btn-sm">Logout</a>
 			<button class="btn btn-icon" id="themeToggle">
 				<i class="bi bi-moon"></i>
 			</button>

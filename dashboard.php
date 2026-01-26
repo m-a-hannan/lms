@@ -13,6 +13,7 @@
 
 				<div class="container py-5">
 					<div class="d-flex justify-content-between align-items-center mb-4">
+					<a href="dashboard.php" class="btn btn-primary btn-sm dashboard-link">Dashboard</a>
 						<!-- Content will be added here-->
 						 <h1>Dashboard content will be added here</h1>
 						 <div id="deployStatus" class="small text-muted"></div>
