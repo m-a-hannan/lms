@@ -1,3 +1,35 @@
+<?php
+if (session_status() !== PHP_SESSION_ACTIVE) {
+	session_start();
+}
+require_once ROOT_PATH . '/include/connection.php';
+
+$userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
+$displayName = 'User';
+$displayRole = 'Member';
+$profileImage = BASE_URL . 'assets/img/user2-160x160.jpg';
+$memberSince = '';
+
+if ($userId > 0) {
+	$result = $conn->query("SELECT first_name, last_name, designation, profile_picture, created_date FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
+	if ($result && $result->num_rows === 1) {
+		$row = $result->fetch_assoc();
+		$fullName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+		if ($fullName !== '') {
+			$displayName = $fullName;
+		}
+		if (!empty($row['designation'])) {
+			$displayRole = $row['designation'];
+		}
+		if (!empty($row['profile_picture'])) {
+			$profileImage = BASE_URL . ltrim($row['profile_picture'], '/');
+		}
+		if (!empty($row['created_date'])) {
+			$memberSince = date('M Y', strtotime($row['created_date']));
+		}
+	}
+}
+?>
 	<body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
 		<!--begin::App Wrapper-->
 		<div class="app-wrapper">
@@ -152,25 +184,25 @@
 						<!--end::Fullscreen Toggle-->
 						<!--begin::User Menu Dropdown-->
 						<li class="nav-item dropdown user-menu">
-							<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+							<a href="<?php echo BASE_URL; ?>view_profile.php" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
 								<img
-									src="<?php echo BASE_URL; ?>assets/img/user2-160x160.jpg"
+									src="<?php echo htmlspecialchars($profileImage); ?>"
 									class="user-image rounded-circle shadow"
 									alt="User Image"
 								/>
-								<span class="d-none d-md-inline">Alexander Pierce</span>
+								<span class="d-none d-md-inline"><?php echo htmlspecialchars($displayName); ?></span>
 							</a>
 							<ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
 								<!--begin::User Image-->
 								<li class="user-header text-bg-primary">
 									<img
-										src="<?php echo BASE_URL; ?>assets/img/user2-160x160.jpg"
+										src="<?php echo htmlspecialchars($profileImage); ?>"
 										class="rounded-circle shadow"
 										alt="User Image"
 									/>
 									<p>
-										Alexander Pierce - Web Developer
-										<small>Member since Nov. 2023</small>
+										<?php echo htmlspecialchars($displayName); ?> - <?php echo htmlspecialchars($displayRole); ?>
+										<small>Member since <?php echo $memberSince !== "" ? htmlspecialchars($memberSince) : "-"; ?></small>
 									</p>
 								</li>
 								<!--end::User Image-->
@@ -187,7 +219,7 @@
 								<!--end::Menu Body-->
 								<!--begin::Menu Footer-->
 								<li class="user-footer">
-									<a href="#" class="btn btn-default btn-flat">Profile</a>
+									<a href="<?php echo BASE_URL; ?>view_profile.php" class="btn btn-default btn-flat">Profile</a>
 									<a href="<?php echo BASE_URL; ?>logout.php" class="btn btn-default btn-flat float-end">Sign out</a>
 								</li>
 								<!--end::Menu Footer-->

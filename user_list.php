@@ -2,7 +2,11 @@
 require_once __DIR__ . '/include/config.php';
 require_once ROOT_PATH . '/include/connection.php';
 
-$result = $conn->query("SELECT * FROM users ORDER BY user_id DESC");
+$result = $conn->query(
+	"SELECT profile_id, user_id, first_name, last_name, dob, address, phone, institution_name, designation, profile_picture, created_by, created_date, modified_by, modified_date, deleted_by, deleted_date
+	 FROM user_profiles
+	 ORDER BY profile_id DESC"
+);
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
@@ -20,8 +24,8 @@ if ($result === false) {
 			<div class="row">
 				<div class="container py-5">
 					<div class="d-flex justify-content-between align-items-center mb-4">
-						<h3 class="mb-0">User List</h3>
-						<a href="<?php echo BASE_URL; ?>crud_files/add_user.php" class="btn btn-primary btn-sm">Add User</a>
+						<h3 class="mb-0">User Profiles</h3>
+						<a href="<?php echo BASE_URL; ?>edit_profile.php" class="btn btn-primary btn-sm">Add Profile</a>
 					</div>
 					<div class="card shadow-sm">
 						<div class="card-body">
@@ -30,8 +34,13 @@ if ($result === false) {
 									<thead class="table-light">
 										<tr>
 											<th>#</th>
-									<th>Email</th>
-									<th>Password Hash</th>
+											<th>First Name</th>
+											<th>Last Name</th>
+											<th>DOB</th>
+											<th>Address</th>
+											<th>Phone</th>
+											<th>Institution</th>
+											<th>Designation</th>
 											<th class="text-center">Actions</th>
 										</tr>
 									</thead>
@@ -39,15 +48,21 @@ if ($result === false) {
 										<?php if ($result->num_rows > 0): ?>
 										<?php while ($row = $result->fetch_assoc()): ?>
 										<tr>
-											<td><?= $row["user_id"] ?></td>
-									<td><?= htmlspecialchars($row['email']) ?></td>
-									<td><?= htmlspecialchars($row['password_hash']) ?></td>
+											<td><?= (int) $row['profile_id'] ?></td>
+											<td><?= htmlspecialchars($row['first_name'] ?? '') ?></td>
+											<td><?= htmlspecialchars($row['last_name'] ?? '') ?></td>
+											<td><?= htmlspecialchars($row['dob'] ?? '') ?></td>
+											<td><?= htmlspecialchars($row['address'] ?? '') ?></td>
+											<td><?= htmlspecialchars($row['phone'] ?? '') ?></td>
+											<td><?= htmlspecialchars($row['institution_name'] ?? '') ?></td>
+											<td><?= htmlspecialchars($row['designation'] ?? '') ?></td>
+											
 											<td class="text-center">
-												<a href="<?php echo BASE_URL; ?>crud_files/edit_user.php?id=<?= $row['user_id'] ?>" class="text-primary me-2" title="Edit">
+												<a href="<?php echo BASE_URL; ?>edit_profile.php?id=<?= (int) $row['profile_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
-												<a href="<?php echo BASE_URL; ?>crud_files/delete_user.php?id=<?= $row['user_id'] ?>" class="text-danger" title="Delete"
-													onclick="return confirm('Are you sure you want to delete this item?');">
+												<a href="<?php echo BASE_URL; ?>crud_files/delete_user_profile.php?id=<?= (int) $row['profile_id'] ?>" class="text-danger" title="Delete"
+													onclick="return confirm('Are you sure you want to delete this profile?');">
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 											</td>
@@ -55,7 +70,7 @@ if ($result === false) {
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
-											<td colspan="4" class="text-center text-muted">No records found.</td>
+											<td colspan="17" class="text-center text-muted">No records found.</td>
 										</tr>
 										<?php endif; ?>
 									</tbody>
