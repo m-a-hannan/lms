@@ -130,4 +130,20 @@ function rbac_any_access($conn, array $paths)
 	return false;
 }
 
+function rbac_dashboard_path($conn): string
+{
+	$context = rbac_get_context($conn);
+	if (($context['user_id'] ?? 0) <= 0) {
+		return 'login.php';
+	}
+
+	$roleName = $context['role_name'] ?? '';
+	$isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
+	if ($context['is_admin'] || $isLibrarian) {
+		return 'dashboard.php';
+	}
+
+	return 'user_dashboard.php';
+}
+
 ?>

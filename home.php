@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . "/include/config.php";
 require_once ROOT_PATH . "/include/connection.php";
+require_once ROOT_PATH . "/include/permissions.php";
+
+$dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 
 $book = null;
 $availableCopies = 0;
@@ -126,7 +129,7 @@ if ($reserveStatus !== '') {
 		<aside id="sidebar" class="sidebar">
 			<div class="sidebar-section">
 				<small>HOME</small>
-				<a class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+				<a class="active" href="<?php echo $dashboardUrl; ?>"><i class="bi bi-speedometer2"></i> Dashboard</a>
 				<a><i class="bi bi-book"></i> All Books</a>
 			</div>
 
@@ -135,7 +138,7 @@ if ($reserveStatus !== '') {
 				<a><i class="bi bi-journal-bookmark"></i> Novels</a>
 				<a><i class="bi bi-cpu"></i> Technology</a>
 				<a><i class="bi bi-brush"></i> Comics</a>
-				<a href="dashboard.php"><i class="bi bi-brush"></i> Admin Dashboard</a>
+				<a href="<?php echo $dashboardUrl; ?>"><i class="bi bi-brush"></i> Dashboard</a>
 			</div>
 		</aside>
 
