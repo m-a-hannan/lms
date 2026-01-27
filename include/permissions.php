@@ -43,6 +43,22 @@ function rbac_get_context($conn)
 		return $context;
 	}
 
+	$userResult = $conn->query("SELECT account_status, deleted_date FROM users WHERE user_id = $userId LIMIT 1");
+	if (!$userResult || $userResult->num_rows !== 1) {
+		session_unset();
+		session_destroy();
+		$context['user_id'] = 0;
+		return $context;
+	}
+	$userRow = $userResult->fetch_assoc();
+	$accountStatus = $userRow['account_status'] ?? 'pending';
+	if (!empty($userRow['deleted_date']) || $accountStatus !== 'approved') {
+		session_unset();
+		session_destroy();
+		$context['user_id'] = 0;
+		return $context;
+	}
+
 	$roleResult = $conn->query(
 		"SELECT r.role_id, r.role_name
 		 FROM user_roles ur

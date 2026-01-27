@@ -348,7 +348,7 @@ CREATE TABLE `book_copies` (
   CONSTRAINT `book_copies_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_copies_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_copies_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -357,7 +357,7 @@ CREATE TABLE `book_copies` (
 
 LOCK TABLES `book_copies` WRITE;
 /*!40000 ALTER TABLE `book_copies` DISABLE KEYS */;
-INSERT INTO `book_copies` VALUES (1,1,'B1-E1-20260126185952-1','hold_loan',NULL,NULL,'2026-01-26 23:59:52',1,'2026-01-27 00:00:28',NULL,NULL),(2,1,'B1-E1-20260126185952-2','available',NULL,NULL,'2026-01-26 23:59:52',1,'2026-01-27 10:54:58',NULL,NULL),(3,1,'B1-E1-20260126185952-3','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(4,1,'B1-E1-20260126185952-4','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(5,1,'B1-E1-20260126185952-5','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(6,1,'B1-E1-20260126185952-6','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(7,1,'B1-E1-20260126185952-7','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(8,1,'B1-E1-20260126185952-8','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(9,1,'B1-E1-20260126185952-9','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(10,2,'B2-E2-20260127110340-1','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(11,2,'B2-E2-20260127110340-2','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(12,2,'B2-E2-20260127110340-3','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(13,2,'B2-E2-20260127110340-4','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(14,2,'B2-E2-20260127110340-5','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(15,2,'B2-E2-20260127110340-6','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(16,2,'B2-E2-20260127110340-7','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(17,2,'B2-E2-20260127110340-8','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(18,2,'B2-E2-20260127110340-9','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(19,2,'B2-E2-20260127110340-10','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL);
+INSERT INTO `book_copies` VALUES (1,1,'B1-E1-20260126185952-1','hold_loan',NULL,NULL,'2026-01-26 23:59:52',1,'2026-01-27 00:00:28',NULL,NULL),(2,1,'B1-E1-20260126185952-2','hold_loan',NULL,NULL,'2026-01-26 23:59:52',2,'2026-01-27 19:26:30',NULL,NULL),(3,1,'B1-E1-20260126185952-3','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(4,1,'B1-E1-20260126185952-4','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(5,1,'B1-E1-20260126185952-5','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(6,1,'B1-E1-20260126185952-6','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(7,1,'B1-E1-20260126185952-7','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(8,1,'B1-E1-20260126185952-8','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(9,1,'B1-E1-20260126185952-9','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(10,2,'B2-E2-20260127110340-1','hold_loan',NULL,NULL,'2026-01-27 16:03:40',2,'2026-01-27 20:08:32',NULL,NULL),(11,2,'B2-E2-20260127110340-2','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(12,2,'B2-E2-20260127110340-3','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(13,2,'B2-E2-20260127110340-4','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(14,2,'B2-E2-20260127110340-5','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(15,2,'B2-E2-20260127110340-6','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(16,2,'B2-E2-20260127110340-7','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(17,2,'B2-E2-20260127110340-8','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(18,2,'B2-E2-20260127110340-9','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(19,2,'B2-E2-20260127110340-10','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(20,3,'B4-E3-20260127142315-1','loaned',NULL,NULL,'2026-01-27 19:23:15',1,'2026-01-27 19:28:06',NULL,NULL),(21,3,'B4-E3-20260127142315-2','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(22,3,'B4-E3-20260127142315-3','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(23,3,'B4-E3-20260127142315-4','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(24,3,'B4-E3-20260127142315-5','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(25,3,'B4-E3-20260127142315-6','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(26,3,'B4-E3-20260127142315-7','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(27,3,'B4-E3-20260127142315-8','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(28,3,'B4-E3-20260127142315-9','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(29,3,'B4-E3-20260127142315-10','available',NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL);
 /*!40000 ALTER TABLE `book_copies` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -424,7 +424,7 @@ CREATE TABLE `book_editions` (
   CONSTRAINT `book_editions_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_editions_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_editions_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -433,7 +433,7 @@ CREATE TABLE `book_editions` (
 
 LOCK TABLES `book_editions` WRITE;
 /*!40000 ALTER TABLE `book_editions` DISABLE KEYS */;
-INSERT INTO `book_editions` VALUES (1,1,1,1998,NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(2,2,1,1997,NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL);
+INSERT INTO `book_editions` VALUES (1,1,1,1998,NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(2,2,1,1997,NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(3,4,1,2009,NULL,NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL);
 /*!40000 ALTER TABLE `book_editions` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -508,7 +508,7 @@ CREATE TABLE `books` (
   CONSTRAINT `books_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `books_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `books_ibfk_4` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -517,7 +517,7 @@ CREATE TABLE `books` (
 
 LOCK TABLES `books` WRITE;
 /*!40000 ALTER TABLE `books` DISABLE KEYS */;
-INSERT INTO `books` VALUES (1,'Digital Fortress','Introduces Susan Fletcher, the NSA\'s head cryptographer, whose romantic getaway plans are shattered by a sudden, urgent work call.','Dan Brown','0-312-18087-X (US)','St. Martin\'s Press',1998,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769333690_Dan-Brown_Digital-Fortress_book-cover-2025.jpg',NULL,'2026-01-25 15:34:50',NULL,'2026-01-25 15:34:50',NULL,NULL),(2,'Harry Potter and the Philosopher\'s Stone','Nearly ten years had passed since the Dursleys had woken up to find their nephew on the front step, but Privet Drive had hardly changed at all. The su','J. K. Rowling','978-0-7475-3269-9','Bloomsbury',1997,2,'physical',NULL,NULL,NULL,'uploads/book_cover/1769508220_Harry-Potter-and-the-sorcorers-stone.jpg',NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(3,'Lord of the Mysteries','The story features a meticulously crafted world with hidden, dangerous, and often occult, societies. It follows the protagonist, Klein, who becomes...','Cuttlefish That Loves Diving','234-038545792874','Cuttlefish That Loves Diving',2018,3,'ebook','pdf',NULL,NULL,'uploads/book_cover/1769508610_Lord_of_Mysteries.png',NULL,'2026-01-27 16:10:10',NULL,'2026-01-27 16:10:10',NULL,NULL);
+INSERT INTO `books` VALUES (1,'Digital Fortress','Introduces Susan Fletcher, the NSA\'s head cryptographer, whose romantic getaway plans are shattered by a sudden, urgent work call.','Dan Brown','0-312-18087-X (US)','St. Martin\'s Press',1998,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769333690_Dan-Brown_Digital-Fortress_book-cover-2025.jpg',NULL,'2026-01-25 15:34:50',NULL,'2026-01-25 15:34:50',NULL,NULL),(2,'Harry Potter and the Philosopher\'s Stone','Nearly ten years had passed since the Dursleys had woken up to find their nephew on the front step, but Privet Drive had hardly changed at all. The su','J. K. Rowling','978-0-7475-3269-9','Bloomsbury',1997,2,'physical',NULL,NULL,NULL,'uploads/book_cover/1769508220_Harry-Potter-and-the-sorcorers-stone.jpg',NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(3,'Lord of the Mysteries','The story features a meticulously crafted world with hidden, dangerous, and often occult, societies. It follows the protagonist, Klein, who becomes...','Cuttlefish That Loves Diving','234-038545792874','Cuttlefish That Loves Diving',2018,3,'ebook','pdf',NULL,NULL,'uploads/book_cover/1769508610_Lord_of_Mysteries.png',NULL,'2026-01-27 16:10:10',NULL,'2026-01-27 16:10:10',NULL,NULL),(4,'The Lost Symbol','The Lost Symbol is a 2009 novel written by American writer Dan Brown. It is a thriller set in Washington, D.C., after the events of The Da Vinci Code.','Dan Brown','978-0385504225 (US)','St. Martin\'s Press (US)',2009,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769520195_Dan-Brown_The_Lost_Symbol_book-cover.jpg',NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL);
 /*!40000 ALTER TABLE `books` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1101,7 +1101,7 @@ CREATE TABLE `loans` (
   CONSTRAINT `loans_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `loans_ibfk_4` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `loans_ibfk_5` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1110,7 +1110,7 @@ CREATE TABLE `loans` (
 
 LOCK TABLES `loans` WRITE;
 /*!40000 ALTER TABLE `loans` DISABLE KEYS */;
-INSERT INTO `loans` VALUES (1,1,1,'2026-01-27','2026-02-10',NULL,1,'2026-01-27 00:00:28',1,'2026-01-27 10:50:02',NULL,NULL,'approved',''),(2,2,2,'2026-01-27','2026-02-10','2026-01-27',2,'2026-01-27 10:53:41',1,'2026-01-27 10:54:58',NULL,NULL,'returned',NULL);
+INSERT INTO `loans` VALUES (1,1,1,'2026-01-27','2026-02-10',NULL,1,'2026-01-27 00:00:28',1,'2026-01-27 10:50:02',NULL,NULL,'approved',''),(2,2,2,'2026-01-27','2026-02-10','2026-01-27',2,'2026-01-27 10:53:41',1,'2026-01-27 10:54:58',NULL,NULL,'returned',NULL),(3,10,2,'2026-01-27','2026-02-10','2026-01-27',2,'2026-01-27 18:58:44',1,'2026-01-27 19:02:08',NULL,NULL,'returned',NULL),(4,20,2,'2026-01-27','2026-02-10',NULL,2,'2026-01-27 19:23:47',1,'2026-01-27 19:28:06',NULL,NULL,'approved',NULL),(5,2,2,NULL,NULL,NULL,2,'2026-01-27 19:26:30',2,'2026-01-27 19:26:30',NULL,NULL,'pending',NULL),(6,10,2,NULL,NULL,NULL,2,'2026-01-27 20:08:32',2,'2026-01-27 20:08:32',NULL,NULL,'pending',NULL);
 /*!40000 ALTER TABLE `loans` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1213,7 +1213,7 @@ CREATE TABLE `notifications` (
   CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `notifications_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `notifications_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1222,7 +1222,7 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
-INSERT INTO `notifications` VALUES (4,2,'Loan request submitted','Your loan request for \"Digital Fortress\" has been submitted.','2026-01-27 10:53:41',0,2,'2026-01-27 10:53:41',2,'2026-01-27 10:53:41',NULL,NULL),(5,1,'New loan request','A new loan request was submitted for \"Digital Fortress\".','2026-01-27 10:53:41',0,2,'2026-01-27 10:53:41',2,'2026-01-27 10:53:41',NULL,NULL),(6,3,'New loan request','A new loan request was submitted for \"Digital Fortress\".','2026-01-27 10:53:41',0,2,'2026-01-27 10:53:41',2,'2026-01-27 10:53:41',NULL,NULL),(7,2,'Loan request approved','Your loan request for \"Digital Fortress\" has been approved.','2026-01-27 10:54:13',0,1,'2026-01-27 10:54:13',1,'2026-01-27 10:54:13',NULL,NULL),(8,2,'Return request submitted','Your return request for \"Digital Fortress\" has been submitted.','2026-01-27 10:54:38',0,2,'2026-01-27 10:54:38',2,'2026-01-27 10:54:38',NULL,NULL),(9,1,'New return request','A return request was submitted for loan #2 (\"Digital Fortress\").','2026-01-27 10:54:38',0,2,'2026-01-27 10:54:38',2,'2026-01-27 10:54:38',NULL,NULL),(10,3,'New return request','A return request was submitted for loan #2 (\"Digital Fortress\").','2026-01-27 10:54:38',0,2,'2026-01-27 10:54:38',2,'2026-01-27 10:54:38',NULL,NULL),(11,2,'Return approved','Your return for \"Digital Fortress\" has been approved.','2026-01-27 10:54:58',0,1,'2026-01-27 10:54:58',1,'2026-01-27 12:42:17',2,'2026-01-27 12:42:17');
+INSERT INTO `notifications` VALUES (4,2,'Loan request submitted','Your loan request for \"Digital Fortress\" has been submitted.','2026-01-27 10:53:41',0,2,'2026-01-27 10:53:41',2,'2026-01-27 19:00:16',2,'2026-01-27 19:00:16'),(5,1,'New loan request','A new loan request was submitted for \"Digital Fortress\".','2026-01-27 10:53:41',0,2,'2026-01-27 10:53:41',2,'2026-01-27 19:28:20',1,'2026-01-27 19:28:20'),(6,3,'New loan request','A new loan request was submitted for \"Digital Fortress\".','2026-01-27 10:53:41',0,2,'2026-01-27 10:53:41',2,'2026-01-27 10:53:41',NULL,NULL),(7,2,'Loan request approved','Your loan request for \"Digital Fortress\" has been approved.','2026-01-27 10:54:13',0,1,'2026-01-27 10:54:13',1,'2026-01-27 18:54:57',2,'2026-01-27 18:54:57'),(8,2,'Return request submitted','Your return request for \"Digital Fortress\" has been submitted.','2026-01-27 10:54:38',0,2,'2026-01-27 10:54:38',2,'2026-01-27 18:49:50',2,'2026-01-27 18:49:50'),(9,1,'New return request','A return request was submitted for loan #2 (\"Digital Fortress\").','2026-01-27 10:54:38',0,2,'2026-01-27 10:54:38',2,'2026-01-27 19:28:20',1,'2026-01-27 19:28:20'),(10,3,'New return request','A return request was submitted for loan #2 (\"Digital Fortress\").','2026-01-27 10:54:38',0,2,'2026-01-27 10:54:38',2,'2026-01-27 10:54:38',NULL,NULL),(11,2,'Return approved','Your return for \"Digital Fortress\" has been approved.','2026-01-27 10:54:58',0,1,'2026-01-27 10:54:58',1,'2026-01-27 12:42:17',2,'2026-01-27 12:42:17'),(12,2,'Loan request submitted','Your loan request for \"Harry Potter and the Philosopher\'s Stone\" has been submitted.','2026-01-27 18:58:44',0,2,'2026-01-27 18:58:44',2,'2026-01-27 19:00:12',2,'2026-01-27 19:00:12'),(13,1,'New loan request','A new loan request was submitted for \"Harry Potter and the Philosopher\'s Stone\".','2026-01-27 18:58:44',0,2,'2026-01-27 18:58:44',2,'2026-01-27 19:28:20',1,'2026-01-27 19:28:20'),(14,3,'New loan request','A new loan request was submitted for \"Harry Potter and the Philosopher\'s Stone\".','2026-01-27 18:58:44',0,2,'2026-01-27 18:58:44',2,'2026-01-27 18:58:44',NULL,NULL),(15,2,'Loan request approved','Your loan request for \"Harry Potter and the Philosopher\'s Stone\" has been approved.','2026-01-27 19:01:08',0,1,'2026-01-27 19:01:08',1,'2026-01-27 19:01:08',NULL,NULL),(16,2,'Return request submitted','Your return request for \"Harry Potter and the Philosopher\'s Stone\" has been submitted.','2026-01-27 19:01:49',0,2,'2026-01-27 19:01:49',2,'2026-01-27 19:01:49',NULL,NULL),(17,1,'New return request','A return request was submitted for loan #3 (\"Harry Potter and the Philosopher\'s Stone\").','2026-01-27 19:01:49',0,2,'2026-01-27 19:01:49',2,'2026-01-27 19:28:20',1,'2026-01-27 19:28:20'),(18,3,'New return request','A return request was submitted for loan #3 (\"Harry Potter and the Philosopher\'s Stone\").','2026-01-27 19:01:49',0,2,'2026-01-27 19:01:49',2,'2026-01-27 19:01:49',NULL,NULL),(19,2,'Return approved','Your return for \"Harry Potter and the Philosopher\'s Stone\" has been approved.','2026-01-27 19:02:08',0,1,'2026-01-27 19:02:08',1,'2026-01-27 19:02:08',NULL,NULL),(20,2,'Loan request submitted','Your loan request for \"The Lost Symbol\" has been submitted.','2026-01-27 19:23:47',0,2,'2026-01-27 19:23:47',2,'2026-01-27 19:23:47',NULL,NULL),(21,1,'New loan request','A new loan request was submitted for \"The Lost Symbol\".','2026-01-27 19:23:47',0,2,'2026-01-27 19:23:47',2,'2026-01-27 19:28:20',1,'2026-01-27 19:28:20'),(22,3,'New loan request','A new loan request was submitted for \"The Lost Symbol\".','2026-01-27 19:23:47',0,2,'2026-01-27 19:23:47',2,'2026-01-27 19:23:47',NULL,NULL),(23,2,'Loan request submitted','Your loan request for \"Digital Fortress\" has been submitted.','2026-01-27 19:26:30',0,2,'2026-01-27 19:26:30',2,'2026-01-27 19:26:30',NULL,NULL),(24,1,'New loan request','A new loan request was submitted for \"Digital Fortress\".','2026-01-27 19:26:30',0,2,'2026-01-27 19:26:30',2,'2026-01-27 19:28:20',1,'2026-01-27 19:28:20'),(25,3,'New loan request','A new loan request was submitted for \"Digital Fortress\".','2026-01-27 19:26:30',0,2,'2026-01-27 19:26:30',2,'2026-01-27 19:26:30',NULL,NULL),(26,2,'Loan request approved','Your loan request for \"The Lost Symbol\" has been approved.','2026-01-27 19:28:06',0,1,'2026-01-27 19:28:06',1,'2026-01-27 19:28:06',NULL,NULL),(27,2,'Loan request submitted','Your loan request for \"Harry Potter and the Philosopher\'s Stone\" has been submitted.','2026-01-27 20:08:32',0,2,'2026-01-27 20:08:32',2,'2026-01-27 20:08:32',NULL,NULL),(28,3,'New loan request','A new loan request was submitted for \"Harry Potter and the Philosopher\'s Stone\".','2026-01-27 20:08:32',0,2,'2026-01-27 20:08:32',2,'2026-01-27 20:08:32',NULL,NULL),(29,1,'New loan request','A new loan request was submitted for \"Harry Potter and the Philosopher\'s Stone\".','2026-01-27 20:08:32',0,2,'2026-01-27 20:08:32',2,'2026-01-27 20:08:32',NULL,NULL);
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1592,7 +1592,7 @@ CREATE TABLE `returns` (
   CONSTRAINT `returns_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `returns_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `returns_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1601,7 +1601,7 @@ CREATE TABLE `returns` (
 
 LOCK TABLES `returns` WRITE;
 /*!40000 ALTER TABLE `returns` DISABLE KEYS */;
-INSERT INTO `returns` VALUES (1,2,'2026-01-27',2,'2026-01-27 10:54:38',1,'2026-01-27 10:54:58',NULL,NULL,'approved',NULL);
+INSERT INTO `returns` VALUES (1,2,'2026-01-27',2,'2026-01-27 10:54:38',1,'2026-01-27 10:54:58',NULL,NULL,'approved',NULL),(2,3,'2026-01-27',2,'2026-01-27 19:01:49',1,'2026-01-27 19:02:08',NULL,NULL,'approved',NULL);
 /*!40000 ALTER TABLE `returns` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1727,7 +1727,7 @@ CREATE TABLE `search_logs` (
   PRIMARY KEY (`search_log_id`),
   KEY `idx_search_logs_user` (`user_id`),
   KEY `idx_search_logs_query` (`query_text`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1736,7 +1736,7 @@ CREATE TABLE `search_logs` (
 
 LOCK TABLES `search_logs` WRITE;
 /*!40000 ALTER TABLE `search_logs` DISABLE KEYS */;
-INSERT INTO `search_logs` VALUES (1,1,'Digital Fortress',1,'2026-01-27 14:27:26'),(2,1,'Digital Fortress',1,'2026-01-27 14:29:43'),(3,1,'Digital Fortress',1,'2026-01-27 14:32:05');
+INSERT INTO `search_logs` VALUES (1,1,'Digital Fortress',1,'2026-01-27 14:27:26'),(2,1,'Digital Fortress',1,'2026-01-27 14:29:43'),(3,1,'Digital Fortress',1,'2026-01-27 14:32:05'),(4,1,'Lord of the Mysteries',1,'2026-01-27 18:03:22'),(5,1,'lor',1,'2026-01-27 19:05:19');
 /*!40000 ALTER TABLE `search_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1842,7 +1842,7 @@ CREATE TABLE `user_profiles` (
   CONSTRAINT `user_profiles_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1851,7 +1851,7 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (1,1,'LMS','Admin','2024-01-01',';saijf;adsjf;asj;ajd;aj;','1234567890','lms inc.','Admin','uploads/profile_picture/1769403805_avatar.png',NULL,'2026-01-26 11:03:25',NULL,'2026-01-26 12:04:04',NULL,NULL),(2,3,'Tahmid','Shaheer','2026-01-26',NULL,'1234567890','lms inc.','Librarian','uploads/profile_picture/1769424080_avatar.png',NULL,'2026-01-26 16:41:20',NULL,'2026-01-26 16:41:20',NULL,NULL),(3,2,'Abul','kasem','2026-01-26',NULL,'1234567890','lms inc.','user','uploads/profile_picture/1769424167_avatar.png',NULL,'2026-01-26 16:42:47',NULL,'2026-01-26 16:42:47',NULL,NULL);
+INSERT INTO `user_profiles` VALUES (1,1,'LMS','Admin','2024-01-01',';saijf;adsjf;asj;ajd;aj;','1234567890','lms inc.','Admin','uploads/profile_picture/1769403805_avatar.png',NULL,'2026-01-26 11:03:25',NULL,'2026-01-26 12:04:04',NULL,NULL),(2,3,'Tahmid','Shaheer','2026-01-26',NULL,'1234567890','lms inc.','Librarian','uploads/profile_picture/1769424080_avatar.png',NULL,'2026-01-26 16:41:20',NULL,'2026-01-26 16:41:20',NULL,NULL),(3,2,'Abul','kasem','2026-01-26',NULL,'1234567890','lms inc.','user','uploads/profile_picture/1769424167_avatar.png',NULL,'2026-01-26 16:42:47',NULL,'2026-01-26 16:42:47',NULL,NULL),(6,4,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'2026-01-27 20:28:04',NULL,'2026-01-27 20:28:04',NULL,NULL),(7,6,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'2026-01-27 20:29:55',NULL,'2026-01-27 20:29:55',NULL,NULL);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1921,7 +1921,7 @@ CREATE TABLE `user_roles` (
   CONSTRAINT `user_roles_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_roles_ibfk_4` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_roles_ibfk_5` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1930,7 +1930,7 @@ CREATE TABLE `user_roles` (
 
 LOCK TABLES `user_roles` WRITE;
 /*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
-INSERT INTO `user_roles` VALUES (1,3,'tahmid',3,'Librarian',NULL,'2026-01-26 14:27:25',NULL,'2026-01-26 14:27:33',NULL,NULL),(2,2,'kasem',2,'User',NULL,'2026-01-26 14:27:40',NULL,'2026-01-26 14:27:40',NULL,NULL),(3,1,'lms_admin',1,'Admin',NULL,'2026-01-26 16:13:09',NULL,'2026-01-26 16:13:09',NULL,NULL);
+INSERT INTO `user_roles` VALUES (1,3,'tahmid',3,'Librarian',NULL,'2026-01-26 14:27:25',NULL,'2026-01-26 14:27:33',NULL,NULL),(2,2,'kasem',2,'User',NULL,'2026-01-26 14:27:40',NULL,'2026-01-26 14:27:40',NULL,NULL),(3,1,'lms_admin',1,'Admin',NULL,'2026-01-26 16:13:09',NULL,'2026-01-26 16:13:09',NULL,NULL),(5,4,'hannan',2,'User',NULL,'2026-01-27 20:28:29',1,'2026-01-27 20:28:55',NULL,NULL);
 /*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1981,6 +1981,7 @@ CREATE TABLE `users` (
   `username` varchar(100) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
+  `account_status` varchar(20) NOT NULL DEFAULT 'pending',
   `created_by` int(11) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `modified_by` int(11) DEFAULT NULL,
@@ -1988,7 +1989,7 @@ CREATE TABLE `users` (
   `deleted_by` int(11) DEFAULT NULL,
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1997,7 +1998,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'lms_admin','lms_admin@karigori.site','$2y$10$Qcs6B9zb2/wO3kNz8rK1oeYP0D7at6dCdsBh.0kDUS/J5K56rES1i',NULL,'2026-01-26 09:31:29',NULL,'2026-01-26 09:31:29',NULL,NULL),(2,'kasem','kasem@karigori.site','$2y$10$K0I/E4BgJxRnIyXZDTbLIujo/y2SETklrsCjvlt63DFmkAb9T0VK6',NULL,'2026-01-26 12:29:04',NULL,'2026-01-26 12:29:04',NULL,NULL),(3,'tahmid','tahmid@karigori.site','$2y$10$gnvL2hZoxmqE17G/v4yYPOf3yPU4dEiIxGwrhN6IVBF429CcyMvnK',NULL,'2026-01-26 12:29:45',NULL,'2026-01-26 12:29:45',NULL,NULL);
+INSERT INTO `users` VALUES (1,'lms_admin','lms_admin@karigori.site','$2y$10$Qcs6B9zb2/wO3kNz8rK1oeYP0D7at6dCdsBh.0kDUS/J5K56rES1i','approved',NULL,'2026-01-26 09:31:29',1,'2026-01-27 19:53:47',NULL,NULL),(2,'kasem','kasem@karigori.site','$2y$10$K0I/E4BgJxRnIyXZDTbLIujo/y2SETklrsCjvlt63DFmkAb9T0VK6','approved',NULL,'2026-01-26 12:29:04',1,'2026-01-27 19:53:49',NULL,NULL),(3,'tahmid','tahmid@karigori.site','$2y$10$gnvL2hZoxmqE17G/v4yYPOf3yPU4dEiIxGwrhN6IVBF429CcyMvnK','approved',NULL,'2026-01-26 12:29:45',1,'2026-01-27 19:53:50',NULL,NULL),(4,'hannan','hannan@email.com','$2y$10$dpWNA.Lbx2k56rw.8WcY5OrLetXzFJ7ehNLcQ.PD1qB/..psLHiMW','approved',NULL,'2026-01-27 19:33:51',1,'2026-01-27 20:28:55',NULL,NULL),(6,'mamun','mamun@email.com','$2y$10$tT/kGC/2/J8TiIAhtD3RBu2QUkhUHfAY3IOwLgb2KEMq97lhXz7Si','blocked',NULL,'2026-01-27 20:29:55',1,'2026-01-27 20:30:15',NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -2045,4 +2046,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-27 16:36:02
+-- Dump completed on 2026-01-27 20:33:16

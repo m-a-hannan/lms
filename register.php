@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	} elseif (strlen($password) < 6) {
 		$errors[] = 'Password must be at least 6 characters.';
 	} else {
-		$stmt = $conn->prepare('SELECT user_id FROM users WHERE email = ? OR username = ? LIMIT 1');
+		$stmt = $conn->prepare('SELECT user_id, account_status FROM users WHERE email = ? OR username = ? LIMIT 1');
 		if ($stmt === false) {
 			$errors[] = 'Registration failed. Please try again.';
 		} else {
@@ -38,19 +38,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$stmt->close();
 
 			if ($existing) {
-				$errors[] = 'Email or username already exists.';
+				if (($existing['account_status'] ?? '') === 'blocked') {
+					$errors[] = 'This account has been blocked. Contact the library.';
+				} else {
+					$errors[] = 'Email or username already exists.';
+				}
 			} else {
 				$passwordHash = password_hash($password, PASSWORD_DEFAULT);
-				$insert = $conn->prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)');
+				$insert = $conn->prepare('INSERT INTO users (username, email, password_hash, account_status) VALUES (?, ?, ?, ?)');
 				if ($insert === false) {
 					$errors[] = 'Registration failed. Please try again.';
 				} else {
-					$insert->bind_param('sss', $username, $email, $passwordHash);
+					$status = 'pending';
+					$insert->bind_param('ssss', $username, $email, $passwordHash, $status);
 					if ($insert->execute()) {
 						$newUserId = (int) $insert->insert_id;
 						$insert->close();
 						if ($newUserId > 0) {
-							$conn->query("INSERT INTO user_profiles (user_id) VALUES ($newUserId)");
+							$emptyPicture = $conn->real_escape_string('');
+							$conn->query("INSERT INTO user_profiles (user_id, profile_picture) VALUES ($newUserId, '$emptyPicture')");
 						}
 						header('Location: ' . BASE_URL . 'login.php?registered=1');
 						exit;

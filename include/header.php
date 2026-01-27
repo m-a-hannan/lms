@@ -124,26 +124,43 @@ if ($profileResult && $profileResult->num_rows === 1) {
 								<?php endif; ?>
 							</a>
 							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end notification-dropdown">
-								<span class="dropdown-item dropdown-header"><?php echo $notificationCount; ?> Notifications</span>
+								<div class="dropdown-item dropdown-header d-flex justify-content-between align-items-center">
+									<span><?php echo $notificationCount; ?> Notifications</span>
+									<form method="post" action="<?php echo BASE_URL; ?>actions/clear_notifications.php" class="m-0">
+										<button type="submit" class="btn btn-link btn-sm text-danger p-0 notification-clear-all" title="Clear all notifications" <?php echo $notificationCount > 0 ? '' : 'disabled'; ?>>
+											Clear All
+										</button>
+									</form>
+								</div>
 								<div class="dropdown-divider"></div>
 								<?php if ($notifications): ?>
 								<?php foreach ($notifications as $note): ?>
-								<a href="<?php echo BASE_URL; ?>notification_list.php" class="dropdown-item">
+								<div class="dropdown-item">
 									<div class="d-flex align-items-start gap-2 notification-entry">
 										<i class="bi bi-info-circle text-primary mt-1"></i>
 										<div class="flex-grow-1">
-											<div class="d-flex flex-wrap justify-content-between gap-1">
-												<span class="notification-title"><?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?></span>
-												<span class="notification-date text-secondary">
-													<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
-												</span>
+											<div class="d-flex flex-wrap justify-content-between gap-2">
+												<a href="<?php echo BASE_URL; ?>notification_list.php" class="notification-title text-decoration-none">
+													<?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?>
+												</a>
+												<div class="d-flex align-items-center gap-2">
+													<span class="notification-date text-secondary">
+														<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
+													</span>
+													<form method="post" action="<?php echo BASE_URL; ?>actions/remove_notification.php" class="m-0">
+														<input type="hidden" name="notification_id" value="<?php echo (int) ($note['notification_id'] ?? 0); ?>">
+														<button type="submit" class="btn btn-link text-danger p-0 notification-clear-btn" title="Clear notification">
+															<i class="bi bi-x-circle-fill"></i>
+														</button>
+													</form>
+												</div>
 											</div>
 											<div class="notification-message text-secondary small">
 												<?php echo htmlspecialchars($note['message'] ?? ''); ?>
 											</div>
 										</div>
 									</div>
-								</a>
+								</div>
 								<div class="dropdown-divider"></div>
 								<?php endforeach; ?>
 								<?php else: ?>

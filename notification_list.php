@@ -124,7 +124,7 @@ if ($isUserView) {
 												<?php else: ?>
 												<form method="post" action="<?php echo BASE_URL; ?>actions/remove_notification.php" class="d-inline">
 													<input type="hidden" name="notification_id" value="<?= (int) $row['notification_id'] ?>">
-													<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this notification from your account?');">
+													<button class="btn btn-sm btn-outline-danger">
 														Remove
 													</button>
 												</form>

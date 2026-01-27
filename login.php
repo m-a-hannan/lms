@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if ($identifier === '' || $password === '') {
 		$errors[] = 'Email/username and password are required.';
 	} else {
-		$stmt = $conn->prepare('SELECT user_id, username, email, password_hash FROM users WHERE email = ? OR username = ? LIMIT 1');
+		$stmt = $conn->prepare('SELECT user_id, username, email, password_hash, account_status FROM users WHERE email = ? OR username = ? LIMIT 1');
 		if ($stmt === false) {
 			$errors[] = 'Login failed. Please try again.';
 		} else {
@@ -35,6 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 			if (!$user || empty($user['password_hash']) || !password_verify($password, $user['password_hash'])) {
 				$errors[] = 'Invalid credentials.';
+			} elseif (isset($user['account_status']) && $user['account_status'] !== 'approved') {
+				$status = $user['account_status'];
+				if ($status === 'blocked') {
+					$errors[] = 'Your account has been blocked. Contact the library.';
+				} elseif ($status === 'rejected') {
+					$errors[] = 'Your account has been rejected. Contact the library.';
+				} elseif ($status === 'suspended') {
+					$errors[] = 'Your account has been suspended. Contact the library.';
+				} else {
+					$errors[] = 'Your account is pending approval.';
+				}
 			} else {
 				session_regenerate_id(true);
 				$userId = (int) $user['user_id'];
@@ -45,7 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				if ($userId > 0) {
 					$profileCheck = $conn->query("SELECT profile_id FROM user_profiles WHERE user_id = $userId LIMIT 1");
 					if (!$profileCheck || $profileCheck->num_rows === 0) {
-						$conn->query("INSERT INTO user_profiles (user_id) VALUES ($userId)");
+						$emptyPicture = $conn->real_escape_string('');
+						$conn->query("INSERT INTO user_profiles (user_id, profile_picture) VALUES ($userId, '$emptyPicture')");
 					}
 				}
 

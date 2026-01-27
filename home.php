@@ -239,11 +239,10 @@ if ($reserveStatus !== '') {
 			</div>
 
 			<div class="sidebar-section">
-				<small>LIBRARIES</small>
+				<small>CATEGORIES</small>
 				<a><i class="bi bi-journal-bookmark"></i> Novels</a>
 				<a><i class="bi bi-cpu"></i> Technology</a>
 				<a><i class="bi bi-brush"></i> Comics</a>
-				<a href="<?php echo $dashboardUrl; ?>"><i class="bi bi-brush"></i> Dashboard</a>
 			</div>
 		</aside>
 
