@@ -102,6 +102,16 @@ function display_value($value)
 	}
 	return htmlspecialchars((string) $value);
 }
+
+function format_file_size($bytes)
+{
+	$bytes = (int) $bytes;
+	if ($bytes <= 0) {
+		return "-";
+	}
+	$mb = $bytes / 1048576;
+	return number_format($mb, 2) . " MB";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -242,10 +252,17 @@ function display_value($value)
 	<?php if ($books): ?>
 	<?php foreach ($books as $row): ?>
 	<?php
-		$bookId = (int) ($row['book_id'] ?? 0);
-		$availableCopies = $availableByBook[$bookId] ?? 0;
-		$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
-	?>
+	$bookId = (int) ($row['book_id'] ?? 0);
+	$availableCopies = $availableByBook[$bookId] ?? 0;
+	$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
+	$bookType = strtolower($row['book_type'] ?? 'physical');
+	$isEbook = $bookType === 'ebook';
+	$fileType = $isEbook ? strtoupper((string) ($row['ebook_format'] ?? '')) : '';
+	$fileSize = $isEbook ? format_file_size((int) ($row['ebook_file_size'] ?? 0)) : '-';
+	$filePathLabel = $isEbook ? display_value(basename((string) ($row['ebook_file_path'] ?? ''))) : '-';
+	$canDownload = $isEbook && !empty($row['ebook_file_path']);
+	$canRead = $canDownload;
+?>
 	<div class="modal fade book-details-modal" id="bookModal<?php echo $bookId; ?>" tabindex="-1" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
@@ -289,10 +306,10 @@ function display_value($value)
 										<div><strong>Category:</strong> <span class="text-success"><?php echo display_value($row['category_name'] ?? null); ?></span></div>
 										<div><strong>Available Copies:</strong> <?php echo (int) $availableCopies; ?></div>
 										<div><strong>Published:</strong> <?php echo display_value($row['publication_year'] ?? null); ?></div>
-										<div><strong>File Type:</strong> <span class="badge bg-primary">-</span></div>
+										<div><strong>File Type:</strong> <span class="badge bg-primary"><?php echo $fileType !== '' ? $fileType : '-'; ?></span></div>
 										<div><strong>Read Status:</strong> <span class="badge bg-secondary">UNSET</span> <i class="bi bi-pencil"></i></div>
-										<div><strong>File Size:</strong> <span class="text-success">-</span></div>
-										<div><strong>File Path:</strong> -</div>
+										<div><strong>File Size:</strong> <span class="text-success"><?php echo $fileSize; ?></span></div>
+										<div><strong>File Path:</strong> <?php echo $filePathLabel; ?></div>
 									</div>
 
 									<div class="col-md-6">
@@ -316,15 +333,21 @@ function display_value($value)
 											<i class="bi bi-bookmark-plus"></i> Reserve
 										</button>
 									</form>
-									<button class="btn btn-outline-success">
+									<button class="btn btn-outline-success" <?php echo $canRead ? '' : 'disabled'; ?>>
 										<i class="bi bi-book"></i> Read
 									</button>
 									<button class="btn btn-outline-primary">
 										<i class="bi bi-folder"></i> Shelf
 									</button>
-									<button class="btn btn-outline-success">
+									<?php if ($canDownload): ?>
+									<a class="btn btn-outline-success" href="<?php echo BASE_URL; ?>actions/download_ebook.php?book_id=<?php echo $bookId; ?>">
+										<i class="bi bi-download"></i> Download
+									</a>
+									<?php else: ?>
+									<button class="btn btn-outline-success" disabled>
 										<i class="bi bi-download"></i> Download
 									</button>
+									<?php endif; ?>
 									<div class="btn-group">
 										<button class="btn btn-outline-warning">
 											<i class="bi bi-lightning"></i> Fetch

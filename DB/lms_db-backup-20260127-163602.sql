@@ -348,7 +348,7 @@ CREATE TABLE `book_copies` (
   CONSTRAINT `book_copies_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_copies_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_copies_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -357,7 +357,7 @@ CREATE TABLE `book_copies` (
 
 LOCK TABLES `book_copies` WRITE;
 /*!40000 ALTER TABLE `book_copies` DISABLE KEYS */;
-INSERT INTO `book_copies` VALUES (1,1,'B1-E1-20260126185952-1','hold_loan',NULL,NULL,'2026-01-26 23:59:52',1,'2026-01-27 00:00:28',NULL,NULL),(2,1,'B1-E1-20260126185952-2','available',NULL,NULL,'2026-01-26 23:59:52',1,'2026-01-27 10:54:58',NULL,NULL),(3,1,'B1-E1-20260126185952-3','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(4,1,'B1-E1-20260126185952-4','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(5,1,'B1-E1-20260126185952-5','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(6,1,'B1-E1-20260126185952-6','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(7,1,'B1-E1-20260126185952-7','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(8,1,'B1-E1-20260126185952-8','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(9,1,'B1-E1-20260126185952-9','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL);
+INSERT INTO `book_copies` VALUES (1,1,'B1-E1-20260126185952-1','hold_loan',NULL,NULL,'2026-01-26 23:59:52',1,'2026-01-27 00:00:28',NULL,NULL),(2,1,'B1-E1-20260126185952-2','available',NULL,NULL,'2026-01-26 23:59:52',1,'2026-01-27 10:54:58',NULL,NULL),(3,1,'B1-E1-20260126185952-3','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(4,1,'B1-E1-20260126185952-4','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(5,1,'B1-E1-20260126185952-5','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(6,1,'B1-E1-20260126185952-6','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(7,1,'B1-E1-20260126185952-7','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(8,1,'B1-E1-20260126185952-8','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(9,1,'B1-E1-20260126185952-9','available',NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(10,2,'B2-E2-20260127110340-1','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(11,2,'B2-E2-20260127110340-2','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(12,2,'B2-E2-20260127110340-3','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(13,2,'B2-E2-20260127110340-4','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(14,2,'B2-E2-20260127110340-5','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(15,2,'B2-E2-20260127110340-6','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(16,2,'B2-E2-20260127110340-7','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(17,2,'B2-E2-20260127110340-8','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(18,2,'B2-E2-20260127110340-9','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(19,2,'B2-E2-20260127110340-10','available',NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL);
 /*!40000 ALTER TABLE `book_copies` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -424,7 +424,7 @@ CREATE TABLE `book_editions` (
   CONSTRAINT `book_editions_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_editions_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `book_editions_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -433,7 +433,7 @@ CREATE TABLE `book_editions` (
 
 LOCK TABLES `book_editions` WRITE;
 /*!40000 ALTER TABLE `book_editions` DISABLE KEYS */;
-INSERT INTO `book_editions` VALUES (1,1,1,1998,NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL);
+INSERT INTO `book_editions` VALUES (1,1,1,1998,NULL,NULL,'2026-01-26 23:59:52',NULL,'2026-01-26 23:59:52',NULL,NULL),(2,2,1,1997,NULL,NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL);
 /*!40000 ALTER TABLE `book_editions` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -488,6 +488,10 @@ CREATE TABLE `books` (
   `publisher` varchar(255) DEFAULT NULL,
   `publication_year` int(11) DEFAULT NULL,
   `category_id` int(11) DEFAULT NULL,
+  `book_type` varchar(20) NOT NULL DEFAULT 'physical',
+  `ebook_format` varchar(20) DEFAULT NULL,
+  `ebook_file_path` varchar(255) DEFAULT NULL,
+  `ebook_file_size` int(11) DEFAULT NULL,
   `book_cover_path` varchar(255) NOT NULL,
   `created_by` int(11) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
@@ -504,7 +508,7 @@ CREATE TABLE `books` (
   CONSTRAINT `books_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `books_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `books_ibfk_4` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -513,7 +517,7 @@ CREATE TABLE `books` (
 
 LOCK TABLES `books` WRITE;
 /*!40000 ALTER TABLE `books` DISABLE KEYS */;
-INSERT INTO `books` VALUES (1,'Digital Fortress','Introduces Susan Fletcher, the NSA\'s head cryptographer, whose romantic getaway plans are shattered by a sudden, urgent work call.','Dan Brown','0-312-18087-X (US)','St. Martin\'s Press',1998,1,'uploads/book_cover/1769333690_Dan-Brown_Digital-Fortress_book-cover-2025.jpg',NULL,'2026-01-25 15:34:50',NULL,'2026-01-25 15:34:50',NULL,NULL);
+INSERT INTO `books` VALUES (1,'Digital Fortress','Introduces Susan Fletcher, the NSA\'s head cryptographer, whose romantic getaway plans are shattered by a sudden, urgent work call.','Dan Brown','0-312-18087-X (US)','St. Martin\'s Press',1998,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769333690_Dan-Brown_Digital-Fortress_book-cover-2025.jpg',NULL,'2026-01-25 15:34:50',NULL,'2026-01-25 15:34:50',NULL,NULL),(2,'Harry Potter and the Philosopher\'s Stone','Nearly ten years had passed since the Dursleys had woken up to find their nephew on the front step, but Privet Drive had hardly changed at all. The su','J. K. Rowling','978-0-7475-3269-9','Bloomsbury',1997,2,'physical',NULL,NULL,NULL,'uploads/book_cover/1769508220_Harry-Potter-and-the-sorcorers-stone.jpg',NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(3,'Lord of the Mysteries','The story features a meticulously crafted world with hidden, dangerous, and often occult, societies. It follows the protagonist, Klein, who becomes...','Cuttlefish That Loves Diving','234-038545792874','Cuttlefish That Loves Diving',2018,3,'ebook','pdf',NULL,NULL,'uploads/book_cover/1769508610_Lord_of_Mysteries.png',NULL,'2026-01-27 16:10:10',NULL,'2026-01-27 16:10:10',NULL,NULL);
 /*!40000 ALTER TABLE `books` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -575,7 +579,7 @@ CREATE TABLE `categories` (
   CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `categories_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `categories_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -584,7 +588,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'Thriller',NULL,'2026-01-25 15:28:37',NULL,'2026-01-25 15:28:37',NULL,NULL);
+INSERT INTO `categories` VALUES (1,'Thriller',NULL,'2026-01-25 15:28:37',NULL,'2026-01-25 15:28:37',NULL,NULL),(2,'Fantasy',NULL,'2026-01-27 15:54:25',NULL,'2026-01-27 15:54:25',NULL,NULL),(3,'Mystery',NULL,'2026-01-27 15:54:35',NULL,'2026-01-27 15:54:35',NULL,NULL);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -2041,4 +2045,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-27 15:25:31
+-- Dump completed on 2026-01-27 16:36:02
