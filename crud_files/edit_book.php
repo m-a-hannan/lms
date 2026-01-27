@@ -25,6 +25,20 @@ if ($categoryResult === false) {
     die("Category query failed: " . $conn->error);
 }
 
+$copyCounts = ['total' => 0, 'available' => 0];
+$countResult = $conn->query(
+    "SELECT COUNT(c.copy_id) AS total_copies,
+        SUM(CASE WHEN c.status IS NULL OR c.status = '' OR c.status = 'available' THEN 1 ELSE 0 END) AS available_copies
+     FROM book_copies c
+     JOIN book_editions e ON c.edition_id = e.edition_id
+     WHERE e.book_id = $book_id"
+);
+if ($countResult && $countResult->num_rows === 1) {
+    $countRow = $countResult->fetch_assoc();
+    $copyCounts['total'] = (int) ($countRow['total_copies'] ?? 0);
+    $copyCounts['available'] = (int) ($countRow['available_copies'] ?? 0);
+}
+
 /* ---------------------------
    Handle update submission
 ---------------------------- */
@@ -36,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $publisher        = $conn->real_escape_string(trim($_POST["publisher"]));
     $publication_year = (int) $_POST["publication_year"];
     $category_id      = (int) $_POST["category_id"];
+    $add_copies       = (int) ($_POST["add_copies"] ?? 0);
 
     $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = $book["book_cover_path"]; // default: keep existing
@@ -83,11 +98,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 book_cover_path = '$imageValue'
             WHERE book_id = $book_id";
 
-    if ($conn->query($sql)) {
+    $conn->begin_transaction();
+    try {
+        if (!$conn->query($sql)) {
+            throw new RuntimeException("Update failed: " . $conn->error);
+        }
+
+        if ($add_copies > 0) {
+            $editionResult = $conn->query(
+                "SELECT edition_id
+                 FROM book_editions
+                 WHERE book_id = $book_id
+                 ORDER BY edition_id DESC
+                 LIMIT 1"
+            );
+            if ($editionResult && $editionResult->num_rows === 1) {
+                $editionRow = $editionResult->fetch_assoc();
+                $editionId = (int) ($editionRow['edition_id'] ?? 0);
+            } else {
+                $yearValue = $publication_year > 0 ? $publication_year : "NULL";
+                $editionSql = "INSERT INTO book_editions (book_id, edition_number, publication_year)
+                               VALUES ($book_id, 1, $yearValue)";
+                if (!$conn->query($editionSql)) {
+                    throw new RuntimeException("Edition insert failed: " . $conn->error);
+                }
+                $editionId = (int) $conn->insert_id;
+            }
+
+            if (!empty($editionId)) {
+                for ($i = 1; $i <= $add_copies; $i++) {
+                    $barcode = $conn->real_escape_string("B{$book_id}-E{$editionId}-" . date('YmdHis') . "-{$i}");
+                    $copySql = "INSERT INTO book_copies (edition_id, barcode, status)
+                                VALUES ($editionId, '$barcode', 'available')";
+                    if (!$conn->query($copySql)) {
+                        throw new RuntimeException("Copy insert failed: " . $conn->error);
+                    }
+                }
+            }
+        }
+
+        $conn->commit();
         header("Location: " . BASE_URL . "book_list.php");
         exit;
-    } else {
-        die("Update failed: " . $conn->error);
+    } catch (Throwable $e) {
+        $conn->rollback();
+        die($e->getMessage());
     }
 }
 ?>
@@ -119,6 +174,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 								<div class="row g-4">
 
 									<div class="col-md-6">
+										<div class="mb-3">
+											<label class="form-label">Total Copies</label>
+											<input type="text" class="form-control" value="<?= htmlspecialchars((string) $copyCounts['total']) ?>" readonly>
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Available Copies</label>
+											<input type="text" class="form-control" value="<?= htmlspecialchars((string) $copyCounts['available']) ?>" readonly>
+										</div>
 										<div class="mb-3">
 											<label class="form-label">Book Title</label>
 											<input type="text" name="title" class="form-control"
@@ -165,6 +228,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											<label class="form-label">Replace Book Cover</label>
 											<input type="file" name="book_cover" class="form-control" accept="image/*"
 												onchange="previewNewCover(event)">
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Add Copies</label>
+											<input type="number" name="add_copies" class="form-control" min="0" value="0">
 										</div>
 
 										<button type="submit" class="btn btn-primary">Update Book</button>

@@ -97,6 +97,14 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 								</a>
 							</li>
 							<?php endif; ?>
+							<?php if (rbac_can_access($conn, 'user_dashboard.php')): ?>
+							<li class="nav-item">
+								<a href="<?php echo BASE_URL; ?>user_dashboard.php" class="nav-link">
+									<i class="nav-icon bi bi-person-badge"></i>
+									<p>User Dashboard</p>
+								</a>
+							</li>
+							<?php endif; ?>
 
 							<?php if ($canCrudTemplates): ?>
 							<li class="nav-item">

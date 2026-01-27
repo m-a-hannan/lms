@@ -9,6 +9,8 @@ $displayName = 'User';
 $displayRole = 'Member';
 $profileImage = BASE_URL . 'assets/img/user2-160x160.jpg';
 $memberSince = '';
+$notificationCount = 0;
+$notifications = [];
 
 if ($userId > 0) {
 	if (!empty($_SESSION['user_username'])) {
@@ -65,6 +67,23 @@ if ($profileResult && $profileResult->num_rows === 1) {
 			if (!empty($userRow['created_date'])) {
 				$memberSince = date('M Y', strtotime($userRow['created_date']));
 			}
+		}
+	}
+
+	$countResult = $conn->query(
+		"SELECT COUNT(*) AS total\n\t\t FROM notifications\n\t\t WHERE user_id = $userId AND read_status = 0 AND deleted_date IS NULL"
+	);
+	if ($countResult && $countResult->num_rows === 1) {
+		$countRow = $countResult->fetch_assoc();
+		$notificationCount = (int) ($countRow['total'] ?? 0);
+	}
+
+	$notificationResult = $conn->query(
+		"SELECT notification_id, title, message, created_at, read_status\n\t\t FROM notifications\n\t\t WHERE user_id = $userId AND deleted_date IS NULL\n\t\t ORDER BY created_at DESC, notification_id DESC\n\t\t LIMIT 5"
+	);
+	if ($notificationResult) {
+		while ($row = $notificationResult->fetch_assoc()) {
+			$notifications[] = $row;
 		}
 	}
 }
@@ -189,27 +208,32 @@ if ($profileResult && $profileResult->num_rows === 1) {
 						<li class="nav-item dropdown">
 							<a class="nav-link" data-bs-toggle="dropdown" href="#">
 								<i class="bi bi-bell-fill"></i>
-								<span class="navbar-badge badge text-bg-warning">15</span>
+								<?php if ($notificationCount > 0): ?>
+								<span class="navbar-badge badge text-bg-warning"><?php echo $notificationCount; ?></span>
+								<?php endif; ?>
 							</a>
 							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-								<span class="dropdown-item dropdown-header">15 Notifications</span>
+								<span class="dropdown-item dropdown-header"><?php echo $notificationCount; ?> Notifications</span>
 								<div class="dropdown-divider"></div>
-								<a href="#" class="dropdown-item">
-									<i class="bi bi-envelope me-2"></i> 4 new messages
-									<span class="float-end text-secondary fs-7">3 mins</span>
+								<?php if ($notifications): ?>
+								<?php foreach ($notifications as $note): ?>
+								<a href="<?php echo BASE_URL; ?>notification_list.php" class="dropdown-item">
+									<i class="bi bi-info-circle me-2"></i>
+									<?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?>
+									<span class="float-end text-secondary fs-7">
+										<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
+									</span>
+									<div class="text-secondary small">
+										<?php echo htmlspecialchars($note['message'] ?? ''); ?>
+									</div>
 								</a>
 								<div class="dropdown-divider"></div>
-								<a href="#" class="dropdown-item">
-									<i class="bi bi-people-fill me-2"></i> 8 friend requests
-									<span class="float-end text-secondary fs-7">12 hours</span>
-								</a>
+								<?php endforeach; ?>
+								<?php else: ?>
+								<span class="dropdown-item text-muted">No notifications yet.</span>
 								<div class="dropdown-divider"></div>
-								<a href="#" class="dropdown-item">
-									<i class="bi bi-file-earmark-fill me-2"></i> 3 new reports
-									<span class="float-end text-secondary fs-7">2 days</span>
-								</a>
-								<div class="dropdown-divider"></div>
-								<a href="#" class="dropdown-item dropdown-footer"> See All Notifications </a>
+								<?php endif; ?>
+								<a href="<?php echo BASE_URL; ?>notification_list.php" class="dropdown-item dropdown-footer"> See All Notifications </a>
 							</div>
 						</li>
 						<!--end::Notifications Dropdown Menu-->

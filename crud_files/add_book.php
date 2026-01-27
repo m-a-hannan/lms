@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $publisher        = $conn->real_escape_string(trim($_POST["publisher"]));
     $publication_year = (int) $_POST["publication_year"];
     $category_id      = (int) $_POST["category_id"];
+    $initial_copies   = (int) ($_POST["initial_copies"] ?? 0);
 
     $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = null;
@@ -62,11 +63,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $sql = "INSERT INTO books (title, book_excerpt, author, isbn, publisher, publication_year, category_id, book_cover_path)
             VALUES ('$title', '$book_excerpt', '$author', '$isbn', '$publisher', $publication_year, $category_id, $imageValue)";
 
-    if ($conn->query($sql)) {
+    $conn->begin_transaction();
+    try {
+        if (!$conn->query($sql)) {
+            throw new RuntimeException("Database error: " . $conn->error);
+        }
+
+        $bookId = (int) $conn->insert_id;
+
+        if ($initial_copies > 0 && $bookId > 0) {
+            $yearValue = $publication_year > 0 ? $publication_year : "NULL";
+            $editionSql = "INSERT INTO book_editions (book_id, edition_number, publication_year)
+                           VALUES ($bookId, 1, $yearValue)";
+            if (!$conn->query($editionSql)) {
+                throw new RuntimeException("Edition insert failed: " . $conn->error);
+            }
+
+            $editionId = (int) $conn->insert_id;
+            for ($i = 1; $i <= $initial_copies; $i++) {
+                $barcode = $conn->real_escape_string("B{$bookId}-E{$editionId}-" . date('YmdHis') . "-{$i}");
+                $copySql = "INSERT INTO book_copies (edition_id, barcode, status)
+                            VALUES ($editionId, '$barcode', 'available')";
+                if (!$conn->query($copySql)) {
+                    throw new RuntimeException("Copy insert failed: " . $conn->error);
+                }
+            }
+        }
+
+        $conn->commit();
         header("Location: " . BASE_URL . "book_list.php?success=1");
         exit;
-    } else {
-        die("Database error: " . $conn->error);
+    } catch (Throwable $e) {
+        $conn->rollback();
+        die($e->getMessage());
     }
 }
 
@@ -134,6 +163,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 												</option>
 												<?php endwhile; ?>
 											</select>
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Initial Copies</label>
+											<input type="number" class="form-control" name="initial_copies" min="0" value="0" />
 										</div>
 										<div class="mb-3">
 											<label class="form-label">Book Cover</label>

@@ -4,11 +4,29 @@ require_once ROOT_PATH . '/include/connection.php';
 
 if (isset($_POST['save'])) {
     $user_id = (int) $_POST['user_id'];
+    $book_id = (int) ($_POST['book_id'] ?? 0);
     $copy_id = (int) $_POST['copy_id'];
     $reservation_date = $conn->real_escape_string(trim($_POST['reservation_date']));
     $expiry_date = $conn->real_escape_string(trim($_POST['expiry_date']));
 
-    $sql = "INSERT INTO reservations (user_id, copy_id, reservation_date, expiry_date) VALUES ($user_id, $copy_id, '$reservation_date', '$expiry_date')";
+    if ($book_id <= 0 && $copy_id > 0) {
+        $bookResult = $conn->query(
+            "SELECT e.book_id
+             FROM book_copies c
+             JOIN book_editions e ON c.edition_id = e.edition_id
+             WHERE c.copy_id = $copy_id
+             LIMIT 1"
+        );
+        if ($bookResult && $bookResult->num_rows === 1) {
+            $bookRow = $bookResult->fetch_assoc();
+            $book_id = (int) ($bookRow['book_id'] ?? 0);
+        }
+    }
+
+    $bookValue = $book_id > 0 ? $book_id : 'NULL';
+    $copyValue = $copy_id > 0 ? $copy_id : 'NULL';
+
+    $sql = "INSERT INTO reservations (user_id, book_id, copy_id, reservation_date, expiry_date) VALUES ($user_id, $bookValue, $copyValue, '$reservation_date', '$expiry_date')";
     $result = $conn->query($sql);
 
     if ($result) {
@@ -40,6 +58,10 @@ if (isset($_POST['save'])) {
 						<div class="mb-3">
 							<label class="form-label">User Id</label>
 							<input type="number" class="form-control" name="user_id" />
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Book Id</label>
+							<input type="number" class="form-control" name="book_id" />
 						</div>
 						<div class="mb-3">
 							<label class="form-label">Copy Id</label>

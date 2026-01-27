@@ -2,7 +2,16 @@
 require_once __DIR__ . '/include/config.php';
 require_once ROOT_PATH . '/include/connection.php';
 
-$result = $conn->query("SELECT * FROM loans ORDER BY loan_id DESC");
+$result = $conn->query(
+	"SELECT l.loan_id, l.issue_date, l.due_date, l.return_date, l.status,
+		u.username, u.email, b.title
+	 FROM loans l
+	 JOIN users u ON l.user_id = u.user_id
+	 LEFT JOIN book_copies c ON l.copy_id = c.copy_id
+	 LEFT JOIN book_editions e ON c.edition_id = e.edition_id
+	 LEFT JOIN books b ON e.book_id = b.book_id
+	 ORDER BY l.loan_id DESC"
+);
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
@@ -30,11 +39,12 @@ if ($result === false) {
 									<thead class="table-light">
 										<tr>
 											<th>#</th>
-									<th>Copy Id</th>
-									<th>User Id</th>
+									<th>User</th>
+									<th>Book Title</th>
 									<th>Issue Date</th>
 									<th>Due Date</th>
 									<th>Return Date</th>
+									<th>Status</th>
 											<th class="text-center">Actions</th>
 										</tr>
 									</thead>
@@ -43,11 +53,12 @@ if ($result === false) {
 										<?php while ($row = $result->fetch_assoc()): ?>
 										<tr>
 											<td><?= $row["loan_id"] ?></td>
-									<td><?= htmlspecialchars($row['copy_id']) ?></td>
-									<td><?= htmlspecialchars($row['user_id']) ?></td>
+									<td><?= htmlspecialchars($row['username'] ?: $row['email']) ?></td>
+									<td><?= htmlspecialchars($row['title'] ?? '-') ?></td>
 									<td><?= htmlspecialchars($row['issue_date']) ?></td>
 									<td><?= htmlspecialchars($row['due_date']) ?></td>
 									<td><?= htmlspecialchars($row['return_date']) ?></td>
+									<td><?= htmlspecialchars($row['status'] ?? '-') ?></td>
 											<td class="text-center">
 												<a href="<?php echo BASE_URL; ?>crud_files/edit_loan.php?id=<?= $row['loan_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
@@ -61,7 +72,7 @@ if ($result === false) {
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
-											<td colspan="7" class="text-center text-muted">No records found.</td>
+											<td colspan="8" class="text-center text-muted">No records found.</td>
 										</tr>
 										<?php endif; ?>
 									</tbody>

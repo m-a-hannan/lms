@@ -2,7 +2,17 @@
 require_once __DIR__ . '/include/config.php';
 require_once ROOT_PATH . '/include/connection.php';
 
-$result = $conn->query("SELECT * FROM returns ORDER BY return_id DESC");
+$result = $conn->query(
+	"SELECT r.return_id, r.return_date, r.status,
+		l.loan_id, u.username, u.email, b.title
+	 FROM returns r
+	 JOIN loans l ON r.loan_id = l.loan_id
+	 JOIN users u ON l.user_id = u.user_id
+	 JOIN book_copies c ON l.copy_id = c.copy_id
+	 JOIN book_editions e ON c.edition_id = e.edition_id
+	 JOIN books b ON e.book_id = b.book_id
+	 ORDER BY r.return_id DESC"
+);
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
@@ -31,13 +41,10 @@ if ($result === false) {
 										<tr>
 									<th>Return Id</th>
 									<th>Loan Id</th>
+									<th>User</th>
+									<th>Book Title</th>
 									<th>Return Date</th>
-									<th>Created By</th>
-									<th>Created Date</th>
-									<th>Modified By</th>
-									<th>Modified Date</th>
-									<th>Deleted By</th>
-									<th>Deleted Date</th>
+									<th>Status</th>
 											<th class="text-center">Actions</th>
 										</tr>
 									</thead>
@@ -47,13 +54,10 @@ if ($result === false) {
 										<tr>
 									<td><?= htmlspecialchars($row['return_id']) ?></td>
 									<td><?= htmlspecialchars($row['loan_id']) ?></td>
+									<td><?= htmlspecialchars($row['username'] ?: $row['email']) ?></td>
+									<td><?= htmlspecialchars($row['title'] ?? '-') ?></td>
 									<td><?= htmlspecialchars($row['return_date']) ?></td>
-									<td><?= htmlspecialchars($row['created_by']) ?></td>
-									<td><?= htmlspecialchars($row['created_date']) ?></td>
-									<td><?= htmlspecialchars($row['modified_by']) ?></td>
-									<td><?= htmlspecialchars($row['modified_date']) ?></td>
-									<td><?= htmlspecialchars($row['deleted_by']) ?></td>
-									<td><?= htmlspecialchars($row['deleted_date']) ?></td>
+									<td><?= htmlspecialchars($row['status'] ?? '-') ?></td>
 											<td class="text-center">
 												<a href="<?php echo BASE_URL; ?>crud_files/edit_return.php?id=<?= $row['return_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
@@ -67,7 +71,7 @@ if ($result === false) {
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
-											<td colspan="10" class="text-center text-muted">No records found.</td>
+											<td colspan="7" class="text-center text-muted">No records found.</td>
 										</tr>
 										<?php endif; ?>
 									</tbody>

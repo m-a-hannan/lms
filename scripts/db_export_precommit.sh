@@ -20,25 +20,79 @@ require_cmd() {
   command -v "$1" >/dev/null 2>&1 || { err "Missing command: $1"; exit 1; }
 }
 
-# Load .env safely (expects simple KEY=VALUE lines)
+# Load .env safely (supports quoted values + special characters)
 load_env() {
   [[ -f "$ENV_FILE" ]] || { err ".env not found at: $ENV_FILE"; exit 1; }
 
-  # shellcheck disable=SC2046
-  export $(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' "$ENV_FILE" | sed 's/\r$//' | xargs) || true
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # Strip CR (Windows line endings)
+    line="${line%$'\r'}"
+    # Trim leading/trailing whitespace
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+
+    [[ -z "$line" ]] && continue
+    [[ "$line" == \#* || "$line" == \;* ]] && continue
+
+    # Allow optional "export " prefix
+    if [[ "$line" == export\ * ]]; then
+      line="${line#export }"
+      line="${line#"${line%%[![:space:]]*}"}"
+    fi
+
+    [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]] || continue
+    key="${line%%=*}"
+    val="${line#*=}"
+    # Trim whitespace around value (keep inner spaces and special chars)
+    val="${val#"${val%%[![:space:]]*}"}"
+    val="${val%"${val##*[![:space:]]}"}"
+
+    # Strip surrounding quotes if present
+    if [[ ( "$val" == \"*\" && "$val" == *\" ) || ( "$val" == \'*\' && "$val" == *\' ) ]]; then
+      quote="${val:0:1}"
+      val="${val:1:-1}"
+      if [[ "$quote" == '"' ]]; then
+        val="${val//\\\"/\"}"
+        val="${val//\\\\/\\}"
+      fi
+    fi
+
+    printf -v "$key" '%s' "$val"
+    export "$key"
+  done < "$ENV_FILE"
 }
 
 # Find mysqldump/mysql (XAMPP or system)
 detect_mysql_bins() {
-  if [[ -x "/opt/lampp/bin/mysqldump" && -x "/opt/lampp/bin/mysql" ]]; then
-    MYSQLDUMP="/opt/lampp/bin/mysqldump"
-    MYSQL="/opt/lampp/bin/mysql"
-  else
-    require_cmd mysqldump
-    require_cmd mysql
-    MYSQLDUMP="$(command -v mysqldump)"
-    MYSQL="$(command -v mysql)"
+  local candidates=()
+
+  if [[ -x "/opt/lampp/bin/mysql" && -x "/opt/lampp/bin/mysqldump" ]]; then
+    candidates+=("/opt/lampp/bin")
   fi
+
+  if command -v mysql >/dev/null 2>&1 && command -v mysqldump >/dev/null 2>&1; then
+    candidates+=("system")
+  fi
+
+  if [[ ${#candidates[@]} -eq 0 ]]; then
+    require_cmd mysql
+    require_cmd mysqldump
+  fi
+
+  for candidate in "${candidates[@]}"; do
+    if [[ "$candidate" == "system" ]]; then
+      MYSQL="$(command -v mysql)"
+      MYSQLDUMP="$(command -v mysqldump)"
+    else
+      MYSQL="$candidate/mysql"
+      MYSQLDUMP="$candidate/mysqldump"
+    fi
+
+    # Quick connection test to pick the right binary pair.
+    if MYSQL_PWD="$DB_PASS" "$MYSQL" "${MYSQL_ARGS[@]}" -e "SELECT 1;" >/dev/null 2>&1; then
+      return 0
+    fi
+  done
 }
 
 # -----------------------------
@@ -53,6 +107,24 @@ main() {
   : "${DB_PASS:?Missing DB_PASS in .env}"
   : "${DB_NAME:?Missing DB_NAME in .env}"
 
+  # Prefer local socket when available (supports XAMPP/MariaDB).
+  if [[ -z "${DB_SOCKET:-}" ]] && [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" ]]; then
+    if [[ -S "/opt/lampp/var/mysql/mysql.sock" ]]; then
+      DB_SOCKET="/opt/lampp/var/mysql/mysql.sock"
+    fi
+  fi
+
+  MYSQL_ARGS=()
+  if [[ -n "${DB_SOCKET:-}" ]]; then
+    MYSQL_ARGS+=(--protocol=socket --socket="$DB_SOCKET")
+  else
+    MYSQL_ARGS+=(-h"$DB_HOST")
+    if [[ -n "${DB_PORT:-}" ]]; then
+      MYSQL_ARGS+=(-P"$DB_PORT")
+    fi
+  fi
+  MYSQL_ARGS+=(-u"$DB_USER")
+
   detect_mysql_bins
 
   mkdir -p "$EXPORT_DIR" "$PROJECT_DB_DIR"
@@ -64,7 +136,7 @@ main() {
   info "Exporting full DB (schema + data) to: $DUMP_PATH"
 
   # Quick connection test first (so we fail fast with a clear message)
-  if ! "$MYSQL" -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1;" >/dev/null 2>&1; then
+  if ! MYSQL_PWD="$DB_PASS" "$MYSQL" "${MYSQL_ARGS[@]}" -e "SELECT 1;" >/dev/null 2>&1; then
     err "Cannot connect to MySQL using .env credentials (DB_HOST/DB_USER/DB_PASS). Commit blocked."
     exit 1
   fi
@@ -81,8 +153,8 @@ main() {
     DEFINER_FLAG=(--skip-definer)
   fi
 
-  if ! "$MYSQLDUMP" \
-      -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" \
+  if ! MYSQL_PWD="$DB_PASS" "$MYSQLDUMP" \
+      "${MYSQL_ARGS[@]}" \
       --databases "$DB_NAME" \
       --single-transaction \
       --triggers \
