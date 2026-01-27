@@ -1,3 +1,10 @@
+<?php
+require_once __DIR__ . '/include/config.php';
+require_once ROOT_PATH . '/include/connection.php';
+require_once ROOT_PATH . '/include/permissions.php';
+
+$dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -99,7 +106,7 @@
 			<p class="text-light mt-3">
 				Your gateway to knowledge and learning.
 			</p>
-			<a href="dashboard.php" class="btn btn-gradient btn-lg mt-3"><i class="nav-icon bi bi-speedometer"></i>
+			<a href="<?php echo $dashboardUrl; ?>" class="btn btn-gradient btn-lg mt-3"><i class="nav-icon bi bi-speedometer"></i>
 				Dashboard</a>
 
 			<!-- Action Pills -->

@@ -19,9 +19,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $publication_year = (int) $_POST["publication_year"];
     $category_id      = (int) $_POST["category_id"];
     $initial_copies   = (int) ($_POST["initial_copies"] ?? 0);
+    $book_type        = strtolower(trim($_POST["book_type"] ?? "physical"));
+    $ebook_format     = strtolower(trim($_POST["ebook_format"] ?? ""));
+
+    $allowedTypes = ["physical", "ebook"];
+    if (!in_array($book_type, $allowedTypes, true)) {
+        $book_type = "physical";
+    }
+
+    $allowedFormats = ["pdf", "epub", "mobi"];
+    if ($book_type === "ebook") {
+        if (!in_array($ebook_format, $allowedFormats, true)) {
+            $ebook_format = "";
+        }
+        $initial_copies = 0;
+    } else {
+        $ebook_format = "";
+    }
 
     $uploadDir = ROOT_PATH . "/uploads/book_cover/";
     $imagePath = null;
+    $ebookFilePath = null;
+    $ebookFileSize = null;
 
     // Handle image upload
     if (!empty($_FILES["book_cover"]["name"])) {
@@ -59,9 +78,55 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $imagePath = "uploads/book_cover/" . $fileName;
     }
 
+    if ($book_type === "ebook") {
+        if (empty($_FILES["ebook_file"]["name"])) {
+            die("Ebook file is required.");
+        }
+
+        $ebookDir = ROOT_PATH . "/uploads/ebooks/";
+        if (!is_dir($ebookDir)) {
+            if (!mkdir($ebookDir, 0755, true)) {
+                die("Ebook upload directory not available.");
+            }
+        }
+        if (!is_writable($ebookDir)) {
+            die("Ebook upload directory is not writable.");
+        }
+
+        if (!empty($_FILES["ebook_file"]["error"]) && $_FILES["ebook_file"]["error"] !== UPLOAD_ERR_OK) {
+            die("Ebook upload error: " . (int) $_FILES["ebook_file"]["error"]);
+        }
+
+        $ebookName = time() . "_" . basename($_FILES["ebook_file"]["name"]);
+        $ebookTarget = $ebookDir . $ebookName;
+        $ebookExt = strtolower(pathinfo($ebookTarget, PATHINFO_EXTENSION));
+
+        if (!in_array($ebookExt, $allowedFormats, true)) {
+            die("Invalid ebook file type.");
+        }
+        if ($ebook_format !== "" && $ebookExt !== $ebook_format) {
+            die("Selected ebook format does not match uploaded file.");
+        }
+
+        if ($_FILES["ebook_file"]["size"] > 50 * 1024 * 1024) {
+            die("Ebook file size must be under 50MB.");
+        }
+
+        if (!move_uploaded_file($_FILES["ebook_file"]["tmp_name"], $ebookTarget)) {
+            die("Failed to upload ebook file.");
+        }
+
+        $ebookFilePath = "uploads/ebooks/" . $ebookName;
+        $ebookFileSize = (int) $_FILES["ebook_file"]["size"];
+    }
+
     $imageValue = $imagePath !== null ? "'" . $conn->real_escape_string($imagePath) . "'" : "NULL";
-    $sql = "INSERT INTO books (title, book_excerpt, author, isbn, publisher, publication_year, category_id, book_cover_path)
-            VALUES ('$title', '$book_excerpt', '$author', '$isbn', '$publisher', $publication_year, $category_id, $imageValue)";
+    $bookTypeValue = "'" . $conn->real_escape_string($book_type) . "'";
+    $ebookFormatValue = $ebook_format !== "" ? "'" . $conn->real_escape_string($ebook_format) . "'" : "NULL";
+    $ebookPathValue = $ebookFilePath !== null ? "'" . $conn->real_escape_string($ebookFilePath) . "'" : "NULL";
+    $ebookSizeValue = $ebookFileSize !== null ? (int) $ebookFileSize : "NULL";
+    $sql = "INSERT INTO books (title, book_excerpt, author, isbn, publisher, publication_year, category_id, book_cover_path, book_type, ebook_format, ebook_file_path, ebook_file_size)
+            VALUES ('$title', '$book_excerpt', '$author', '$isbn', '$publisher', $publication_year, $category_id, $imageValue, $bookTypeValue, $ebookFormatValue, $ebookPathValue, $ebookSizeValue)";
 
     $conn->begin_transaction();
     try {
@@ -165,12 +230,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											</select>
 										</div>
 										<div class="mb-3">
+											<label class="form-label">Select Book Type</label>
+											<select class="form-select" name="book_type" id="bookTypeSelect" required>
+												<option value="physical" selected>Physical Copy/Book</option>
+												<option value="ebook">Digital Copy/Ebook</option>
+											</select>
+										</div>
+										<div class="mb-3 d-none" id="ebookFormatGroup">
+											<label class="form-label">Select Ebook Format</label>
+											<select class="form-select" name="ebook_format" id="ebookFormatSelect">
+												<option value="" selected disabled>Select format</option>
+												<option value="pdf">PDF</option>
+												<option value="epub">EPUB</option>
+												<option value="mobi">MOBI</option>
+											</select>
+										</div>
+										<div class="mb-3">
 											<label class="form-label">Initial Copies</label>
-											<input type="number" class="form-control" name="initial_copies" min="0" value="0" />
+											<input type="number" class="form-control" name="initial_copies" id="initialCopiesInput" min="0" value="0" />
 										</div>
 										<div class="mb-3">
 											<label class="form-label">Book Cover</label>
 											<input type="file" id="fileInput" accept="image/*" class="form-control" name="book_cover">
+										</div>
+										<div class="mb-3 d-none" id="ebookFileGroup">
+											<label class="form-label">Upload Ebook File</label>
+											<input type="file" class="form-control" name="ebook_file" id="ebookFileInput" accept=".pdf,.epub,.mobi">
 										</div>
 									</div>
 									<!--end::Body-->
@@ -205,6 +290,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!--end::App Main-->
 <?php include(ROOT_PATH . '/include/footer.php') ?>
 <?php include(ROOT_PATH . '/include/footer_resources.php') ?>
+
+<script>
+	const bookTypeSelect = document.getElementById('bookTypeSelect');
+	const ebookFormatGroup = document.getElementById('ebookFormatGroup');
+	const ebookFormatSelect = document.getElementById('ebookFormatSelect');
+	const initialCopiesInput = document.getElementById('initialCopiesInput');
+	const ebookFileGroup = document.getElementById('ebookFileGroup');
+	const ebookFileInput = document.getElementById('ebookFileInput');
+
+	const updateBookTypeFields = () => {
+		const isEbook = bookTypeSelect && bookTypeSelect.value === 'ebook';
+		if (ebookFormatGroup) {
+			ebookFormatGroup.classList.toggle('d-none', !isEbook);
+		}
+		if (ebookFormatSelect) {
+			ebookFormatSelect.required = isEbook;
+			if (!isEbook) {
+				ebookFormatSelect.value = '';
+			}
+		}
+		if (initialCopiesInput) {
+			initialCopiesInput.disabled = isEbook;
+			if (isEbook) {
+				initialCopiesInput.value = 0;
+			}
+		}
+		if (ebookFileGroup) {
+			ebookFileGroup.classList.toggle('d-none', !isEbook);
+		}
+		if (ebookFileInput) {
+			ebookFileInput.required = isEbook;
+			if (!isEbook) {
+				ebookFileInput.value = '';
+			}
+		}
+	};
+
+	if (bookTypeSelect) {
+		bookTypeSelect.addEventListener('change', updateBookTypeFields);
+		updateBookTypeFields();
+	}
+</script>
 
 <?php if (isset($_GET["success"])): ?>
 <div class="alert alert-success">Book added successfully.</div>

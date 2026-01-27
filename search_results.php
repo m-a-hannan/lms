@@ -4,126 +4,74 @@ require_once ROOT_PATH . "/include/connection.php";
 require_once ROOT_PATH . "/include/permissions.php";
 
 $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
+$context = rbac_get_context($conn);
+$currentUserId = (int) ($context['user_id'] ?? 0);
 
-$recentBooks = [];
-$categoryMap = [];
-$categoryBooks = [];
-$ebookResources = [];
-$uniqueBooks = [];
-$bookIds = [];
+$query = trim($_GET['q'] ?? '');
+$results = [];
 $availableByBook = [];
 
-$recentPool = [];
-$recentResult = $conn->query(
-	"SELECT DISTINCT books.*, categories.category_name
-	 FROM books
-	 LEFT JOIN categories ON categories.category_id = books.category_id
-	 JOIN book_editions ON book_editions.book_id = books.book_id
-	 JOIN book_copies ON book_copies.edition_id = book_editions.edition_id
-	 WHERE books.deleted_date IS NULL
-	   AND (book_copies.status IS NULL OR book_copies.status = '' OR book_copies.status = 'available')
-	 ORDER BY books.created_date DESC
-	 LIMIT 30"
-);
-if ($recentResult) {
-	while ($row = $recentResult->fetch_assoc()) {
-		$recentPool[] = $row;
-	}
-	shuffle($recentPool);
-	$recentBooks = array_slice($recentPool, 0, 7);
-}
-
-$categoryResult = $conn->query("SELECT category_id, category_name FROM categories ORDER BY category_name ASC");
-if ($categoryResult) {
-	while ($row = $categoryResult->fetch_assoc()) {
-		$categoryId = (int) ($row['category_id'] ?? 0);
-		if ($categoryId > 0) {
-			$categoryMap[$categoryId] = $row['category_name'] ?? '';
-		}
-	}
-}
-
-foreach ($categoryMap as $categoryId => $categoryName) {
+if ($query !== '') {
+	$like = '%' . $query . '%';
 	$stmt = $conn->prepare(
 		"SELECT books.*, categories.category_name
 		 FROM books
 		 LEFT JOIN categories ON categories.category_id = books.category_id
-		 WHERE books.category_id = ? AND books.deleted_date IS NULL
-		 ORDER BY books.created_date DESC
-		 LIMIT 10"
+		 WHERE books.title LIKE ? OR books.author LIKE ?
+		 ORDER BY books.title ASC
+		 LIMIT 60"
 	);
-	if (!$stmt) {
-		continue;
-	}
-	$stmt->bind_param('i', $categoryId);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	$books = [];
-	while ($result && ($row = $result->fetch_assoc())) {
-		$books[] = $row;
-	}
-	$stmt->close();
-	if ($books) {
-		$categoryBooks[$categoryId] = $books;
-	}
-}
-
-$digitalCheck = $conn->query("SHOW TABLES LIKE 'digital_resources'");
-if ($digitalCheck && $digitalCheck->num_rows > 0) {
-	$ebookStmt = $conn->prepare(
-		"SELECT resource_id, title, description, type
-		 FROM digital_resources
-		 WHERE deleted_date IS NULL
-		 ORDER BY created_date DESC
-		 LIMIT 10"
-	);
-	if ($ebookStmt) {
-		$ebookStmt->execute();
-		$ebookResult = $ebookStmt->get_result();
-		while ($ebookResult && ($row = $ebookResult->fetch_assoc())) {
-			$ebookResources[] = $row;
+	if ($stmt) {
+		$stmt->bind_param('ss', $like, $like);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		while ($result && ($row = $result->fetch_assoc())) {
+			$results[] = $row;
 		}
-		$ebookStmt->close();
+		$stmt->close();
 	}
-}
 
-foreach ($recentBooks as $row) {
-	$bookId = (int) ($row['book_id'] ?? 0);
-	if ($bookId > 0) {
-		$uniqueBooks[$bookId] = $row;
-		$bookIds[$bookId] = $bookId;
-	}
-}
-
-foreach ($categoryBooks as $books) {
-	foreach ($books as $row) {
-		$bookId = (int) ($row['book_id'] ?? 0);
-		if ($bookId > 0) {
-			$uniqueBooks[$bookId] = $row;
-			$bookIds[$bookId] = $bookId;
+	if ($results) {
+		$bookIds = array_map(
+			static fn($row) => (int) ($row['book_id'] ?? 0),
+			$results
+		);
+		$bookIds = array_values(array_filter($bookIds));
+		if ($bookIds) {
+			$placeholders = implode(',', array_fill(0, count($bookIds), '?'));
+			$types = str_repeat('i', count($bookIds));
+			$sql = "SELECT e.book_id, COUNT(*) AS available_count
+				FROM book_copies c
+				JOIN book_editions e ON c.edition_id = e.edition_id
+				WHERE e.book_id IN ($placeholders)
+				  AND (c.status IS NULL OR c.status = '' OR c.status = 'available')
+				GROUP BY e.book_id";
+			$availStmt = $conn->prepare($sql);
+			if ($availStmt) {
+				$availStmt->bind_param($types, ...$bookIds);
+				$availStmt->execute();
+				$availResult = $availStmt->get_result();
+				while ($availResult && ($row = $availResult->fetch_assoc())) {
+					$availableByBook[(int) $row['book_id']] = (int) $row['available_count'];
+				}
+				$availStmt->close();
+			}
 		}
 	}
-}
 
-if ($bookIds) {
-	$ids = array_values($bookIds);
-	$placeholders = implode(',', array_fill(0, count($ids), '?'));
-	$types = str_repeat('i', count($ids));
-	$sql = "SELECT e.book_id, COUNT(*) AS available_count
-		FROM book_copies c
-		JOIN book_editions e ON c.edition_id = e.edition_id
-		WHERE e.book_id IN ($placeholders)
-		  AND (c.status IS NULL OR c.status = '' OR c.status = 'available')
-		GROUP BY e.book_id";
-	$availStmt = $conn->prepare($sql);
-	if ($availStmt) {
-		$availStmt->bind_param($types, ...$ids);
-		$availStmt->execute();
-		$availResult = $availStmt->get_result();
-		while ($availResult && ($row = $availResult->fetch_assoc())) {
-			$availableByBook[(int) $row['book_id']] = (int) $row['available_count'];
+	$logCheck = $conn->query("SHOW TABLES LIKE 'search_logs'");
+	if ($logCheck && $logCheck->num_rows > 0) {
+		$logStmt = $conn->prepare(
+			"INSERT INTO search_logs (user_id, query_text, results_count, created_at)
+			 VALUES (?, ?, ?, NOW())"
+		);
+		if ($logStmt) {
+			$resultsCount = count($results);
+			$userId = $currentUserId > 0 ? $currentUserId : null;
+			$logStmt->bind_param('isi', $userId, $query, $resultsCount);
+			$logStmt->execute();
+			$logStmt->close();
 		}
-		$availStmt->close();
 	}
 }
 
@@ -150,42 +98,13 @@ function format_file_size($bytes)
 	$mb = $bytes / 1048576;
 	return number_format($mb, 2) . " MB";
 }
-
-$alerts = [];
-$loanStatus = $_GET['loan'] ?? '';
-if ($loanStatus !== '') {
-	if ($loanStatus === 'success') {
-		$alerts[] = ['success', 'Loan request submitted successfully.'];
-	} elseif ($loanStatus === 'unavailable') {
-		$alerts[] = ['warning', 'No copies are currently available for loan.'];
-	} elseif ($loanStatus === 'invalid') {
-		$alerts[] = ['warning', 'Invalid loan request.'];
-	} elseif ($loanStatus === 'error') {
-		$alerts[] = ['danger', 'Loan request failed. Please try again.'];
-	}
-}
-
-$reserveStatus = $_GET['reserve'] ?? '';
-if ($reserveStatus !== '') {
-	if ($reserveStatus === 'success') {
-		$alerts[] = ['success', 'Reservation request submitted successfully.'];
-	} elseif ($reserveStatus === 'available') {
-		$alerts[] = ['warning', 'Copies are available. Please request a loan instead of reserving.'];
-	} elseif ($reserveStatus === 'unavailable') {
-		$alerts[] = ['warning', 'No copies are available to reserve at the moment.'];
-	} elseif ($reserveStatus === 'invalid') {
-		$alerts[] = ['warning', 'Invalid reservation request.'];
-	} elseif ($reserveStatus === 'error') {
-		$alerts[] = ['danger', 'Reservation request failed. Please try again.'];
-	}
-}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 
 <head>
 	<meta charset="UTF-8" />
-	<title>LMS - Group A</title>
+	<title>LMS - Search</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<!-- Bootstrap -->
@@ -212,7 +131,7 @@ if ($reserveStatus !== '') {
 			<div class="search-container">
 				<form id="searchBox" class="search-box" action="<?php echo BASE_URL; ?>search_results.php" method="get" data-suggest-url="<?php echo BASE_URL; ?>actions/search_suggest.php" autocomplete="off">
 					<i class="bi bi-binoculars-fill"></i>
-					<input type="text" name="q" id="searchInput" placeholder="Type book or author name">
+					<input type="text" name="q" id="searchInput" value="<?php echo htmlspecialchars($query); ?>" placeholder="Type book or author name">
 					<i class="bi bi-mic-fill"></i>
 				</form>
 				<div id="searchSuggest" class="search-suggest"></div>
@@ -249,89 +168,46 @@ if ($reserveStatus !== '') {
 
 		<!-- Main Content -->
 		<main class="content">
-			<?php if ($alerts): ?>
-			<div class="mb-3">
-				<?php foreach ($alerts as $alert): ?>
-				<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
-					<?php echo htmlspecialchars($alert[1]); ?>
-				</div>
-				<?php endforeach; ?>
-			</div>
-			<?php endif; ?>
-
 			<section>
-				<div class="d-flex justify-content-between align-items-center mb-2">
-					<h5 class="mb-0">Recently Added</h5>
-				</div>
-				<?php if ($recentBooks): ?>
-				<div class="book-row">
-					<?php foreach ($recentBooks as $row): ?>
-					<?php
-						$bookId = (int) ($row['book_id'] ?? 0);
-						$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
-					?>
-					<div class="book-card">
-						<img src="<?php echo $cover; ?>">
-						<div class="book-overlay">
-							<i class="bi bi-eye" data-bs-toggle="modal" data-bs-target="#bookModal<?php echo $bookId; ?>" title="View details"></i>
-							<i class="bi bi-collection" title="Add to shelf"></i>
-						</div>
-					</div>
-					<?php endforeach; ?>
-				</div>
+				<h5>Search Results</h5>
+				<?php if ($query === ''): ?>
+					<p class="text-muted">Type a book title or author name to search.</p>
+				<?php elseif (!$results): ?>
+					<p class="text-muted">No results found for "<?php echo htmlspecialchars($query); ?>".</p>
 				<?php else: ?>
-				<p class="text-muted">No books found.</p>
+					<p class="text-muted">Found <?php echo count($results); ?> result(s) for "<?php echo htmlspecialchars($query); ?>".</p>
+					<div class="book-grid">
+						<?php foreach ($results as $row): ?>
+						<?php
+							$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
+							$bookId = (int) ($row['book_id'] ?? 0);
+						?>
+						<div class="book-item">
+							<div class="book-card">
+								<img src="<?php echo $cover; ?>" alt="Book cover">
+								<div class="book-overlay">
+									<i class="bi bi-eye" data-bs-toggle="modal" data-bs-target="#bookModal<?php echo $bookId; ?>" title="View details"></i>
+									<i class="bi bi-collection" title="Add to shelf"></i>
+								</div>
+							</div>
+							<div class="book-meta">
+								<div class="book-title"><?php echo display_value($row['title'] ?? null); ?></div>
+								<div class="book-author"><?php echo display_value($row['author'] ?? null); ?></div>
+							</div>
+						</div>
+						<?php endforeach; ?>
+					</div>
 				<?php endif; ?>
 			</section>
-
-			<?php foreach ($categoryBooks as $categoryId => $books): ?>
-			<section>
-				<div class="d-flex justify-content-between align-items-center mb-2">
-					<h5 class="mb-0"><?php echo htmlspecialchars($categoryMap[$categoryId] ?? 'Category'); ?></h5>
-					<a href="<?php echo BASE_URL; ?>category_view.php?category_id=<?php echo (int) $categoryId; ?>" class="btn btn-sm btn-outline-light">View All</a>
-				</div>
-				<div class="book-row">
-					<?php foreach ($books as $row): ?>
-					<?php
-						$bookId = (int) ($row['book_id'] ?? 0);
-						$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
-					?>
-					<div class="book-card">
-						<img src="<?php echo $cover; ?>">
-						<div class="book-overlay">
-							<i class="bi bi-eye" data-bs-toggle="modal" data-bs-target="#bookModal<?php echo $bookId; ?>" title="View details"></i>
-							<i class="bi bi-collection" title="Add to shelf"></i>
-						</div>
-					</div>
-					<?php endforeach; ?>
-				</div>
-			</section>
-			<?php endforeach; ?>
-
-			<?php if ($ebookResources): ?>
-			<section>
-				<div class="d-flex justify-content-between align-items-center mb-2">
-					<h5 class="mb-0">Ebooks</h5>
-					<a href="<?php echo BASE_URL; ?>category_view.php?type=ebook" class="btn btn-sm btn-outline-light">View All</a>
-				</div>
-				<div class="book-row">
-					<?php foreach ($ebookResources as $row): ?>
-					<div class="book-card">
-						<img src="assets/img/book-cover.jpg" alt="Ebook cover">
-					</div>
-					<?php endforeach; ?>
-				</div>
-			</section>
-			<?php endif; ?>
-
 		</main>
 	</div>
 
-	<?php foreach ($uniqueBooks as $row): ?>
+	<?php if ($results): ?>
+	<?php foreach ($results as $row): ?>
 	<?php
 	$bookId = (int) ($row['book_id'] ?? 0);
-	$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
 	$availableCopies = $availableByBook[$bookId] ?? 0;
+	$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
 	$bookType = strtolower($row['book_type'] ?? 'physical');
 	$isEbook = $bookType === 'ebook';
 	$fileType = $isEbook ? strtoupper((string) ($row['ebook_format'] ?? '')) : '';
@@ -361,11 +237,11 @@ if ($reserveStatus !== '') {
 
 							<div class="col-md-9">
 								<div class="d-flex align-items-center gap-2">
-									<h2 class="mb-0"><?php echo display_value($row["title"] ?? null); ?></h2>
+									<h2 class="mb-0"><?php echo display_value($row['title'] ?? null); ?></h2>
 									<i class="bi bi-unlock text-success fs-5"></i>
 								</div>
 
-								<a href="#" class="author-name"><?php echo display_value($row["author"] ?? null); ?></a>
+								<a href="#" class="author-name"><?php echo display_value($row['author'] ?? null); ?></a>
 
 								<div class="rating-row mt-2">
 									<i class="bi bi-hand-thumbs-up-fill text-warning"></i>
@@ -380,9 +256,9 @@ if ($reserveStatus !== '') {
 
 								<div class="row mt-4 small">
 									<div class="col-md-6">
-										<div><strong>Category:</strong> <span class="text-success"><?php echo display_value($row["category_name"] ?? null); ?></span></div>
+										<div><strong>Category:</strong> <span class="text-success"><?php echo display_value($row['category_name'] ?? null); ?></span></div>
 										<div><strong>Available Copies:</strong> <?php echo (int) $availableCopies; ?></div>
-										<div><strong>Published:</strong> <?php echo display_value($row["publication_year"] ?? null); ?></div>
+										<div><strong>Published:</strong> <?php echo display_value($row['publication_year'] ?? null); ?></div>
 										<div><strong>File Type:</strong> <span class="badge bg-primary"><?php echo $fileType !== '' ? $fileType : '-'; ?></span></div>
 										<div><strong>Read Status:</strong> <span class="badge bg-secondary">UNSET</span> <i class="bi bi-pencil"></i></div>
 										<div><strong>File Size:</strong> <span class="text-success"><?php echo $fileSize; ?></span></div>
@@ -390,10 +266,10 @@ if ($reserveStatus !== '') {
 									</div>
 
 									<div class="col-md-6">
-										<div><strong>Publisher:</strong> <?php echo display_value($row["publisher"] ?? null); ?></div>
+										<div><strong>Publisher:</strong> <?php echo display_value($row['publisher'] ?? null); ?></div>
 										<div><strong>Language:</strong> <span class="text-success">-</span></div>
-										<div><strong>ISBN:</strong> <?php echo display_value($row["isbn"] ?? null); ?></div>
-										<div><strong>Excerpt:</strong> <?php echo display_value($row["book_excerpt"] ?? null); ?></div>
+										<div><strong>ISBN:</strong> <?php echo display_value($row['isbn'] ?? null); ?></div>
+										<div><strong>Excerpt:</strong> <?php echo display_value($row['book_excerpt'] ?? null); ?></div>
 									</div>
 								</div>
 
@@ -436,7 +312,6 @@ if ($reserveStatus !== '') {
 										</ul>
 									</div>
 								</div>
-
 							</div>
 						</div>
 					</div>
@@ -445,10 +320,10 @@ if ($reserveStatus !== '') {
 		</div>
 	</div>
 	<?php endforeach; ?>
+	<?php endif; ?>
 
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
 	<!-- App JS -->
 	<script src="assets/js/home.js"></script>
 </body>

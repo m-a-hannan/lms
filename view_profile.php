@@ -21,6 +21,7 @@ $roleName = $context['role_name'] ?? '';
 $isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
 $showAuditColumns = $context['is_admin'] || $isLibrarian;
 $userLookup = $showAuditColumns ? library_user_map($conn) : [];
+$canChangePassword = rbac_can_access($conn, 'change_password.php', 'read');
 $result = $conn->query("SELECT * FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
 if ($result && $result->num_rows === 1) {
 	$profile = $result->fetch_assoc();
@@ -56,138 +57,138 @@ $fullName = $fullName !== '' ? htmlspecialchars($fullName) : '-';
 <?php include(ROOT_PATH . '/include/header.php') ?>
 
 <style>
-	body {
-    background-color: #f9f9fa
+body {
+	background-color: #f9f9fa
 }
 
 .user-card-full {
-    overflow: hidden;
-    width: 100%;
+	overflow: hidden;
+	width: 100%;
 }
 
 .card {
-    border-radius: 5px;
-    -webkit-box-shadow: 0 1px 20px 0 rgba(69,90,100,0.08);
-    box-shadow: 0 1px 20px 0 rgba(69,90,100,0.08);
-    border: none;
-    margin-bottom: 30px;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
+	box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
+	border: none;
+	margin-bottom: 30px;
 }
 
 .m-r-0 {
-    margin-right: 0px;
+	margin-right: 0px;
 }
 
 .m-l-0 {
-    margin-left: 0px;
+	margin-left: 0px;
 }
 
 .user-card-full .user-profile {
-    border-radius: 5px 0 0 5px;
+	border-radius: 5px 0 0 5px;
 }
 
 .bg-c-lite-green {
-        background: -webkit-gradient(linear, left top, right top, from(#f29263), to(#ee5a6f));
-    background: linear-gradient(to right, #ee5a6f, #f29263);
+	background: -webkit-gradient(linear, left top, right top, from(#f29263), to(#ee5a6f));
+	background: linear-gradient(to right, #ee5a6f, #f29263);
 }
 
 .user-profile {
-    padding: 20px 0;
+	padding: 20px 0;
 }
 
 .card-block {
-    padding: 1.25rem;
+	padding: 1.25rem;
 }
 
 .m-b-25 {
-    margin-bottom: 25px;
+	margin-bottom: 25px;
 }
 
 .img-radius {
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
+	border-radius: 50%;
+	width: 150px;
+	height: 150px;
+	object-fit: cover;
 }
 
 h6 {
-    font-size: 14px;
+	font-size: 14px;
 }
 
 .card .card-block p {
-    line-height: 25px;
+	line-height: 25px;
 }
 
-@media only screen and (min-width: 1400px){
-p {
-    font-size: 14px;
-}
+@media only screen and (min-width: 1400px) {
+	p {
+		font-size: 14px;
+	}
 }
 
 .card-block {
-    padding: 1.25rem;
+	padding: 1.25rem;
 }
 
 .b-b-default {
-    border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid #e0e0e0;
 }
 
 .m-b-20 {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .p-b-5 {
-    padding-bottom: 5px !important;
+	padding-bottom: 5px !important;
 }
 
 .card .card-block p {
-    line-height: 25px;
+	line-height: 25px;
 }
 
 .m-b-10 {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .text-muted {
-    color: #919aa3 !important;
+	color: #919aa3 !important;
 }
 
 .b-b-default {
-    border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid #e0e0e0;
 }
 
 .f-w-600 {
-    font-weight: 600;
+	font-weight: 600;
 }
 
 .m-b-20 {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .m-t-40 {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 .p-b-5 {
-    padding-bottom: 5px !important;
+	padding-bottom: 5px !important;
 }
 
 .m-b-10 {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .m-t-40 {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 .user-card-full .social-link li {
-    display: inline-block;
+	display: inline-block;
 }
 
 .user-card-full .social-link li a {
-    font-size: 20px;
-    margin: 0 10px 0 0;
-    -webkit-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
+	font-size: 20px;
+	margin: 0 10px 0 0;
+	-webkit-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
 }
 </style>
 
@@ -202,21 +203,23 @@ p {
 			<div class="row">
 				<div class="container py-5">
 					<div class="col-md-12">
-							<div class="d-flex justify-content-between align-items-center mb-4">
-								<h3 class="mb-0">Profile Details</h3>
+						<div class="d-flex justify-content-between align-items-center mb-4">
+							<h3 class="mb-0">Profile Details</h3>
+							<div class="d-flex gap-2">
 								<a href="<?php echo BASE_URL; ?>edit_profile.php" class="btn btn-primary btn-sm">Edit</a>
 							</div>
+						</div>
 
-							<?php if ($profileMissing): ?>
-								<div class="alert alert-warning">
-									Profile not found. Please create your profile first.
-									<a href="<?php echo BASE_URL; ?>edit_profile.php" class="btn btn-primary btn-sm ms-2">Create Profile</a>
-								</div>
-							<?php else: ?>
-							<div class="page-content" id="page-content">
-								<div class="padding">
-									<div class="row">
-										<div class="col-12">
+						<?php if ($profileMissing): ?>
+						<div class="alert alert-warning">
+							Profile not found. Please create your profile first.
+							<a href="<?php echo BASE_URL; ?>edit_profile.php" class="btn btn-primary btn-sm ms-2">Create Profile</a>
+						</div>
+						<?php else: ?>
+						<div class="page-content" id="page-content">
+							<div class="padding">
+								<div class="row">
+									<div class="col-12">
 										<div class="card user-card-full">
 											<div class="row m-l-0 m-r-0">
 												<div class="col-sm-4 bg-c-lite-green user-profile">
@@ -234,57 +237,55 @@ p {
 														<div class="row">
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Phone</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['phone'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400"><?php echo display_value($profile['phone'] ?? null); ?>
+																</h6>
 															</div>
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">DOB</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['dob'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400"><?php echo display_value($profile['dob'] ?? null); ?>
+																</h6>
 															</div>
 														</div>
 														<div class="row m-t-40">
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Institution</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['institution_name'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400">
+																	<?php echo display_value($profile['institution_name'] ?? null); ?></h6>
 															</div>
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Address</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['address'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400"><?php echo display_value($profile['address'] ?? null); ?>
+																</h6>
 															</div>
 														</div>
+
+
+														<h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600">Security</h6>
+														<div class="row">
+															<div class="col-sm-12">
+																<a href="<?php echo BASE_URL; ?>change_password.php" class="btn btn-outline-primary">
+																	Change Password
+																</a>
+															</div>
+														</div>
+
 
 														<?php if ($showAuditColumns): ?>
 														<h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600">Metadata</h6>
 														<div class="row">
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Created</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['created_date'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400">
+																	<?php echo display_value($profile['created_date'] ?? null); ?></h6>
 															</div>
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Modified</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['modified_date'] ?? null); ?></h6>
-															</div>
-														</div>
-														<div class="row m-t-40">
-															<div class="col-sm-6">
-																<p class="m-b-10 f-w-600">Created By</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value(library_user_label($profile['created_by'] ?? null, $userLookup)); ?></h6>
-															</div>
-															<div class="col-sm-6">
-																<p class="m-b-10 f-w-600">Modified By</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value(library_user_label($profile['modified_by'] ?? null, $userLookup)); ?></h6>
-															</div>
-														</div>
-														<div class="row m-t-40">
-															<div class="col-sm-6">
-																<p class="m-b-10 f-w-600">Deleted By</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value(library_user_label($profile['deleted_by'] ?? null, $userLookup)); ?></h6>
-															</div>
-															<div class="col-sm-6">
-																<p class="m-b-10 f-w-600">Deleted Date</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['deleted_date'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400">
+																	<?php echo display_value($profile['modified_date'] ?? null); ?></h6>
 															</div>
 														</div>
 														<?php endif; ?>
+
 													</div>
 												</div>
 											</div>

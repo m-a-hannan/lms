@@ -1,3 +1,10 @@
+<?php
+require_once __DIR__ . '/include/config.php';
+require_once ROOT_PATH . '/include/connection.php';
+require_once ROOT_PATH . '/include/permissions.php';
+
+$dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -39,7 +46,7 @@
 					<li class="nav-item"><a class="nav-link" href="library_rbac_matrix.php">RBAC</a></li>
 				</ul>
 
-				<a href="dashboard.php" class="btn btn-gradient px-4"><i class="nav-icon bi bi-speedometer"></i> Dashboard</a>
+				<a href="<?php echo $dashboardUrl; ?>" class="btn btn-gradient px-4"><i class="nav-icon bi bi-speedometer"></i> Dashboard</a>
 			</div>
 		</div>
 	</nav>
