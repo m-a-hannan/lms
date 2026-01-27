@@ -1708,6 +1708,35 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
+-- Table structure for table `search_logs`
+--
+
+DROP TABLE IF EXISTS `search_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `search_logs` (
+  `search_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `query_text` varchar(255) NOT NULL,
+  `results_count` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`search_log_id`),
+  KEY `idx_search_logs_user` (`user_id`),
+  KEY `idx_search_logs_query` (`query_text`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `search_logs`
+--
+
+LOCK TABLES `search_logs` WRITE;
+/*!40000 ALTER TABLE `search_logs` DISABLE KEYS */;
+INSERT INTO `search_logs` VALUES (1,1,'Digital Fortress',1,'2026-01-27 14:27:26'),(2,1,'Digital Fortress',1,'2026-01-27 14:29:43'),(3,1,'Digital Fortress',1,'2026-01-27 14:32:05');
+/*!40000 ALTER TABLE `search_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `system_settings`
 --
 
@@ -2012,4 +2041,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-27 13:57:44
+-- Dump completed on 2026-01-27 14:33:34

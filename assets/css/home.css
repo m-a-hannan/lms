@@ -59,6 +59,11 @@ small {
   flex: 1;
   display: flex;
   justify-content: center;
+  position: relative;
+}
+
+.search-container {
+  position: relative;
 }
 
 .search-box {
@@ -72,6 +77,55 @@ small {
   box-shadow: 0 0 0 1px rgba(0,0,0,0.1) inset;
   height: 36px;
   cursor: pointer;
+}
+
+.search-suggest {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  right: 0;
+  background: #1b2024;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 6px;
+  display: none;
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.search-suggest.show {
+  display: block;
+}
+
+.search-suggest .suggest-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.search-suggest .suggest-item:hover,
+.search-suggest .suggest-item.active {
+  background: rgba(255,255,255,0.08);
+}
+
+.search-suggest .suggest-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.search-suggest .suggest-meta {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
 }
 
 .search-box i {
@@ -240,6 +294,19 @@ section h5 {
   background: rgba(0,0,0,0.35);
 }
 
+[data-theme="light"] .search-suggest {
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.12);
+}
+
+[data-theme="light"] .search-suggest .suggest-meta {
+  color: rgba(0,0,0,0.6);
+}
+
+[data-theme="light"] .book-meta .book-author {
+  color: rgba(0,0,0,0.6);
+}
+
 /* ==============================
    BOOK CARDS
 ============================== */
@@ -257,6 +324,36 @@ section h5 {
   object-fit: cover;
   border-radius: 10px;
   display: block;
+}
+
+.book-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.book-item {
+  width: 140px;
+}
+
+.book-meta {
+  margin-top: 0.5rem;
+}
+
+.book-meta .book-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-meta .book-author {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ==============================
