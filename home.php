@@ -3,6 +3,7 @@ require_once __DIR__ . "/include/config.php";
 require_once ROOT_PATH . "/include/connection.php";
 
 $book = null;
+$availableCopies = 0;
 $bookResult = $conn->query(
 	"SELECT books.*, categories.category_name
 	 FROM books
@@ -12,6 +13,20 @@ $bookResult = $conn->query(
 );
 if ($bookResult && $bookResult->num_rows > 0) {
 	$book = $bookResult->fetch_assoc();
+	$bookId = (int) ($book['book_id'] ?? 0);
+	if ($bookId > 0) {
+		$copyResult = $conn->query(
+			"SELECT COUNT(*) AS available_count
+			 FROM book_copies c
+			 JOIN book_editions e ON c.edition_id = e.edition_id
+			 WHERE e.book_id = $bookId
+			   AND (c.status IS NULL OR c.status = '' OR c.status = 'available')"
+		);
+		if ($copyResult && $copyResult->num_rows > 0) {
+			$availableRow = $copyResult->fetch_assoc();
+			$availableCopies = (int) ($availableRow['available_count'] ?? 0);
+		}
+	}
 }
 
 function display_value($value)
@@ -31,6 +46,34 @@ function display_value($value)
 $coverPath = $book && !empty($book["book_cover_path"])
 	? htmlspecialchars($book["book_cover_path"])
 	: "assets/img/book-cover.jpg";
+$alerts = [];
+$loanStatus = $_GET['loan'] ?? '';
+if ($loanStatus !== '') {
+	if ($loanStatus === 'success') {
+		$alerts[] = ['success', 'Loan request submitted successfully.'];
+	} elseif ($loanStatus === 'unavailable') {
+		$alerts[] = ['warning', 'No copies are currently available for loan.'];
+	} elseif ($loanStatus === 'invalid') {
+		$alerts[] = ['warning', 'Invalid loan request.'];
+	} elseif ($loanStatus === 'error') {
+		$alerts[] = ['danger', 'Loan request failed. Please try again.'];
+	}
+}
+
+$reserveStatus = $_GET['reserve'] ?? '';
+if ($reserveStatus !== '') {
+	if ($reserveStatus === 'success') {
+		$alerts[] = ['success', 'Reservation request submitted successfully.'];
+	} elseif ($reserveStatus === 'available') {
+		$alerts[] = ['warning', 'Copies are available. Please request a loan instead of reserving.'];
+	} elseif ($reserveStatus === 'unavailable') {
+		$alerts[] = ['warning', 'No copies are available to reserve at the moment.'];
+	} elseif ($reserveStatus === 'invalid') {
+		$alerts[] = ['warning', 'Invalid reservation request.'];
+	} elseif ($reserveStatus === 'error') {
+		$alerts[] = ['danger', 'Reservation request failed. Please try again.'];
+	}
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -98,6 +141,15 @@ $coverPath = $book && !empty($book["book_cover_path"])
 
 		<!-- Main Content -->
 		<main class="content">
+			<?php if ($alerts): ?>
+			<div class="mb-3">
+				<?php foreach ($alerts as $alert): ?>
+				<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
+					<?php echo htmlspecialchars($alert[1]); ?>
+				</div>
+				<?php endforeach; ?>
+			</div>
+			<?php endif; ?>
 
 			<!-- Recently added book -->
 			<section>
@@ -173,6 +225,7 @@ $coverPath = $book && !empty($book["book_cover_path"])
 									<div class="col-md-6">
 										<div><strong>Category:</strong> <span
 												class="text-success"><?php echo display_value($book["category_name"] ?? null); ?></span></div>
+										<div><strong>Available Copies:</strong> <?php echo $availableCopies; ?></div>
 										<div><strong>Published:</strong> <?php echo display_value($book["publication_year"] ?? null); ?>
 										</div>
 										<div><strong>File Type:</strong> <span class="badge bg-primary">-</span></div>
@@ -191,6 +244,18 @@ $coverPath = $book && !empty($book["book_cover_path"])
 								</div>
 
 								<div class="book-actions mt-4">
+									<form action="<?php echo BASE_URL; ?>actions/request_loan.php" method="post" class="d-inline">
+										<input type="hidden" name="book_id" value="<?php echo (int) ($book['book_id'] ?? 0); ?>">
+										<button class="btn btn-outline-info" type="submit" <?php echo empty($book) ? 'disabled' : ''; ?>>
+											<i class="bi bi-box-arrow-in-right"></i> Request Loan
+										</button>
+									</form>
+									<form action="<?php echo BASE_URL; ?>actions/request_reservation.php" method="post" class="d-inline">
+										<input type="hidden" name="book_id" value="<?php echo (int) ($book['book_id'] ?? 0); ?>">
+										<button class="btn btn-outline-secondary" type="submit" <?php echo (empty($book) || $availableCopies > 0) ? 'disabled' : ''; ?>>
+											<i class="bi bi-bookmark-plus"></i> Reserve
+										</button>
+									</form>
 									<button class="btn btn-outline-success">
 										<i class="bi bi-book"></i> Read
 									</button>
