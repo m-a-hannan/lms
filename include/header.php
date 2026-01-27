@@ -212,19 +212,25 @@ if ($profileResult && $profileResult->num_rows === 1) {
 								<span class="navbar-badge badge text-bg-warning"><?php echo $notificationCount; ?></span>
 								<?php endif; ?>
 							</a>
-							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end notification-dropdown">
 								<span class="dropdown-item dropdown-header"><?php echo $notificationCount; ?> Notifications</span>
 								<div class="dropdown-divider"></div>
 								<?php if ($notifications): ?>
 								<?php foreach ($notifications as $note): ?>
 								<a href="<?php echo BASE_URL; ?>notification_list.php" class="dropdown-item">
-									<i class="bi bi-info-circle me-2"></i>
-									<?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?>
-									<span class="float-end text-secondary fs-7">
-										<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
-									</span>
-									<div class="text-secondary small">
-										<?php echo htmlspecialchars($note['message'] ?? ''); ?>
+									<div class="d-flex align-items-start gap-2 notification-entry">
+										<i class="bi bi-info-circle text-primary mt-1"></i>
+										<div class="flex-grow-1">
+											<div class="d-flex flex-wrap justify-content-between gap-1">
+												<span class="notification-title"><?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?></span>
+												<span class="notification-date text-secondary">
+													<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
+												</span>
+											</div>
+											<div class="notification-message text-secondary small">
+												<?php echo htmlspecialchars($note['message'] ?? ''); ?>
+											</div>
+										</div>
 									</div>
 								</a>
 								<div class="dropdown-divider"></div>

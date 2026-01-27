@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/include/config.php';
 require_once ROOT_PATH . '/include/connection.php';
+require_once ROOT_PATH . '/include/permissions.php';
+require_once ROOT_PATH . '/include/library_helpers.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
@@ -13,6 +15,12 @@ if ($userId <= 0) {
 	header('Location: ' . BASE_URL . 'login.php');
 	exit;
 }
+
+$context = rbac_get_context($conn);
+$roleName = $context['role_name'] ?? '';
+$isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
+$showAuditColumns = $context['is_admin'] || $isLibrarian;
+$userLookup = $showAuditColumns ? library_user_map($conn) : [];
 $result = $conn->query("SELECT * FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
 if ($result && $result->num_rows === 1) {
 	$profile = $result->fetch_assoc();
@@ -244,6 +252,7 @@ p {
 															</div>
 														</div>
 
+														<?php if ($showAuditColumns): ?>
 														<h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600">Metadata</h6>
 														<div class="row">
 															<div class="col-sm-6">
@@ -258,23 +267,24 @@ p {
 														<div class="row m-t-40">
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Created By</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['created_by'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400"><?php echo display_value(library_user_label($profile['created_by'] ?? null, $userLookup)); ?></h6>
 															</div>
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Modified By</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['modified_by'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400"><?php echo display_value(library_user_label($profile['modified_by'] ?? null, $userLookup)); ?></h6>
 															</div>
 														</div>
 														<div class="row m-t-40">
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Deleted By</p>
-																<h6 class="text-muted f-w-400"><?php echo display_value($profile['deleted_by'] ?? null); ?></h6>
+																<h6 class="text-muted f-w-400"><?php echo display_value(library_user_label($profile['deleted_by'] ?? null, $userLookup)); ?></h6>
 															</div>
 															<div class="col-sm-6">
 																<p class="m-b-10 f-w-600">Deleted Date</p>
 																<h6 class="text-muted f-w-400"><?php echo display_value($profile['deleted_date'] ?? null); ?></h6>
 															</div>
 														</div>
+														<?php endif; ?>
 													</div>
 												</div>
 											</div>

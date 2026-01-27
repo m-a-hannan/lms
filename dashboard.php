@@ -294,17 +294,35 @@ if ($returnStatus !== '') {
 </main>
 <!--end::App Main-->
 <?php include('include/footer.php') ?>
+<!-- Deployment Details -->
 <script>
-fetch('/deploy/status.json', {
-		cache: 'no-store'
-	})
-	.then(r => r.json())
-	.then(s => {
-		document.getElementById('deployStatus').innerText =
-			`Last deploy: ${s.time} | SHA: ${s.sha} | DB: ${s.dump} | Result: ${s.result}`;
-	})
-	.catch(() => {
-		document.getElementById('deployStatus').innerText = 'Deploy status unavailable';
-	});
+Promise.all([
+  fetch('/deploy/status.json', { cache: 'no-store' }).then(r => r.json()),
+  fetch('/DEPLOYED_SHA.txt', { cache: 'no-store' }).then(r => r.text())
+])
+  .then(([status, shaText]) => {
+    const container = document.getElementById('deployStatus');
+    container.textContent = '';
+
+    const sha = shaText.trim(); // important: remove newline
+
+    const rows = [
+      `Last deploy: ${status.time}`,
+      `SHA: ${sha}`,
+      `DB: ${status.dump}`,
+      `Result: ${status.result}`
+    ];
+
+    rows.forEach(text => {
+      const div = document.createElement('div');
+      div.textContent = text;
+      container.appendChild(div);
+    });
+  })
+  .catch(() => {
+    const container = document.getElementById('deployStatus');
+    container.textContent = 'Deploy status unavailable';
+  });
 </script>
+
 <?php include('include/footer_resources.php') ?>

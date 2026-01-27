@@ -102,3 +102,49 @@ function library_is_copy_available(?string $status): bool
 	$status = strtolower(trim((string) $status));
 	return $status === '' || $status === 'available';
 }
+
+function library_user_map(mysqli $conn): array
+{
+	$map = [];
+	$result = $conn->query("SELECT user_id, username, email FROM users");
+	if ($result) {
+		while ($row = $result->fetch_assoc()) {
+			$userId = (int) ($row['user_id'] ?? 0);
+			if ($userId <= 0) {
+				continue;
+			}
+			$name = trim((string) ($row['username'] ?? ''));
+			if ($name === '') {
+				$name = trim((string) ($row['email'] ?? ''));
+			}
+			if ($name === '') {
+				$name = 'User #' . $userId;
+			}
+			$map[$userId] = $name;
+		}
+	}
+
+	return $map;
+}
+
+function library_user_label($value, array $map): string
+{
+	if ($value === null) {
+		return '-';
+	}
+
+	$value = trim((string) $value);
+	if ($value === '') {
+		return '-';
+	}
+
+	if (is_numeric($value)) {
+		$userId = (int) $value;
+		if ($userId <= 0) {
+			return '-';
+		}
+		return $map[$userId] ?? ('User #' . $userId);
+	}
+
+	return $value;
+}

@@ -1,6 +1,14 @@
 <?php
 require_once __DIR__ . '/include/config.php';
 require_once ROOT_PATH . '/include/connection.php';
+require_once ROOT_PATH . '/include/permissions.php';
+require_once ROOT_PATH . '/include/library_helpers.php';
+
+$context = rbac_get_context($conn);
+$roleName = $context['role_name'] ?? '';
+$isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
+$showAuditColumns = $context['is_admin'] || $isLibrarian;
+$userLookup = $showAuditColumns ? library_user_map($conn) : [];
 
 $result = $conn->query("SELECT * FROM backups ORDER BY backup_id DESC");
 if ($result === false) {
@@ -33,12 +41,14 @@ if ($result === false) {
 									<th>Backup Date</th>
 									<th>File Path</th>
 									<th>Status</th>
+									<?php if ($showAuditColumns): ?>
 									<th>Created By</th>
 									<th>Created Date</th>
 									<th>Modified By</th>
 									<th>Modified Date</th>
 									<th>Deleted By</th>
 									<th>Deleted Date</th>
+									<?php endif; ?>
 											<th class="text-center">Actions</th>
 										</tr>
 									</thead>
@@ -50,12 +60,14 @@ if ($result === false) {
 									<td><?= htmlspecialchars($row['backup_date']) ?></td>
 									<td><?= htmlspecialchars($row['file_path']) ?></td>
 									<td><?= htmlspecialchars($row['status']) ?></td>
-									<td><?= htmlspecialchars($row['created_by']) ?></td>
+									<?php if ($showAuditColumns): ?>
+									<td><?= htmlspecialchars(library_user_label($row['created_by'] ?? null, $userLookup)) ?></td>
 									<td><?= htmlspecialchars($row['created_date']) ?></td>
-									<td><?= htmlspecialchars($row['modified_by']) ?></td>
+									<td><?= htmlspecialchars(library_user_label($row['modified_by'] ?? null, $userLookup)) ?></td>
 									<td><?= htmlspecialchars($row['modified_date']) ?></td>
-									<td><?= htmlspecialchars($row['deleted_by']) ?></td>
+									<td><?= htmlspecialchars(library_user_label($row['deleted_by'] ?? null, $userLookup)) ?></td>
 									<td><?= htmlspecialchars($row['deleted_date']) ?></td>
+									<?php endif; ?>
 											<td class="text-center">
 												<a href="<?php echo BASE_URL; ?>crud_files/edit_backup.php?id=<?= $row['backup_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
@@ -69,7 +81,7 @@ if ($result === false) {
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
-											<td colspan="11" class="text-center text-muted">No records found.</td>
+											<td colspan="<?php echo $showAuditColumns ? 11 : 5; ?>" class="text-center text-muted">No records found.</td>
 										</tr>
 										<?php endif; ?>
 									</tbody>
