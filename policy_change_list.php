@@ -1,6 +1,14 @@
 <?php
 require_once __DIR__ . '/include/config.php';
 require_once ROOT_PATH . '/include/connection.php';
+require_once ROOT_PATH . '/include/permissions.php';
+require_once ROOT_PATH . '/include/library_helpers.php';
+
+$context = rbac_get_context($conn);
+$roleName = $context['role_name'] ?? '';
+$isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
+$showAuditColumns = $context['is_admin'] || $isLibrarian;
+$userLookup = $showAuditColumns ? library_user_map($conn) : [];
 
 $result = $conn->query("SELECT * FROM policy_changes ORDER BY change_id DESC");
 if ($result === false) {
@@ -34,12 +42,14 @@ if ($result === false) {
 									<th>Proposed By</th>
 									<th>Proposal Date</th>
 									<th>Status</th>
+									<?php if ($showAuditColumns): ?>
 									<th>Created By</th>
 									<th>Created Date</th>
 									<th>Modified By</th>
 									<th>Modified Date</th>
 									<th>Deleted By</th>
 									<th>Deleted Date</th>
+									<?php endif; ?>
 											<th class="text-center">Actions</th>
 										</tr>
 									</thead>
@@ -52,12 +62,14 @@ if ($result === false) {
 									<td><?= htmlspecialchars($row['proposed_by']) ?></td>
 									<td><?= htmlspecialchars($row['proposal_date']) ?></td>
 									<td><?= htmlspecialchars($row['status']) ?></td>
-									<td><?= htmlspecialchars($row['created_by']) ?></td>
+									<?php if ($showAuditColumns): ?>
+									<td><?= htmlspecialchars(library_user_label($row['created_by'] ?? null, $userLookup)) ?></td>
 									<td><?= htmlspecialchars($row['created_date']) ?></td>
-									<td><?= htmlspecialchars($row['modified_by']) ?></td>
+									<td><?= htmlspecialchars(library_user_label($row['modified_by'] ?? null, $userLookup)) ?></td>
 									<td><?= htmlspecialchars($row['modified_date']) ?></td>
-									<td><?= htmlspecialchars($row['deleted_by']) ?></td>
+									<td><?= htmlspecialchars(library_user_label($row['deleted_by'] ?? null, $userLookup)) ?></td>
 									<td><?= htmlspecialchars($row['deleted_date']) ?></td>
+									<?php endif; ?>
 											<td class="text-center">
 												<a href="<?php echo BASE_URL; ?>crud_files/edit_policy_change.php?id=<?= $row['change_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
@@ -71,7 +83,7 @@ if ($result === false) {
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
-											<td colspan="12" class="text-center text-muted">No records found.</td>
+											<td colspan="<?php echo $showAuditColumns ? 12 : 6; ?>" class="text-center text-muted">No records found.</td>
 										</tr>
 										<?php endif; ?>
 									</tbody>
