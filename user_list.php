@@ -34,6 +34,21 @@ $result = $conn->query(
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
+
+$pendingResetUsers = [];
+$resetTable = $conn->query("SHOW TABLES LIKE 'password_reset_requests'");
+if ($resetTable && $resetTable->num_rows > 0) {
+	$pendingResult = $conn->query(
+		"SELECT DISTINCT user_id
+		 FROM password_reset_requests
+		 WHERE status = 'pending' AND user_id IS NOT NULL"
+	);
+	if ($pendingResult) {
+		while ($row = $pendingResult->fetch_assoc()) {
+			$pendingResetUsers[(int) $row['user_id']] = true;
+		}
+	}
+}
 ?>
 <?php include(ROOT_PATH . '/include/header_resources.php') ?>
 <?php include(ROOT_PATH . '/include/header.php') ?>
@@ -105,7 +120,15 @@ if ($result === false) {
 											
 											<td class="text-center">
 												<?php if ($canManageUsers): ?>
-													<button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#passwordModal<?php echo (int) $row['user_id']; ?>">
+													<?php
+														$userId = (int) $row['user_id'];
+														$hasResetRequest = isset($pendingResetUsers[$userId]);
+													?>
+													<button type="button" class="btn btn-sm btn-outline-primary"
+														data-bs-toggle="modal"
+														data-bs-target="#passwordModal<?php echo $userId; ?>"
+														<?php echo $hasResetRequest ? '' : 'disabled'; ?>
+														title="<?php echo $hasResetRequest ? 'Set temporary password' : 'No pending reset request'; ?>">
 														Set Password
 													</button>
 													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_user.php" class="d-inline">
