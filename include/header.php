@@ -3,6 +3,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 require_once ROOT_PATH . '/include/connection.php';
+require_once ROOT_PATH . '/include/permissions.php';
 
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 $displayName = 'User';
@@ -11,6 +12,12 @@ $profileImage = BASE_URL . 'assets/img/user2-160x160.jpg';
 $memberSince = '';
 $notificationCount = 0;
 $notifications = [];
+$reportsLinkVisible = false;
+if (function_exists('rbac_get_context')) {
+	$context = rbac_get_context($conn);
+	$isLibrarian = strcasecmp($context['role_name'] ?? '', 'Librarian') === 0;
+	$reportsLinkVisible = $context['is_admin'] || $isLibrarian;
+}
 
 if ($userId > 0) {
 	if (!empty($_SESSION['user_username'])) {
@@ -103,16 +110,22 @@ if ($profileResult && $profileResult->num_rows === 1) {
 							</a>
 						</li>
 						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>home.php" class="nav-link">Library</a></li>
+						<?php if ($reportsLinkVisible): ?>
+						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>reports.php" class="nav-link">Reports</a></li>
+						<?php endif; ?>
 						<li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
 					</ul>
 					<!--end::Start Navbar Links-->
 					<!--begin::End Navbar Links-->
 					<ul class="navbar-nav ms-auto">
 						<!--begin::Navbar Search-->
-						<li class="nav-item">
-							<a class="nav-link" data-widget="navbar-search" href="#" role="button">
-								<i class="bi bi-search"></i>
-							</a>
+						<li class="nav-item me-2">
+							<div class="topbar-search" id="topbarSearch">
+								<button type="button" class="topbar-search-icon" aria-label="Open search">
+									<i class="bi bi-search"></i>
+								</button>
+								<input type="search" class="topbar-search-input" id="pageSearchInput" placeholder="Search this page...">
+							</div>
 						</li>
 						<!--end::Navbar Search-->
 						<!--begin::Notifications Dropdown Menu-->
