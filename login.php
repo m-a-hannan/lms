@@ -15,6 +15,7 @@ $errors = [];
 $identifier = '';
 $registered = isset($_GET['registered']) && $_GET['registered'] === '1';
 $loggedOut = isset($_GET['logged_out']) && $_GET['logged_out'] === '1';
+$resetRequest = $_GET['reset_request'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$identifier = trim($_POST['identifier'] ?? '');
@@ -299,7 +300,6 @@ button {
 							<?php echo htmlspecialchars(implode(' ', $errors)); ?>
 						</div>
 					<?php endif; ?>
-
 					<div class="inputbox">
 
 					<i class="bi bi-person input-icon"></i>
@@ -324,7 +324,7 @@ button {
 
 						<label><input type="checkbox">Remember Me</label>
 
-						<a href="#">Forgot Password</a>
+						<a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password</a>
 
 					</div>
 
@@ -344,6 +344,33 @@ button {
 
 	</section>
 
+	<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Request Password Reset</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<form method="post" action="<?php echo BASE_URL; ?>actions/request_password_reset.php" id="forgotPasswordForm">
+					<div class="modal-body">
+						<p class="text-muted small mb-3">
+							Enter the email linked to your account. An admin will set a temporary password.
+							Once you receive it, log in and change your password from your profile.
+						</p>
+						<div class="mb-3">
+							<label class="form-label">Email Address</label>
+							<input type="email" name="email" class="form-control" required>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Send Request</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -355,6 +382,70 @@ button {
 		}
 	</script>
 	<?php endif; ?>
+
+	<script>
+		const resetForm = document.getElementById('forgotPasswordForm');
+
+		const showToast = (message, variant = 'success') => {
+			const toastContainer = document.createElement('div');
+			toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+			toastContainer.innerHTML = `
+				<div class="toast text-bg-${variant} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+					<div class="d-flex">
+						<div class="toast-body">${message}</div>
+						<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+					</div>
+				</div>
+			`;
+			document.body.appendChild(toastContainer);
+			const toastEl = toastContainer.querySelector('.toast');
+			if (toastEl && window.bootstrap) {
+				new bootstrap.Toast(toastEl, { delay: 3500 }).show();
+			}
+		};
+
+		if (resetForm) {
+			resetForm.addEventListener('submit', async (event) => {
+				event.preventDefault();
+				const formData = new FormData(resetForm);
+
+				try {
+					const response = await fetch(resetForm.action, {
+						method: 'POST',
+						body: formData,
+						headers: {
+							'X-Requested-With': 'XMLHttpRequest',
+							'Accept': 'application/json'
+						},
+					});
+					const rawText = await response.text();
+					let data = {};
+					try {
+						data = JSON.parse(rawText);
+					} catch (jsonError) {
+						data = { status: 'error', message: rawText || 'Invalid response from server.' };
+					}
+
+					if (data.status === 'sent') {
+						const modalEl = document.getElementById('forgotPasswordModal');
+						const modalInstance = modalEl && window.bootstrap ? bootstrap.Modal.getInstance(modalEl) : null;
+						if (modalInstance) {
+							modalInstance.hide();
+						}
+						showToast('Password reset request submitted successfully.');
+						setTimeout(() => {
+							window.location.href = '<?php echo BASE_URL; ?>login.php';
+						}, 1200);
+						return;
+					}
+
+					showToast(data.message || 'Unable to send request.', 'danger');
+				} catch (err) {
+					showToast('Unable to send request. Please try again.', 'danger');
+				}
+			});
+		}
+	</script>
 
 </body>
 

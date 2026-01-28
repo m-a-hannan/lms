@@ -19,6 +19,8 @@ if ($status === 'approved') {
 	$alerts[] = ['warning', 'User suspended.'];
 } elseif ($status === 'deleted') {
 	$alerts[] = ['danger', 'User deleted.'];
+} elseif ($status === 'temp_password') {
+	$alerts[] = ['success', 'Temporary password saved. Let the user know to log in and change it.'];
 } elseif ($status === 'error') {
 	$alerts[] = ['danger', 'Unable to update user status.'];
 }
@@ -52,10 +54,13 @@ if ($result === false) {
 					<div class="card shadow-sm">
 						<div class="card-body">
 							<?php if ($alerts): ?>
-							<div class="mb-3">
+							<div class="toast-container position-fixed top-0 end-0 p-3" id="userListToasts">
 								<?php foreach ($alerts as $alert): ?>
-								<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
-									<?php echo htmlspecialchars($alert[1]); ?>
+								<div class="toast text-bg-<?php echo htmlspecialchars($alert[0]); ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
+									<div class="d-flex">
+										<div class="toast-body"><?php echo htmlspecialchars($alert[1]); ?></div>
+										<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+									</div>
 								</div>
 								<?php endforeach; ?>
 							</div>
@@ -100,6 +105,9 @@ if ($result === false) {
 											
 											<td class="text-center">
 												<?php if ($canManageUsers): ?>
+													<button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#passwordModal<?php echo (int) $row['user_id']; ?>">
+														Set Password
+													</button>
 													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_user.php" class="d-inline">
 														<input type="hidden" name="user_id" value="<?= (int) $row['user_id'] ?>">
 														<input type="hidden" name="action" value="approve">
@@ -125,6 +133,32 @@ if ($result === false) {
 												<?php endif; ?>
 											</td>
 										</tr>
+										<?php if ($canManageUsers): ?>
+										<div class="modal fade" id="passwordModal<?php echo (int) $row['user_id']; ?>" tabindex="-1" aria-hidden="true">
+											<div class="modal-dialog modal-dialog-centered">
+												<div class="modal-content">
+													<div class="modal-header">
+														<h5 class="modal-title">Set Temporary Password</h5>
+														<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+													</div>
+													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_set_user_password.php">
+														<div class="modal-body">
+															<p class="text-muted small mb-3">Set a temporary password for this user. They should change it after logging in.</p>
+															<input type="hidden" name="user_id" value="<?php echo (int) $row['user_id']; ?>">
+															<div class="mb-3">
+																<label class="form-label">Temporary Password</label>
+																<input type="text" name="temp_password" class="form-control" required>
+															</div>
+														</div>
+														<div class="modal-footer">
+															<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+															<button type="submit" class="btn btn-primary">Save Password</button>
+														</div>
+													</form>
+												</div>
+											</div>
+										</div>
+										<?php endif; ?>
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
@@ -144,3 +178,12 @@ if ($result === false) {
 <!--end::App Main-->
 <?php include(ROOT_PATH . '/include/footer.php') ?>
 <?php include(ROOT_PATH . '/include/footer_resources.php') ?>
+<script>
+	window.addEventListener('load', () => {
+		const toastRoot = document.getElementById('userListToasts');
+		if (!toastRoot || !window.bootstrap) return;
+		toastRoot.querySelectorAll('.toast').forEach((toastEl) => {
+			new bootstrap.Toast(toastEl, { delay: 4000 }).show();
+		});
+	});
+</script>

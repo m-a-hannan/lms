@@ -87,6 +87,18 @@ if ($reservationStatus !== '') {
 	}
 }
 
+$pendingPasswordResets = null;
+$resetTable = $conn->query("SHOW TABLES LIKE 'password_reset_requests'");
+if ($resetTable && $resetTable->num_rows > 0) {
+	$pendingPasswordResets = $conn->query(
+		"SELECT pr.request_id, pr.created_date, u.username, u.email
+		 FROM password_reset_requests pr
+		 JOIN users u ON pr.user_id = u.user_id
+		 WHERE pr.status = 'pending'
+		 ORDER BY pr.created_date ASC"
+	);
+}
+
 $returnStatus = $_GET['return'] ?? '';
 if ($returnStatus !== '') {
 	if ($returnStatus === 'success') {
@@ -285,6 +297,106 @@ if ($returnStatus !== '') {
 								</div>
 							</div>
 						</div>
+						<?php
+							$status = $_GET['status'] ?? '';
+							$alerts = [];
+							if ($status === 'temp_password') {
+								$alerts[] = ['success', 'Temporary password saved. Let the user know to log in and change it.'];
+							} elseif ($status === 'error') {
+								$alerts[] = ['danger', 'Unable to update password. Please try again.'];
+							}
+						?>
+						<?php if ($alerts): ?>
+							<div class="toast-container position-fixed top-0 end-0 p-3">
+								<?php foreach ($alerts as $alert): ?>
+									<div class="toast text-bg-<?php echo htmlspecialchars($alert[0]); ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
+										<div class="d-flex">
+											<div class="toast-body"><?php echo htmlspecialchars($alert[1]); ?></div>
+											<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+										</div>
+									</div>
+								<?php endforeach; ?>
+							</div>
+							<script>
+								document.querySelectorAll('.toast').forEach((toastEl) => {
+									if (window.bootstrap) {
+										new bootstrap.Toast(toastEl, { delay: 4000 }).show();
+									}
+								});
+							</script>
+						<?php endif; ?>
+						<?php if ($pendingPasswordResets !== null): ?>
+						<div class="col-12">
+							<div class="card shadow-sm">
+								<div class="card-header d-flex justify-content-between align-items-center">
+									<h5 class="mb-0">Pending Password Reset Requests</h5>
+								</div>
+								<div class="card-body">
+									<div class="table-responsive">
+										<table class="table table-bordered table-hover align-middle">
+											<thead class="table-light">
+												<tr>
+													<th>#</th>
+													<th>User</th>
+													<th>Email</th>
+													<th>Requested</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+											<tbody>
+												<?php if ($pendingPasswordResets && $pendingPasswordResets->num_rows > 0): ?>
+												<?php while ($row = $pendingPasswordResets->fetch_assoc()): ?>
+												<tr>
+													<td><?= htmlspecialchars($row['request_id']) ?></td>
+													<td><?= htmlspecialchars($row['username'] ?: $row['email']) ?></td>
+													<td><?= htmlspecialchars($row['email']) ?></td>
+													<td><?= htmlspecialchars($row['created_date']) ?></td>
+													<td>
+														<button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#passwordResetModal<?php echo (int) $row['user_id']; ?>">
+															Set Password
+														</button>
+													</td>
+												</tr>
+												<div class="modal fade" id="passwordResetModal<?php echo (int) $row['user_id']; ?>" tabindex="-1" aria-hidden="true">
+													<div class="modal-dialog modal-dialog-centered">
+														<div class="modal-content">
+															<div class="modal-header">
+																<h5 class="modal-title">Set Temporary Password</h5>
+																<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+															</div>
+															<form method="post" action="<?php echo BASE_URL; ?>actions/admin_set_user_password.php">
+																<div class="modal-body">
+																	<p class="text-muted small mb-3">
+																		Set a temporary password for <?php echo htmlspecialchars($row['username'] ?: $row['email']); ?>. They should change it after logging in.
+																	</p>
+																	<input type="hidden" name="user_id" value="<?php echo (int) $row['user_id']; ?>">
+																	<input type="hidden" name="redirect" value="dashboard.php">
+																	<div class="mb-3">
+																		<label class="form-label">Temporary Password</label>
+																		<input type="text" name="temp_password" class="form-control" required>
+																	</div>
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+																	<button type="submit" class="btn btn-primary">Save Password</button>
+																</div>
+															</form>
+														</div>
+													</div>
+												</div>
+												<?php endwhile; ?>
+												<?php else: ?>
+												<tr>
+													<td colspan="5" class="text-center text-muted">No pending password reset requests.</td>
+												</tr>
+												<?php endif; ?>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>
