@@ -265,6 +265,48 @@ button {
   color: #111827;
   opacity: 0.8;
 }
+
+.glass-modal .modal-content {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  backdrop-filter: blur(16px) brightness(85%);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+.glass-modal .modal-header,
+.glass-modal .modal-footer {
+  border-color: rgba(17, 24, 39, 0.15);
+}
+
+.glass-modal .modal-title,
+.glass-modal .modal-body,
+.glass-modal .form-label,
+.glass-modal .text-muted {
+  color: #fff;
+}
+
+.glass-modal .form-control {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(17, 24, 39, 0.2);
+  color: #111827;
+}
+
+.glass-modal .form-control::placeholder {
+  color: rgba(17, 24, 39, 0.7);
+}
+
+.glass-modal button.btn.btn-outline-secondary.sr {
+    border-color: #000;
+    color: #fff;
+}
+
+.glass-modal .btn-outline-secondary:hover,
+.glass-modal .btn-outline-secondary:focus {
+  background-color: #000;
+  border-color: #000;
+  color: #fff;
+}
 </style>
 </head>
 
@@ -344,7 +386,7 @@ button {
 
 	</section>
 
-	<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+	<div class="modal fade glass-modal" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -353,7 +395,7 @@ button {
 				</div>
 				<form method="post" action="<?php echo BASE_URL; ?>actions/request_password_reset.php" id="forgotPasswordForm">
 					<div class="modal-body">
-						<p class="text-muted small mb-3">
+						<p class="small mb-3">
 							Enter the email linked to your account. An admin will set a temporary password.
 							Once you receive it, log in and change your password from your profile.
 						</p>
@@ -364,7 +406,7 @@ button {
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-						<button type="submit" class="btn btn-primary">Send Request</button>
+						<button type="submit" class="btn btn-outline-secondary sr">Send Request</button>
 					</div>
 				</form>
 			</div>

@@ -23,7 +23,7 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 
 	<!-- Custom CSS -->
 	<link rel="stylesheet" href="style.css">
-	
+
 </head>
 
 <body>
@@ -43,47 +43,7 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 				<ul class="navbar-nav mx-auto mb-2 mb-lg-0">
 					<li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
 					<li class="nav-item"><a class="nav-link" href="home.php">Library</a></li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Catalog
-						</a>
-						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" href="book_list.php">Books</a></li>
-							<li><a class="dropdown-item" href="category_list.php">Categories</a></li>
-							<li><a class="dropdown-item" href="book_edition_list.php">Editions</a></li>
-							<li><a class="dropdown-item" href="book_copy_list.php">Copies</a></li>
-						</ul>
-					</li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Users
-						</a>
-						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" href="user_list.php">Users</a></li>
-							<li><a class="dropdown-item" href="user_profile_list.php">Profiles</a></li>
-							<li><a class="dropdown-item" href="role_list.php">Roles</a></li>
-						</ul>
-					</li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Operations
-						</a>
-						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" href="loan_list.php">Loans</a></li>
-							<li><a class="dropdown-item" href="reservation_list.php">Reservations</a></li>
-							<li><a class="dropdown-item" href="return_list.php">Returns</a></li>
-						</ul>
-					</li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Systems
-						</a>
-						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" href="erd.php">ERD</a></li>
-							<li><a class="dropdown-item" href="library_rbac_matrix.php">RBAC</a></li>
-							<li><a class="dropdown-item" href="audit_log_list.php">Audit Logs</a></li>
-						</ul>
-					</li>
+					<li class="nav-item"><a class="nav-link" href="home.php">Contact Us</a></li>
 				</ul>
 				<div class="d-flex align-items-center gap-2">
 					<a class="btn btn-gradient px-4" href="login.php">
@@ -101,13 +61,16 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 
 		<div class="container hero-content text-center">
 			<h1 class="fw-bold">
-				Welcome to Library<br>Management System,
+				Welcome to Library<br>Management System.
 			</h1>
 			<p class="text-light mt-3">
 				Your gateway to knowledge and learning.
 			</p>
-			<a href="<?php echo $dashboardUrl; ?>" class="btn btn-gradient btn-lg mt-3"><i class="nav-icon bi bi-speedometer"></i>
-				Dashboard</a>
+			<a href="register.php" class="btn btn-gradient btn-lg mt-5"><i class="bi bi-ui-checks"></i>
+				Register Now</a>
+			<p class="text-light mt-3">
+				If you don't have an account.
+			</p>
 
 			<!-- Action Pills -->
 			<div class="action-bar mt-5 shadow">
@@ -213,8 +176,8 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 		</section>
 
 
-	<!-- Floating Add Button -->
-	<button class="add-btn">+</button>
+		<!-- Floating Add Button -->
+		<button class="add-btn">+</button>
 	</section>
 
 	<!-- Bootstrap JS -->
@@ -241,7 +204,6 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 			}
 		});
 	});
-
 	</script>
 </body>
 
