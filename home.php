@@ -12,6 +12,8 @@ $ebookResources = [];
 $uniqueBooks = [];
 $bookIds = [];
 $availableByBook = [];
+$reservedByBook = [];
+$userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 
 $recentPool = [];
 $recentResult = $conn->query(
@@ -124,6 +126,32 @@ if ($bookIds) {
 			$availableByBook[(int) $row['book_id']] = (int) $row['available_count'];
 		}
 		$availStmt->close();
+	}
+}
+
+if ($bookIds && $userId > 0) {
+	$ids = array_values($bookIds);
+	$placeholders = implode(',', array_fill(0, count($ids), '?'));
+	$types = 'i' . str_repeat('i', count($ids));
+	$sql = "SELECT r.book_id, COUNT(*) AS reserved_count
+		FROM reservations r
+		JOIN book_copies c ON r.copy_id = c.copy_id
+		WHERE r.user_id = ?
+		  AND r.status = 'approved'
+		  AND (r.expiry_date IS NULL OR r.expiry_date >= CURDATE())
+		  AND c.status = 'reserved'
+		  AND r.book_id IN ($placeholders)
+		GROUP BY r.book_id";
+	$resStmt = $conn->prepare($sql);
+	if ($resStmt) {
+		$params = array_merge([$userId], $ids);
+		$resStmt->bind_param($types, ...$params);
+		$resStmt->execute();
+		$resResult = $resStmt->get_result();
+		while ($resResult && ($row = $resResult->fetch_assoc())) {
+			$reservedByBook[(int) $row['book_id']] = (int) $row['reserved_count'];
+		}
+		$resStmt->close();
 	}
 }
 
@@ -330,7 +358,8 @@ if ($reserveStatus !== '') {
 	<?php
 	$bookId = (int) ($row['book_id'] ?? 0);
 	$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
-	$availableCopies = $availableByBook[$bookId] ?? 0;
+	$reservedForUser = $reservedByBook[$bookId] ?? 0;
+	$availableCopies = ($availableByBook[$bookId] ?? 0) + $reservedForUser;
 	$bookType = strtolower($row['book_type'] ?? 'physical');
 	$isEbook = $bookType === 'ebook';
 	$fileType = $isEbook ? strtoupper((string) ($row['ebook_format'] ?? '')) : '';
@@ -381,6 +410,9 @@ if ($reserveStatus !== '') {
 									<div class="col-md-6">
 										<div><strong>Category:</strong> <span class="text-success"><?php echo display_value($row["category_name"] ?? null); ?></span></div>
 										<div><strong>Available Copies:</strong> <?php echo (int) $availableCopies; ?></div>
+										<?php if ($reservedForUser > 0): ?>
+											<div class="text-warning fw-semibold">Reserved for you</div>
+										<?php endif; ?>
 										<div><strong>Published:</strong> <?php echo display_value($row["publication_year"] ?? null); ?></div>
 										<div><strong>File Type:</strong> <span class="badge bg-primary"><?php echo $fileType !== '' ? $fileType : '-'; ?></span></div>
 										<div><strong>Read Status:</strong> <span class="badge bg-secondary">UNSET</span> <i class="bi bi-pencil"></i></div>

@@ -25,22 +25,45 @@ library_set_current_user($conn, $userId);
 $conn->begin_transaction();
 
 try {
-	$stmt = $conn->prepare(
-		"SELECT c.copy_id, c.status, b.title
-		 FROM book_copies c
-		 JOIN book_editions e ON c.edition_id = e.edition_id
-		 JOIN books b ON e.book_id = b.book_id
-		 WHERE b.book_id = ?
-		   AND (c.status IS NULL OR c.status = '' OR c.status = 'available')
-		 ORDER BY c.copy_id ASC
+	$copy = null;
+	$resStmt = $conn->prepare(
+		"SELECT r.copy_id, b.title
+		 FROM reservations r
+		 JOIN books b ON r.book_id = b.book_id
+		 JOIN book_copies c ON r.copy_id = c.copy_id
+		 WHERE r.book_id = ?
+		   AND r.user_id = ?
+		   AND r.status = 'approved'
+		   AND (r.expiry_date IS NULL OR r.expiry_date >= CURDATE())
+		   AND c.status = 'reserved'
+		 ORDER BY r.created_date ASC
 		 LIMIT 1
 		 FOR UPDATE"
 	);
-	$stmt->bind_param('i', $bookId);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	$copy = $result ? $result->fetch_assoc() : null;
-	$stmt->close();
+	$resStmt->bind_param('ii', $bookId, $userId);
+	$resStmt->execute();
+	$resResult = $resStmt->get_result();
+	$copy = $resResult ? $resResult->fetch_assoc() : null;
+	$resStmt->close();
+
+	if (!$copy) {
+		$stmt = $conn->prepare(
+			"SELECT c.copy_id, c.status, b.title
+			 FROM book_copies c
+			 JOIN book_editions e ON c.edition_id = e.edition_id
+			 JOIN books b ON e.book_id = b.book_id
+			 WHERE b.book_id = ?
+			   AND (c.status IS NULL OR c.status = '' OR c.status = 'available')
+			 ORDER BY c.copy_id ASC
+			 LIMIT 1
+			 FOR UPDATE"
+		);
+		$stmt->bind_param('i', $bookId);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$copy = $result ? $result->fetch_assoc() : null;
+		$stmt->close();
+	}
 
 	if (!$copy) {
 		$conn->rollback();
@@ -56,17 +79,6 @@ try {
 	$stmt->bind_param('iii', $copyId, $userId, $userId);
 	if (!$stmt->execute()) {
 		throw new RuntimeException('Failed to create loan request.');
-	}
-	$stmt->close();
-
-	$stmt = $conn->prepare(
-		"UPDATE book_copies
-		 SET status = 'hold_loan', modified_by = ?
-		 WHERE copy_id = ?"
-	);
-	$stmt->bind_param('ii', $userId, $copyId);
-	if (!$stmt->execute()) {
-		throw new RuntimeException('Failed to hold book copy.');
 	}
 	$stmt->close();
 

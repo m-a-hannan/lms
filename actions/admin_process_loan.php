@@ -36,7 +36,7 @@ $conn->begin_transaction();
 
 try {
 	$stmt = $conn->prepare(
-		"SELECT l.loan_id, l.copy_id, l.user_id, l.status, b.title
+		"SELECT l.loan_id, l.copy_id, l.user_id, l.status, b.title, b.book_id
 		 FROM loans l
 		 JOIN book_copies c ON l.copy_id = c.copy_id
 		 JOIN book_editions e ON c.edition_id = e.edition_id
@@ -60,20 +60,70 @@ try {
 	$copyId = (int) $loan['copy_id'];
 	$userId = (int) $loan['user_id'];
 	$title = trim((string) ($loan['title'] ?? 'Book'));
+	$bookId = (int) ($loan['book_id'] ?? 0);
 
 	if ($action === 'approve') {
+		$useReservedCopy = false;
+		if ($copyId > 0) {
+			$checkStmt = $conn->prepare(
+				"SELECT c.copy_id
+				 FROM book_copies c
+				 LEFT JOIN reservations r ON r.copy_id = c.copy_id
+				 WHERE c.copy_id = ?
+				   AND (
+						(c.status = 'reserved' AND r.user_id = ? AND r.status = 'approved'
+						 AND (r.expiry_date IS NULL OR r.expiry_date >= CURDATE()))
+						OR c.status = 'available'
+				   )
+				 LIMIT 1
+				 FOR UPDATE"
+			);
+			$checkStmt->bind_param('ii', $copyId, $userId);
+			$checkStmt->execute();
+			$checkResult = $checkStmt->get_result();
+			$copyOk = $checkResult ? $checkResult->fetch_assoc() : null;
+			$checkStmt->close();
+			$useReservedCopy = (bool) $copyOk;
+		}
+
+		if (!$useReservedCopy) {
+			$copyStmt = $conn->prepare(
+				"SELECT c.copy_id
+				 FROM book_copies c
+				 JOIN book_editions e ON c.edition_id = e.edition_id
+				 WHERE e.book_id = ?
+				   AND (c.status IS NULL OR c.status = '' OR c.status = 'available')
+				 ORDER BY c.copy_id ASC
+				 LIMIT 1
+				 FOR UPDATE"
+			);
+			$copyStmt->bind_param('i', $bookId);
+			$copyStmt->execute();
+			$copyResult = $copyStmt->get_result();
+			$copyRow = $copyResult ? $copyResult->fetch_assoc() : null;
+			$copyStmt->close();
+
+			if (!$copyRow) {
+				$conn->rollback();
+				header('Location: ' . BASE_URL . 'dashboard.php?loan=unavailable');
+				exit;
+			}
+
+			$copyId = (int) $copyRow['copy_id'];
+		}
 		$days = library_get_policy_days($conn, 'loan_period_days', 14);
 		$dueDate = (new DateTimeImmutable('today'))->modify('+' . $days . ' days')->format('Y-m-d');
 
 		$stmt = $conn->prepare(
 			"UPDATE loans
 			 SET status = 'approved',
+			     copy_id = ?,
 			     issue_date = CURDATE(),
 			     due_date = ?,
 			     modified_by = ?
 			 WHERE loan_id = ?"
 		);
-		$stmt->bind_param('sii', $dueDate, $adminId, $loanId);
+		$stmt->bind_param('isii', $copyId, $dueDate, $adminId, $loanId);
 		if (!$stmt->execute()) {
 			throw new RuntimeException('Failed to approve loan.');
 		}
@@ -85,6 +135,20 @@ try {
 			throw new RuntimeException('Failed to update copy status.');
 		}
 		$stmt->close();
+
+		if ($useReservedCopy) {
+			$resStmt = $conn->prepare(
+				"UPDATE reservations
+				 SET status = 'fulfilled',
+				     modified_by = ?
+				 WHERE user_id = ?
+				   AND copy_id = ?
+				   AND status = 'approved'"
+			);
+			$resStmt->bind_param('iii', $adminId, $userId, $copyId);
+			$resStmt->execute();
+			$resStmt->close();
+		}
 
 		library_notify_user(
 			$conn,
@@ -99,15 +163,6 @@ try {
 		if (!$stmt->execute()) {
 			throw new RuntimeException('Failed to reject loan.');
 		}
-		$stmt->close();
-
-		$stmt = $conn->prepare(
-			"UPDATE book_copies
-			 SET status = 'available', modified_by = ?
-			 WHERE copy_id = ? AND status = 'hold_loan'"
-		);
-		$stmt->bind_param('ii', $adminId, $copyId);
-		$stmt->execute();
 		$stmt->close();
 
 		library_notify_user(
