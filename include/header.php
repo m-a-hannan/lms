@@ -159,17 +159,9 @@ if ($profileResult && $profileResult->num_rows === 1) {
 												<a href="<?php echo BASE_URL; ?>notification_list.php" class="notification-title text-decoration-none">
 													<?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?>
 												</a>
-												<div class="d-flex align-items-center gap-2">
-													<span class="notification-date text-secondary">
-														<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
-													</span>
-													<form method="post" action="<?php echo BASE_URL; ?>actions/remove_notification.php" class="m-0">
-														<input type="hidden" name="notification_id" value="<?php echo (int) ($note['notification_id'] ?? 0); ?>">
-														<button type="submit" class="btn btn-link text-danger p-0 notification-clear-btn" title="Clear notification">
-															<i class="bi bi-x-circle-fill"></i>
-														</button>
-													</form>
-												</div>
+												<span class="notification-date text-secondary">
+													<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
+												</span>
 											</div>
 											<div class="notification-message text-secondary small">
 												<?php echo htmlspecialchars($note['message'] ?? ''); ?>
