@@ -287,6 +287,91 @@
 	color: #111827;
 }
 
+.report-config-modal .modal-content {
+	background: rgba(30, 30, 30, 0.45);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 14px;
+	color: #e5e7eb;
+}
+
+.report-config-modal .modal-header {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.report-config-modal .modal-footer {
+	border-top: none;
+}
+
+.report-config-modal .btn-close {
+	filter: invert(1);
+}
+
+.btn-glass {
+	backdrop-filter: blur(10px);
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	font-weight: 500;
+}
+
+.btn-enable {
+	background: rgba(34, 197, 94, 0.25);
+	color: #22c55e;
+}
+
+.btn-disable {
+	background: rgba(239, 68, 68, 0.25);
+	color: #ef4444;
+}
+
+.btn-reset {
+	background: rgba(245, 158, 11, 0.25);
+	color: #f59e0b;
+}
+
+.section-title {
+	font-size: 0.85rem;
+	letter-spacing: 0.08em;
+	font-weight: 600;
+	color: #e5e7eb;
+	margin-bottom: 0.5rem;
+}
+
+.divider {
+	height: 2px;
+	background: rgba(255, 255, 255, 0.8);
+	margin-bottom: 1rem;
+}
+
+.report-config-modal .form-check-input {
+	background-color: transparent;
+	border: 2px solid #e5e7eb;
+}
+
+.report-config-modal .form-check-input:checked {
+	background-color: #e5e7eb;
+	border-color: #e5e7eb;
+}
+
+.report-config-modal .form-check-label {
+	color: #e5e7eb;
+	font-size: 0.95rem;
+}
+
+.report-config-modal .disabled-label {
+	color: #9ca3af;
+}
+
+.report-config-modal .modal-body {
+	max-height: 65vh;
+	overflow-y: auto;
+}
+
+.report-card-hidden {
+	display: none !important;
+}
+
 .report-hero-stats {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -328,6 +413,118 @@
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+}
+
+.report-card-wide {
+	grid-column: 1 / -1;
+}
+
+.contribution-card {
+	border-radius: 10px;
+	padding: 16px;
+	overflow-x: auto;
+}
+
+.contribution-card .heatmap {
+	min-width: 720px;
+}
+
+.contribution-card-light {
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	color: #111827;
+}
+
+.activity-controls .form-select {
+	min-width: 160px;
+}
+
+.graph-wrapper {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 12px;
+}
+
+.day-labels {
+	display: grid;
+	grid-template-rows: repeat(7, 1fr);
+	font-size: 12px;
+	color: #6b7280;
+	padding-top: 22px;
+}
+
+.months {
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	font-size: 12px;
+	color: #6b7280;
+	margin-left: 36px;
+	margin-bottom: 6px;
+}
+
+.heatmap {
+	display: grid;
+	grid-template-columns: repeat(53, 1fr);
+	grid-template-rows: repeat(7, 1fr);
+	gap: 3px;
+}
+
+.day {
+	width: 11px;
+	height: 11px;
+	border-radius: 2px;
+	background: #e5e7eb;
+}
+
+.activity-loan.level-0 { background: #e5e7eb; }
+.activity-loan.level-1 { background: #cfe2ff; }
+.activity-loan.level-2 { background: #9ec5fe; }
+.activity-loan.level-3 { background: #5c9cff; }
+.activity-loan.level-4 { background: #2b6fff; }
+
+.activity-reserve.level-0 { background: #e5e7eb; }
+.activity-reserve.level-1 { background: #e7d8ff; }
+.activity-reserve.level-2 { background: #c9a7ff; }
+.activity-reserve.level-3 { background: #a06bff; }
+.activity-reserve.level-4 { background: #7b2ff2; }
+
+.activity-return.level-0 { background: #e5e7eb; }
+.activity-return.level-1 { background: #d1fae5; }
+.activity-return.level-2 { background: #6ee7b7; }
+.activity-return.level-3 { background: #34d399; }
+.activity-return.level-4 { background: #059669; }
+
+
+.legend {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	color: #6b7280;
+}
+
+.legend .day {
+	width: 10px;
+	height: 10px;
+}
+
+.legend-stack {
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-left: auto;
+	justify-content: flex-end;
+}
+
+.legend-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.legend-label {
+	font-size: 0.75rem;
+	color: #6b7280;
+	margin-left: 1rem;
 }
 
 .report-title {
@@ -422,8 +619,3 @@
 .heatmap-cell[data-count='6']::after,
 .heatmap-cell[data-count='7']::after,
 .heatmap-cell[data-count='8']::after { background: rgba(13, 110, 253, 0.8); }
-
-
-
-
-
