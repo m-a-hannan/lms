@@ -26,10 +26,13 @@ if ($status === 'approved') {
 }
 
 $result = $conn->query(
-	"SELECT user_id, username, email, account_status, created_date
-	 FROM users
-	 WHERE deleted_date IS NULL
-	 ORDER BY user_id DESC"
+	"SELECT u.user_id, u.username, u.email, u.account_status, u.created_date,
+		COALESCE(GROUP_CONCAT(DISTINCT ur.role_name ORDER BY ur.role_name SEPARATOR ', '), '-') AS roles
+	 FROM users u
+	 LEFT JOIN user_roles ur ON ur.user_id = u.user_id
+	 WHERE u.deleted_date IS NULL
+	 GROUP BY u.user_id
+	 ORDER BY u.user_id DESC"
 );
 if ($result === false) {
 	die("Query failed: " . $conn->error);
@@ -87,6 +90,7 @@ if ($resetTable && $resetTable->num_rows > 0) {
 											<th>#</th>
 											<th>Username</th>
 											<th>Email</th>
+											<th>Role</th>
 											<th>Created</th>
 											<th>Status</th>
 											<th class="text-center">Actions</th>
@@ -115,6 +119,7 @@ if ($resetTable && $resetTable->num_rows > 0) {
 											<td><?= (int) $row['user_id'] ?></td>
 											<td><?= htmlspecialchars($row['username'] ?? '') ?></td>
 											<td><?= htmlspecialchars($row['email'] ?? '') ?></td>
+											<td><?= htmlspecialchars($row['roles'] ?? '-') ?></td>
 											<td><?= htmlspecialchars($row['created_date'] ?? '') ?></td>
 											<td><span class="badge bg-<?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span></td>
 											
@@ -149,7 +154,7 @@ if ($resetTable && $resetTable->num_rows > 0) {
 													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_user.php" class="d-inline" onsubmit="return confirm('Delete this user?');">
 														<input type="hidden" name="user_id" value="<?= (int) $row['user_id'] ?>">
 														<input type="hidden" name="action" value="delete">
-														<button type="submit" class="btn btn-sm btn-outline-dark">Delete</button>
+														<button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
 													</form>
 												<?php else: ?>
 													<span class="text-muted">No actions</span>
