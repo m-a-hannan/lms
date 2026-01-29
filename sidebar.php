@@ -85,10 +85,20 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 				<!--end::Sidebar Brand-->
 				<!--begin::Sidebar Wrapper-->
 				<div class="sidebar-wrapper">
+					<div class="sidebar-search px-3 pt-3">
+						<div class="input-group input-group-sm sidebar-search-group">
+							<span class="input-group-text"><i class="bi bi-search"></i></span>
+							<input type="text" class="form-control" id="sidebarSearchInput" placeholder="Search menu..." autocomplete="off">
+							<!-- <button class="btn btn-outline-light sidebar-reset-btn" type="button" id="sidebarSearchReset" title="Reset search">
+								<i class="bi bi-x-lg"></i>
+							</button> -->
+						</div>
+						<div id="sidebarSearchSuggest" class="sidebar-search-suggest"></div>
+					</div>
 					<nav class="mt-2">
 						<!--begin::Sidebar Menu-->
 						<ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
-							aria-label="Main navigation" data-accordion="false" id="navigation">
+							aria-label="Main navigation" data-accordion="false" id="sidebar-navigation">
 							<?php if ($canDashboard): ?>
 							<li class="nav-item menu-open">
 								<a href="<?php echo BASE_URL; ?>dashboard.php" class="nav-link active">

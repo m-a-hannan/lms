@@ -3,6 +3,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 require_once ROOT_PATH . '/include/connection.php';
+require_once ROOT_PATH . '/include/permissions.php';
 
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 $displayName = 'User';
@@ -11,6 +12,12 @@ $profileImage = BASE_URL . 'assets/img/user2-160x160.jpg';
 $memberSince = '';
 $notificationCount = 0;
 $notifications = [];
+$reportsLinkVisible = false;
+if (function_exists('rbac_get_context')) {
+	$context = rbac_get_context($conn);
+	$isLibrarian = strcasecmp($context['role_name'] ?? '', 'Librarian') === 0;
+	$reportsLinkVisible = $context['is_admin'] || $isLibrarian;
+}
 
 if ($userId > 0) {
 	if (!empty($_SESSION['user_username'])) {
@@ -103,16 +110,25 @@ if ($profileResult && $profileResult->num_rows === 1) {
 							</a>
 						</li>
 						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>home.php" class="nav-link">Library</a></li>
+						<?php if ($reportsLinkVisible): ?>
+						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>reports.php" class="nav-link">Reports</a></li>
+						<?php endif; ?>
+						<?php if (rbac_can_access($conn, 'library_stock_summary.php')): ?>
+						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>library_stock_summary.php" class="nav-link">LS - Summary</a></li>
+						<?php endif; ?>
 						<li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
 					</ul>
 					<!--end::Start Navbar Links-->
 					<!--begin::End Navbar Links-->
 					<ul class="navbar-nav ms-auto">
 						<!--begin::Navbar Search-->
-						<li class="nav-item">
-							<a class="nav-link" data-widget="navbar-search" href="#" role="button">
-								<i class="bi bi-search"></i>
-							</a>
+						<li class="nav-item me-2">
+							<div class="topbar-search" id="topbarSearch">
+								<button type="button" class="topbar-search-icon" aria-label="Open search">
+									<i class="bi bi-search"></i>
+								</button>
+								<input type="search" class="topbar-search-input" id="pageSearchInput" placeholder="Search this page...">
+							</div>
 						</li>
 						<!--end::Navbar Search-->
 						<!--begin::Notifications Dropdown Menu-->
@@ -124,26 +140,43 @@ if ($profileResult && $profileResult->num_rows === 1) {
 								<?php endif; ?>
 							</a>
 							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end notification-dropdown">
-								<span class="dropdown-item dropdown-header"><?php echo $notificationCount; ?> Notifications</span>
+								<div class="dropdown-item dropdown-header d-flex justify-content-between align-items-center">
+									<span><?php echo $notificationCount; ?> Notifications</span>
+									<form method="post" action="<?php echo BASE_URL; ?>actions/clear_notifications.php" class="m-0">
+										<button type="submit" class="btn btn-link btn-sm text-danger p-0 notification-clear-all" title="Clear all notifications" <?php echo $notificationCount > 0 ? '' : 'disabled'; ?>>
+											Clear All
+										</button>
+									</form>
+								</div>
 								<div class="dropdown-divider"></div>
 								<?php if ($notifications): ?>
 								<?php foreach ($notifications as $note): ?>
-								<a href="<?php echo BASE_URL; ?>notification_list.php" class="dropdown-item">
+								<div class="dropdown-item">
 									<div class="d-flex align-items-start gap-2 notification-entry">
 										<i class="bi bi-info-circle text-primary mt-1"></i>
 										<div class="flex-grow-1">
-											<div class="d-flex flex-wrap justify-content-between gap-1">
-												<span class="notification-title"><?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?></span>
-												<span class="notification-date text-secondary">
-													<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
-												</span>
+											<div class="d-flex flex-wrap justify-content-between gap-2">
+												<a href="<?php echo BASE_URL; ?>notification_list.php" class="notification-title text-decoration-none">
+													<?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?>
+												</a>
+												<div class="d-flex align-items-center gap-2">
+													<span class="notification-date text-secondary">
+														<?php echo htmlspecialchars($note['created_at'] ?? ''); ?>
+													</span>
+													<form method="post" action="<?php echo BASE_URL; ?>actions/remove_notification.php" class="m-0">
+														<input type="hidden" name="notification_id" value="<?php echo (int) ($note['notification_id'] ?? 0); ?>">
+														<button type="submit" class="btn btn-link text-danger p-0 notification-clear-btn" title="Clear notification">
+															<i class="bi bi-x-circle-fill"></i>
+														</button>
+													</form>
+												</div>
 											</div>
 											<div class="notification-message text-secondary small">
 												<?php echo htmlspecialchars($note['message'] ?? ''); ?>
 											</div>
 										</div>
 									</div>
-								</a>
+								</div>
 								<div class="dropdown-divider"></div>
 								<?php endforeach; ?>
 								<?php else: ?>

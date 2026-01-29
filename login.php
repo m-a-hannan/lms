@@ -15,6 +15,7 @@ $errors = [];
 $identifier = '';
 $registered = isset($_GET['registered']) && $_GET['registered'] === '1';
 $loggedOut = isset($_GET['logged_out']) && $_GET['logged_out'] === '1';
+$resetRequest = $_GET['reset_request'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$identifier = trim($_POST['identifier'] ?? '');
@@ -23,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if ($identifier === '' || $password === '') {
 		$errors[] = 'Email/username and password are required.';
 	} else {
-		$stmt = $conn->prepare('SELECT user_id, username, email, password_hash FROM users WHERE email = ? OR username = ? LIMIT 1');
+		$stmt = $conn->prepare('SELECT user_id, username, email, password_hash, account_status FROM users WHERE email = ? OR username = ? LIMIT 1');
 		if ($stmt === false) {
 			$errors[] = 'Login failed. Please try again.';
 		} else {
@@ -35,6 +36,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 			if (!$user || empty($user['password_hash']) || !password_verify($password, $user['password_hash'])) {
 				$errors[] = 'Invalid credentials.';
+			} elseif (isset($user['account_status']) && $user['account_status'] !== 'approved') {
+				$status = $user['account_status'];
+				if ($status === 'blocked') {
+					$errors[] = 'Your account has been blocked. Contact the library.';
+				} elseif ($status === 'rejected') {
+					$errors[] = 'Your account has been rejected. Contact the library.';
+				} elseif ($status === 'suspended') {
+					$errors[] = 'Your account has been suspended. Contact the library.';
+				} else {
+					$errors[] = 'Your account is pending approval.';
+				}
 			} else {
 				session_regenerate_id(true);
 				$userId = (int) $user['user_id'];
@@ -45,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				if ($userId > 0) {
 					$profileCheck = $conn->query("SELECT profile_id FROM user_profiles WHERE user_id = $userId LIMIT 1");
 					if (!$profileCheck || $profileCheck->num_rows === 0) {
-						$conn->query("INSERT INTO user_profiles (user_id) VALUES ($userId)");
+						$emptyPicture = $conn->real_escape_string('');
+						$conn->query("INSERT INTO user_profiles (user_id, profile_picture) VALUES ($userId, '$emptyPicture')");
 					}
 				}
 
@@ -252,6 +265,48 @@ button {
   color: #111827;
   opacity: 0.8;
 }
+
+.glass-modal .modal-content {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  backdrop-filter: blur(16px) brightness(85%);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+.glass-modal .modal-header,
+.glass-modal .modal-footer {
+  border-color: rgba(17, 24, 39, 0.15);
+}
+
+.glass-modal .modal-title,
+.glass-modal .modal-body,
+.glass-modal .form-label,
+.glass-modal .text-muted {
+  color: #fff;
+}
+
+.glass-modal .form-control {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(17, 24, 39, 0.2);
+  color: #111827;
+}
+
+.glass-modal .form-control::placeholder {
+  color: rgba(17, 24, 39, 0.7);
+}
+
+.glass-modal button.btn.btn-outline-secondary.sr {
+    border-color: #000;
+    color: #fff;
+}
+
+.glass-modal .btn-outline-secondary:hover,
+.glass-modal .btn-outline-secondary:focus {
+  background-color: #000;
+  border-color: #000;
+  color: #fff;
+}
 </style>
 </head>
 
@@ -287,7 +342,6 @@ button {
 							<?php echo htmlspecialchars(implode(' ', $errors)); ?>
 						</div>
 					<?php endif; ?>
-
 					<div class="inputbox">
 
 					<i class="bi bi-person input-icon"></i>
@@ -312,7 +366,7 @@ button {
 
 						<label><input type="checkbox">Remember Me</label>
 
-						<a href="#">Forgot Password</a>
+						<a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password</a>
 
 					</div>
 
@@ -332,6 +386,33 @@ button {
 
 	</section>
 
+	<div class="modal fade glass-modal" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Request Password Reset</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<form method="post" action="<?php echo BASE_URL; ?>actions/request_password_reset.php" id="forgotPasswordForm">
+					<div class="modal-body">
+						<p class="small mb-3">
+							Enter the email linked to your account. An admin will set a temporary password.
+							Once you receive it, log in and change your password from your profile.
+						</p>
+						<div class="mb-3">
+							<label class="form-label">Email Address</label>
+							<input type="email" name="email" class="form-control" required>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-outline-secondary sr">Send Request</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -343,6 +424,70 @@ button {
 		}
 	</script>
 	<?php endif; ?>
+
+	<script>
+		const resetForm = document.getElementById('forgotPasswordForm');
+
+		const showToast = (message, variant = 'success') => {
+			const toastContainer = document.createElement('div');
+			toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+			toastContainer.innerHTML = `
+				<div class="toast text-bg-${variant} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+					<div class="d-flex">
+						<div class="toast-body">${message}</div>
+						<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+					</div>
+				</div>
+			`;
+			document.body.appendChild(toastContainer);
+			const toastEl = toastContainer.querySelector('.toast');
+			if (toastEl && window.bootstrap) {
+				new bootstrap.Toast(toastEl, { delay: 3500 }).show();
+			}
+		};
+
+		if (resetForm) {
+			resetForm.addEventListener('submit', async (event) => {
+				event.preventDefault();
+				const formData = new FormData(resetForm);
+
+				try {
+					const response = await fetch(resetForm.action, {
+						method: 'POST',
+						body: formData,
+						headers: {
+							'X-Requested-With': 'XMLHttpRequest',
+							'Accept': 'application/json'
+						},
+					});
+					const rawText = await response.text();
+					let data = {};
+					try {
+						data = JSON.parse(rawText);
+					} catch (jsonError) {
+						data = { status: 'error', message: rawText || 'Invalid response from server.' };
+					}
+
+					if (data.status === 'sent') {
+						const modalEl = document.getElementById('forgotPasswordModal');
+						const modalInstance = modalEl && window.bootstrap ? bootstrap.Modal.getInstance(modalEl) : null;
+						if (modalInstance) {
+							modalInstance.hide();
+						}
+						showToast('Password reset request submitted successfully.');
+						setTimeout(() => {
+							window.location.href = '<?php echo BASE_URL; ?>login.php';
+						}, 1200);
+						return;
+					}
+
+					showToast(data.message || 'Unable to send request.', 'danger');
+				} catch (err) {
+					showToast('Unable to send request. Please try again.', 'danger');
+				}
+			});
+		}
+	</script>
 
 </body>
 
