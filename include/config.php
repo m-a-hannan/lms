@@ -43,7 +43,15 @@ if (!defined('AUTH_ENABLED')) {
 }
 
 $script = basename($_SERVER['SCRIPT_NAME'] ?? '');
-$authSkip = ['index.php', 'login.php', 'register.php', 'request_password_reset.php', 'actions/request_password_reset.php'];
+$authSkip = [
+	'index.php',
+	'login.php',
+	'register.php',
+	'request_password_reset.php',
+	'actions/request_password_reset.php',
+	'reset_password.php',
+	'process_reset_password.php'
+];
 if (AUTH_ENABLED && !in_array($script, $authSkip, true)) {
 	require_once ROOT_PATH . '/include/auth.php';
 	require_once ROOT_PATH . '/include/permission_guard.php';
