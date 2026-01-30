@@ -126,7 +126,7 @@ CREATE TABLE `audit_logs` (
   CONSTRAINT `audit_logs_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `audit_logs_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `audit_logs_ibfk_4` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -135,6 +135,7 @@ CREATE TABLE `audit_logs` (
 
 LOCK TABLES `audit_logs` WRITE;
 /*!40000 ALTER TABLE `audit_logs` DISABLE KEYS */;
+INSERT INTO `audit_logs` VALUES (1,1,'download_ebook','books',6,'2026-01-30 18:30:54',NULL,'2026-01-30 18:30:54',NULL,'2026-01-30 18:30:54',NULL,NULL);
 /*!40000 ALTER TABLE `audit_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -508,7 +509,7 @@ CREATE TABLE `books` (
   CONSTRAINT `books_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `books_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `books_ibfk_4` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -517,7 +518,7 @@ CREATE TABLE `books` (
 
 LOCK TABLES `books` WRITE;
 /*!40000 ALTER TABLE `books` DISABLE KEYS */;
-INSERT INTO `books` VALUES (1,'Digital Fortress','Introduces Susan Fletcher, the NSA\'s head cryptographer, whose romantic getaway plans are shattered by a sudden, urgent work call.','Dan Brown','0-312-18087-X (US)','St. Martin\'s Press',1998,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769333690_Dan-Brown_Digital-Fortress_book-cover-2025.jpg',NULL,'2026-01-25 15:34:50',NULL,'2026-01-25 15:34:50',NULL,NULL),(2,'Harry Potter and the Philosopher\'s Stone','Nearly ten years had passed since the Dursleys had woken up to find their nephew on the front step, but Privet Drive had hardly changed at all. The su','J. K. Rowling','978-0-7475-3269-9','Bloomsbury',1997,2,'physical',NULL,NULL,NULL,'uploads/book_cover/1769508220_Harry-Potter-and-the-sorcorers-stone.jpg',NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(3,'Lord of the Mysteries','The story features a meticulously crafted world with hidden, dangerous, and often occult, societies. It follows the protagonist, Klein, who becomes...','Cuttlefish That Loves Diving','234-038545792874','Cuttlefish That Loves Diving',2018,3,'ebook','pdf',NULL,NULL,'uploads/book_cover/1769508610_Lord_of_Mysteries.png',NULL,'2026-01-27 16:10:10',NULL,'2026-01-27 16:10:10',NULL,NULL),(4,'The Lost Symbol','The Lost Symbol is a 2009 novel written by American writer Dan Brown. It is a thriller set in Washington, D.C., after the events of The Da Vinci Code.','Dan Brown','978-0385504225 (US)','St. Martin\'s Press (US)',2009,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769520195_Dan-Brown_The_Lost_Symbol_book-cover.jpg',NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(5,'The Da Vinci Code','The Da Vinci Code is a 2003 mystery thriller novel by Dan Brown. It is one of the best-selling American novels of all time.','Dan Brown','0-385-50420-9 (US)','St. Martin\'s Press (US)',2003,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769668594_Dan-Brown_The_Vinci_Code_book-cover.jpg',NULL,'2026-01-29 12:36:34',NULL,'2026-01-29 12:36:34',NULL,NULL);
+INSERT INTO `books` VALUES (1,'Digital Fortress','Introduces Susan Fletcher, the NSA\'s head cryptographer, whose romantic getaway plans are shattered by a sudden, urgent work call.','Dan Brown','0-312-18087-X (US)','St. Martin\'s Press',1998,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769333690_Dan-Brown_Digital-Fortress_book-cover-2025.jpg',NULL,'2026-01-25 15:34:50',NULL,'2026-01-25 15:34:50',NULL,NULL),(2,'Harry Potter and the Philosopher\'s Stone','Nearly ten years had passed since the Dursleys had woken up to find their nephew on the front step, but Privet Drive had hardly changed at all. The su','J. K. Rowling','978-0-7475-3269-9','Bloomsbury',1997,2,'physical',NULL,NULL,NULL,'uploads/book_cover/1769508220_Harry-Potter-and-the-sorcorers-stone.jpg',NULL,'2026-01-27 16:03:40',NULL,'2026-01-27 16:03:40',NULL,NULL),(3,'Lord of the Mysteries','The story features a meticulously crafted world with hidden, dangerous, and often occult, societies. It follows the protagonist, Klein, who becomes...','Cuttlefish That Loves Diving','234-038545792874','Cuttlefish That Loves Diving',2018,3,'ebook','pdf',NULL,NULL,'uploads/book_cover/1769508610_Lord_of_Mysteries.png',NULL,'2026-01-27 16:10:10',NULL,'2026-01-27 16:10:10',NULL,NULL),(4,'The Lost Symbol','The Lost Symbol is a 2009 novel written by American writer Dan Brown. It is a thriller set in Washington, D.C., after the events of The Da Vinci Code.','Dan Brown','978-0385504225 (US)','St. Martin\'s Press (US)',2009,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769520195_Dan-Brown_The_Lost_Symbol_book-cover.jpg',NULL,'2026-01-27 19:23:15',NULL,'2026-01-27 19:23:15',NULL,NULL),(5,'The Da Vinci Code','The Da Vinci Code is a 2003 mystery thriller novel by Dan Brown. It is one of the best-selling American novels of all time.','Dan Brown','0-385-50420-9 (US)','St. Martin\'s Press (US)',2003,1,'physical',NULL,NULL,NULL,'uploads/book_cover/1769668594_Dan-Brown_The_Vinci_Code_book-cover.jpg',NULL,'2026-01-29 12:36:34',NULL,'2026-01-29 12:36:34',NULL,NULL),(6,'Online Plagiarism Checker','This study focuses primarily on plagiarism, which is prevalent in schools and colleges. Many students have been found to have copied assignments...','Aryan Patil','ISSN (O) 2278-1021 p','IJARCCE',2025,4,'ebook','pdf','uploads/ebooks/1769776235_Online-Plagirism-Checker.pdf',166889,'uploads/book_cover/1769776235_best_plagcheckers-3.png',NULL,'2026-01-30 18:30:35',NULL,'2026-01-30 18:30:35',NULL,NULL);
 /*!40000 ALTER TABLE `books` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -579,7 +580,7 @@ CREATE TABLE `categories` (
   CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `categories_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `categories_ibfk_3` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -588,7 +589,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'Thriller',NULL,'2026-01-25 15:28:37',NULL,'2026-01-25 15:28:37',NULL,NULL),(2,'Fantasy',NULL,'2026-01-27 15:54:25',NULL,'2026-01-27 15:54:25',NULL,NULL),(3,'Mystery',NULL,'2026-01-27 15:54:35',NULL,'2026-01-27 15:54:35',NULL,NULL);
+INSERT INTO `categories` VALUES (1,'Thriller',NULL,'2026-01-25 15:28:37',NULL,'2026-01-25 15:28:37',NULL,NULL),(2,'Fantasy',NULL,'2026-01-27 15:54:25',NULL,'2026-01-27 15:54:25',NULL,NULL),(3,'Mystery',NULL,'2026-01-27 15:54:35',NULL,'2026-01-27 15:54:35',NULL,NULL),(4,'Research Journal',NULL,'2026-01-30 18:14:17',NULL,'2026-01-30 18:14:17',NULL,NULL);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1852,7 +1853,7 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (1,1,'LMS','Admin','2024-01-01',';saijf;adsjf;asj;ajd;aj;','1234567890','lms inc.','Admin','uploads/profile_picture/1769403805_avatar.png',NULL,'2026-01-26 11:03:25',NULL,'2026-01-26 12:04:04',NULL,NULL),(2,3,'Tahmid','Shaheer','2026-01-26',NULL,'1234567890','lms inc.','Librarian','uploads/profile_picture/1769424080_avatar.png',NULL,'2026-01-26 16:41:20',NULL,'2026-01-26 16:41:20',NULL,NULL),(3,2,'Abul','kasem','2026-01-26',NULL,'1234567890','lms inc.','user','uploads/profile_picture/1769424167_avatar.png',NULL,'2026-01-26 16:42:47',NULL,'2026-01-26 16:42:47',NULL,NULL),(6,4,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'2026-01-27 20:28:04',NULL,'2026-01-27 20:28:04',NULL,NULL),(7,6,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'2026-01-27 20:29:55',NULL,'2026-01-27 20:29:55',NULL,NULL),(8,7,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'2026-01-30 14:01:08',NULL,'2026-01-30 14:01:08',NULL,NULL);
+INSERT INTO `user_profiles` VALUES (1,1,'LMS','Admin','2024-01-01',';saijf;adsjf;asj;ajd;aj;','1234567890','lms inc.','Admin','uploads/profile_picture/1769403805_avatar.png',NULL,'2026-01-26 11:03:25',NULL,'2026-01-26 12:04:04',NULL,NULL),(2,3,'Tahmid','Shaheer','2026-01-26',NULL,'1234567890','lms inc.','Librarian','uploads/profile_picture/1769424080_avatar.png',NULL,'2026-01-26 16:41:20',NULL,'2026-01-26 16:41:20',NULL,NULL),(3,2,'Abul','kasem','2026-01-26',NULL,'1234567890','lms inc.','user','uploads/profile_picture/1769424167_avatar.png',NULL,'2026-01-26 16:42:47',NULL,'2026-01-26 16:42:47',NULL,NULL),(6,4,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'2026-01-27 20:28:04',NULL,'2026-01-27 20:28:04',NULL,NULL),(7,6,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'2026-01-27 20:29:55',NULL,'2026-01-27 20:29:55',NULL,NULL);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1931,7 +1932,7 @@ CREATE TABLE `user_roles` (
 
 LOCK TABLES `user_roles` WRITE;
 /*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
-INSERT INTO `user_roles` VALUES (1,3,'tahmid',3,'Librarian',NULL,'2026-01-26 14:27:25',NULL,'2026-01-26 14:27:33',NULL,NULL),(2,2,'kasem',2,'User',NULL,'2026-01-26 14:27:40',1,'2026-01-28 13:03:36',NULL,NULL),(3,1,'lms_admin',1,'Admin',NULL,'2026-01-26 16:13:09',NULL,'2026-01-26 16:13:09',NULL,NULL),(5,4,'hannan',2,'User',NULL,'2026-01-27 20:28:29',1,'2026-01-27 20:28:55',NULL,NULL),(8,6,'mamun',2,'User',1,'2026-01-28 13:03:41',NULL,'2026-01-28 13:03:41',NULL,NULL),(10,7,'tashfin',2,'User',1,'2026-01-30 14:01:30',NULL,'2026-01-30 14:01:30',NULL,NULL);
+INSERT INTO `user_roles` VALUES (1,3,'tahmid',3,'Librarian',NULL,'2026-01-26 14:27:25',NULL,'2026-01-26 14:27:33',NULL,NULL),(2,2,'kasem',2,'User',NULL,'2026-01-26 14:27:40',1,'2026-01-28 13:03:36',NULL,NULL),(3,1,'lms_admin',1,'Admin',NULL,'2026-01-26 16:13:09',NULL,'2026-01-26 16:13:09',NULL,NULL),(5,4,'hannan',2,'User',NULL,'2026-01-27 20:28:29',1,'2026-01-27 20:28:55',NULL,NULL),(8,6,'mamun',2,'User',1,'2026-01-28 13:03:41',NULL,'2026-01-28 13:03:41',NULL,NULL);
 /*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -2002,7 +2003,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'lms_admin','lms_admin@karigori.site','$2y$10$Qcs6B9zb2/wO3kNz8rK1oeYP0D7at6dCdsBh.0kDUS/J5K56rES1i','approved',NULL,'2026-01-26 09:31:29',1,'2026-01-27 19:53:47',NULL,NULL,NULL,NULL),(2,'kasem','kasem@karigori.site','$2y$10$oin764E5Mk.S56PEGrXFHuPnMGOqWcmKjRpe7cCyeLfkbf.pVWFx6','approved',NULL,'2026-01-26 12:29:04',1,'2026-01-28 13:04:02',NULL,NULL,NULL,NULL),(3,'tahmid','tahmid@karigori.site','$2y$10$gnvL2hZoxmqE17G/v4yYPOf3yPU4dEiIxGwrhN6IVBF429CcyMvnK','approved',NULL,'2026-01-26 12:29:45',1,'2026-01-27 19:53:50',NULL,NULL,NULL,NULL),(4,'hannan','hannan@email.com','$2y$10$As/trCIXnrKX8/8TT/Xw1urJyOnC3dyJLdyM2QdPG0nbq5jODT6l2','approved',NULL,'2026-01-27 19:33:51',1,'2026-01-29 12:46:13',NULL,NULL,NULL,NULL),(6,'mamun','mamun@email.com','$2y$10$tT/kGC/2/J8TiIAhtD3RBu2QUkhUHfAY3IOwLgb2KEMq97lhXz7Si','approved',NULL,'2026-01-27 20:29:55',1,'2026-01-28 13:03:41',NULL,NULL,NULL,NULL),(7,'tashfin','acc4mydroid@gmail.com','$2y$10$T/h6EB0IK7ArBsIt./z70etJQhS9EONO0xzWYqRybzOjkuYJ5fIl2','approved',NULL,'2026-01-30 14:01:08',1,'2026-01-30 14:03:42',NULL,NULL,'8d20a0f327cda916f81f33d5dc4a54a8a9e1f6d5a38821165dd70576b33a8309','2026-01-30 09:33:42');
+INSERT INTO `users` VALUES (1,'lms_admin','lms_admin@karigori.site','$2y$10$4TjZaY2iUx2D7Rppf/fXPOtxZIKXknnRBCXnrYkHexNf64IeZf8rG','approved',NULL,'2026-01-26 09:31:29',1,'2026-01-30 18:12:01',NULL,NULL,NULL,NULL),(2,'kasem','kasem@karigori.site','$2y$10$oin764E5Mk.S56PEGrXFHuPnMGOqWcmKjRpe7cCyeLfkbf.pVWFx6','approved',NULL,'2026-01-26 12:29:04',1,'2026-01-28 13:04:02',NULL,NULL,NULL,NULL),(3,'tahmid','tahmid@karigori.site','$2y$10$gnvL2hZoxmqE17G/v4yYPOf3yPU4dEiIxGwrhN6IVBF429CcyMvnK','approved',NULL,'2026-01-26 12:29:45',1,'2026-01-27 19:53:50',NULL,NULL,NULL,NULL),(4,'hannan','hannan@email.com','$2y$10$As/trCIXnrKX8/8TT/Xw1urJyOnC3dyJLdyM2QdPG0nbq5jODT6l2','approved',NULL,'2026-01-27 19:33:51',1,'2026-01-29 12:46:13',NULL,NULL,NULL,NULL),(6,'mamun','mamun@email.com','$2y$10$tT/kGC/2/J8TiIAhtD3RBu2QUkhUHfAY3IOwLgb2KEMq97lhXz7Si','approved',NULL,'2026-01-27 20:29:55',1,'2026-01-28 13:03:41',NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -2050,4 +2051,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-30 15:45:07
+-- Dump completed on 2026-01-30 18:59:20
