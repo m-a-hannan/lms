@@ -1294,40 +1294,6 @@ INSERT INTO `page_list` VALUES (52,'Announcement List','announcement_list.php',1
 UNLOCK TABLES;
 
 --
--- Table structure for table `password_reset_requests`
---
-
-DROP TABLE IF EXISTS `password_reset_requests`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `password_reset_requests` (
-  `request_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'pending',
-  `created_date` datetime DEFAULT current_timestamp(),
-  `handled_by` int(11) DEFAULT NULL,
-  `handled_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`request_id`),
-  KEY `idx_status_created` (`status`,`created_date`),
-  KEY `idx_user` (`user_id`),
-  KEY `prr_handled_fk` (`handled_by`),
-  CONSTRAINT `prr_handled_fk` FOREIGN KEY (`handled_by`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `prr_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `password_reset_requests`
---
-
-LOCK TABLES `password_reset_requests` WRITE;
-/*!40000 ALTER TABLE `password_reset_requests` DISABLE KEYS */;
-INSERT INTO `password_reset_requests` VALUES (1,2,'kasem@karigori.site','completed','2026-01-28 12:33:19',1,'2026-01-28 12:34:14'),(2,2,'kasem@karigori.site','completed','2026-01-28 12:40:07',1,'2026-01-28 12:41:12'),(3,2,'kasem@karigori.site','completed','2026-01-28 12:45:55',1,'2026-01-28 12:54:00'),(4,2,'kasem@karigori.site','completed','2026-01-28 13:01:31',1,'2026-01-28 13:02:22'),(5,4,'hannan@email.com','completed','2026-01-29 12:44:45',1,'2026-01-29 12:46:13');
-/*!40000 ALTER TABLE `password_reset_requests` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `payments`
 --
 
@@ -2084,4 +2050,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-30 14:07:12
+-- Dump completed on 2026-01-30 15:45:07
