@@ -73,11 +73,11 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 					<!--begin::Brand Link-->
 					<a href="<?php echo BASE_URL; ?>index.php" class="brand-link">
 						<!--begin::Brand Image-->
-						<img src="<?php echo BASE_URL; ?>assets/img/AdminLTELogo.png" alt="AdminLTE Logo"
+						<img src="<?php echo BASE_URL; ?>assets/img/lms-logo.png" alt="LMS Logo"
 							class="brand-image opacity-75 shadow" />
 						<!--end::Brand Image-->
 						<!--begin::Brand Text-->
-						<span class="brand-text fw-light">AdminLTE 4</span>
+						<span class="brand-text fw-light">LMS</span>
 						<!--end::Brand Text-->
 					</a>
 					<!--end::Brand Link-->

@@ -20,8 +20,8 @@ $shortSha = $sha !== 'unknown' ? substr($sha, 0, 7) : $sha;
 
 	<!--begin::Copyright-->
 	<strong>
-		Copyright &copy; 2014–2025&nbsp;
-		<a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+		Copyright &copy; 2026&nbsp;
+		<a href="#" class="text-decoration-none">PGD-ICT #49 | Group A</a>.
 	</strong>
 	All rights reserved.
 	<!--end::Copyright-->
