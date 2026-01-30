@@ -116,60 +116,6 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 							</li>
 							<?php endif; ?>
 
-							<?php if ($canCrudTemplates): ?>
-							<li class="nav-item">
-								<a href="#" class="nav-link">
-									<i class="bi bi-ui-checks"></i>
-									<p>
-										CRUD Templates
-										<i class="nav-arrow bi bi-chevron-right"></i>
-									</p>
-								</a>
-								<ul class="nav nav-treeview">
-									<?php if (rbac_can_access($conn, 'templates/blank_page.php')): ?>
-									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/blank_page.php" class="nav-link">
-											<i class="bi bi-link-45deg"></i>
-											<p>Blank Page Template</p>
-										</a>
-									</li>
-									<?php endif; ?>
-									<?php if (rbac_can_access($conn, 'templates/create_or_add_page.php')): ?>
-									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/create_or_add_page.php" class="nav-link">
-											<i class="bi bi-link-45deg"></i>
-											<p>Create Page Template</p>
-										</a>
-									</li>
-									<?php endif; ?>
-									<?php if (rbac_can_access($conn, 'templates/read_or_view_page.php')): ?>
-									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/read_or_view_page.php" class="nav-link">
-											<i class="bi bi-link-45deg"></i>
-											<p>View Page Template</p>
-										</a>
-									</li>
-									<?php endif; ?>
-									<?php if (rbac_can_access($conn, 'templates/edit_or_update_page.php')): ?>
-									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/edit_or_update_page.php" class="nav-link">
-											<i class="bi bi-link-45deg"></i>
-											<p>Update Page Template</p>
-										</a>
-									</li>
-									<?php endif; ?>
-									<?php if (rbac_can_access($conn, 'templates/delete_page.php')): ?>
-									<li class="nav-item">
-										<a href="<?php echo BASE_URL; ?>templates/delete_page.php" class="nav-link">
-											<i class="bi bi-link-45deg"></i>
-											<p>Delete Page Template</p>
-										</a>
-									</li>
-									<?php endif; ?>
-								</ul>
-							</li>
-							<?php endif; ?>
-
 							<?php if ($canLibrary): ?>
 							<li class="nav-item">
 								<a href="#" class="nav-link">
