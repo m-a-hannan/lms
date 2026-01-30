@@ -11,6 +11,21 @@ if (!$context['is_admin'] && !$isLibrarian) {
 	exit;
 }
 
+$perPage = 10;
+$loanPage = max(1, (int) ($_GET['loan_page'] ?? 1));
+$reservationPage = max(1, (int) ($_GET['reservation_page'] ?? 1));
+$returnPage = max(1, (int) ($_GET['return_page'] ?? 1));
+$resetPage = max(1, (int) ($_GET['reset_page'] ?? 1));
+
+$loanOffset = ($loanPage - 1) * $perPage;
+$reservationOffset = ($reservationPage - 1) * $perPage;
+$returnOffset = ($returnPage - 1) * $perPage;
+$resetOffset = ($resetPage - 1) * $perPage;
+
+$loanTotalRow = $conn->query("SELECT COUNT(*) AS total FROM loans WHERE status = 'pending'");
+$loanTotal = $loanTotalRow ? (int) ($loanTotalRow->fetch_assoc()['total'] ?? 0) : 0;
+$loanPages = max(1, (int) ceil($loanTotal / $perPage));
+
 $pendingLoans = $conn->query(
 	"SELECT l.loan_id, l.created_date, u.username, u.email, b.title, c.copy_id
 	 FROM loans l
@@ -19,7 +34,8 @@ $pendingLoans = $conn->query(
 	 JOIN books b ON e.book_id = b.book_id
 	 JOIN users u ON l.user_id = u.user_id
 	 WHERE l.status = 'pending'
-	ORDER BY l.created_date ASC"
+	 ORDER BY l.created_date ASC
+	 LIMIT $perPage OFFSET $loanOffset"
 );
 
 $hasReservationBookId = false;
@@ -29,15 +45,22 @@ if ($reservationColumnCheck && $reservationColumnCheck->num_rows > 0) {
 }
 
 if ($hasReservationBookId) {
+	$resCountRow = $conn->query("SELECT COUNT(*) AS total FROM reservations WHERE status = 'pending'");
+	$resTotal = $resCountRow ? (int) ($resCountRow->fetch_assoc()['total'] ?? 0) : 0;
+	$resPages = max(1, (int) ceil($resTotal / $perPage));
 	$pendingReservations = $conn->query(
 		"SELECT r.reservation_id, r.created_date, u.username, u.email, b.title, r.copy_id
 		 FROM reservations r
 		 JOIN books b ON r.book_id = b.book_id
 		 JOIN users u ON r.user_id = u.user_id
 		 WHERE r.status = 'pending'
-		 ORDER BY r.created_date ASC"
+		 ORDER BY r.created_date ASC
+		 LIMIT $perPage OFFSET $reservationOffset"
 	);
 } else {
+	$resCountRow = $conn->query("SELECT COUNT(*) AS total FROM reservations WHERE status = 'pending'");
+	$resTotal = $resCountRow ? (int) ($resCountRow->fetch_assoc()['total'] ?? 0) : 0;
+	$resPages = max(1, (int) ceil($resTotal / $perPage));
 	$pendingReservations = $conn->query(
 		"SELECT r.reservation_id, r.created_date, u.username, u.email, b.title, r.copy_id
 		 FROM reservations r
@@ -46,9 +69,14 @@ if ($hasReservationBookId) {
 		 JOIN books b ON e.book_id = b.book_id
 		 JOIN users u ON r.user_id = u.user_id
 		 WHERE r.status = 'pending'
-		 ORDER BY r.created_date ASC"
+		 ORDER BY r.created_date ASC
+		 LIMIT $perPage OFFSET $reservationOffset"
 	);
 }
+
+$returnTotalRow = $conn->query("SELECT COUNT(*) AS total FROM returns WHERE status = 'pending'");
+$returnTotal = $returnTotalRow ? (int) ($returnTotalRow->fetch_assoc()['total'] ?? 0) : 0;
+$returnPages = max(1, (int) ceil($returnTotal / $perPage));
 
 $pendingReturns = $conn->query(
 	"SELECT r.return_id, r.created_date, l.loan_id, u.username, u.email, b.title, c.copy_id
@@ -59,7 +87,8 @@ $pendingReturns = $conn->query(
 	 JOIN books b ON e.book_id = b.book_id
 	 JOIN users u ON l.user_id = u.user_id
 	 WHERE r.status = 'pending'
-	 ORDER BY r.created_date ASC"
+	 ORDER BY r.created_date ASC
+	 LIMIT $perPage OFFSET $returnOffset"
 );
 
 $alerts = [];
@@ -90,12 +119,16 @@ if ($reservationStatus !== '') {
 $pendingPasswordResets = null;
 $resetTable = $conn->query("SHOW TABLES LIKE 'password_reset_requests'");
 if ($resetTable && $resetTable->num_rows > 0) {
+	$resetCountRow = $conn->query("SELECT COUNT(*) AS total FROM password_reset_requests WHERE status = 'pending'");
+	$resetTotal = $resetCountRow ? (int) ($resetCountRow->fetch_assoc()['total'] ?? 0) : 0;
+	$resetPages = max(1, (int) ceil($resetTotal / $perPage));
 	$pendingPasswordResets = $conn->query(
 		"SELECT pr.request_id, pr.created_date, u.username, u.email
 		 FROM password_reset_requests pr
 		 JOIN users u ON pr.user_id = u.user_id
 		 WHERE pr.status = 'pending'
-		 ORDER BY pr.created_date ASC"
+		 ORDER BY pr.created_date ASC
+		 LIMIT $perPage OFFSET $resetOffset"
 	);
 }
 
@@ -134,7 +167,7 @@ if ($returnStatus !== '') {
 						</div>
 					</div>
 
-					<?php if ($alerts): ?>
+<?php if ($alerts): ?>
 					<div class="mb-3">
 						<?php foreach ($alerts as $alert): ?>
 						<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
@@ -142,7 +175,15 @@ if ($returnStatus !== '') {
 						</div>
 						<?php endforeach; ?>
 					</div>
-					<?php endif; ?>
+<?php endif; ?>
+
+					<?php
+					$buildPageLink = function (string $param, int $page) {
+						$query = $_GET;
+						$query[$param] = $page;
+						return BASE_URL . 'dashboard.php?' . http_build_query($query);
+					};
+					?>
 
 					<div class="row g-4">
 						<div class="col-12">
@@ -192,6 +233,23 @@ if ($returnStatus !== '') {
 											</tbody>
 										</table>
 									</div>
+									<?php if ($loanPages > 1): ?>
+									<nav>
+										<ul class="pagination pagination-sm mb-0">
+											<li class="page-item <?php echo $loanPage <= 1 ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('loan_page', max(1, $loanPage - 1)); ?>">Prev</a>
+											</li>
+											<?php for ($i = 1; $i <= $loanPages; $i++): ?>
+											<li class="page-item <?php echo $i === $loanPage ? 'active' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('loan_page', $i); ?>"><?php echo $i; ?></a>
+											</li>
+											<?php endfor; ?>
+											<li class="page-item <?php echo $loanPage >= $loanPages ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('loan_page', min($loanPages, $loanPage + 1)); ?>">Next</a>
+											</li>
+										</ul>
+									</nav>
+									<?php endif; ?>
 								</div>
 							</div>
 						</div>
@@ -243,6 +301,23 @@ if ($returnStatus !== '') {
 											</tbody>
 										</table>
 									</div>
+									<?php if (!empty($resPages) && $resPages > 1): ?>
+									<nav>
+										<ul class="pagination pagination-sm mb-0">
+											<li class="page-item <?php echo $reservationPage <= 1 ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', max(1, $reservationPage - 1)); ?>">Prev</a>
+											</li>
+											<?php for ($i = 1; $i <= $resPages; $i++): ?>
+											<li class="page-item <?php echo $i === $reservationPage ? 'active' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', $i); ?>"><?php echo $i; ?></a>
+											</li>
+											<?php endfor; ?>
+											<li class="page-item <?php echo $reservationPage >= $resPages ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', min($resPages, $reservationPage + 1)); ?>">Next</a>
+											</li>
+										</ul>
+									</nav>
+									<?php endif; ?>
 								</div>
 							</div>
 						</div>
@@ -294,6 +369,23 @@ if ($returnStatus !== '') {
 											</tbody>
 										</table>
 									</div>
+									<?php if ($returnPages > 1): ?>
+									<nav>
+										<ul class="pagination pagination-sm mb-0">
+											<li class="page-item <?php echo $returnPage <= 1 ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('return_page', max(1, $returnPage - 1)); ?>">Prev</a>
+											</li>
+											<?php for ($i = 1; $i <= $returnPages; $i++): ?>
+											<li class="page-item <?php echo $i === $returnPage ? 'active' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('return_page', $i); ?>"><?php echo $i; ?></a>
+											</li>
+											<?php endfor; ?>
+											<li class="page-item <?php echo $returnPage >= $returnPages ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('return_page', min($returnPages, $returnPage + 1)); ?>">Next</a>
+											</li>
+										</ul>
+									</nav>
+									<?php endif; ?>
 								</div>
 							</div>
 						</div>
@@ -393,6 +485,23 @@ if ($returnStatus !== '') {
 											</tbody>
 										</table>
 									</div>
+									<?php if (!empty($resetPages) && $resetPages > 1): ?>
+									<nav>
+										<ul class="pagination pagination-sm mb-0">
+											<li class="page-item <?php echo $resetPage <= 1 ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('reset_page', max(1, $resetPage - 1)); ?>">Prev</a>
+											</li>
+											<?php for ($i = 1; $i <= $resetPages; $i++): ?>
+											<li class="page-item <?php echo $i === $resetPage ? 'active' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('reset_page', $i); ?>"><?php echo $i; ?></a>
+											</li>
+											<?php endfor; ?>
+											<li class="page-item <?php echo $resetPage >= $resetPages ? 'disabled' : ''; ?>">
+												<a class="page-link" href="<?php echo $buildPageLink('reset_page', min($resetPages, $resetPage + 1)); ?>">Next</a>
+											</li>
+										</ul>
+									</nav>
+									<?php endif; ?>
 								</div>
 							</div>
 						</div>
