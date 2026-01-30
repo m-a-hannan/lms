@@ -79,7 +79,7 @@ jobs:
       - name: Restore DB (drop & recreate & import latest dump)
         run: |
           set -euo pipefail
-          sudo bash /var/www/html/scripts/restore_db_on_server.sh
+          sudo /usr/local/sbin/lms-restore-db
 
       - name: Reload Apache
         run: |

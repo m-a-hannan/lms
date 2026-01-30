@@ -38,20 +38,6 @@ if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
 
-$pendingResetUsers = [];
-$resetTable = $conn->query("SHOW TABLES LIKE 'password_reset_requests'");
-if ($resetTable && $resetTable->num_rows > 0) {
-	$pendingResult = $conn->query(
-		"SELECT DISTINCT user_id
-		 FROM password_reset_requests
-		 WHERE status = 'pending' AND user_id IS NOT NULL"
-	);
-	if ($pendingResult) {
-		while ($row = $pendingResult->fetch_assoc()) {
-			$pendingResetUsers[(int) $row['user_id']] = true;
-		}
-	}
-}
 ?>
 <?php include(ROOT_PATH . '/include/header_resources.php') ?>
 <?php include(ROOT_PATH . '/include/header.php') ?>
@@ -125,17 +111,6 @@ if ($resetTable && $resetTable->num_rows > 0) {
 											
 											<td class="text-center">
 												<?php if ($canManageUsers): ?>
-													<?php
-														$userId = (int) $row['user_id'];
-														$hasResetRequest = isset($pendingResetUsers[$userId]);
-													?>
-													<button type="button" class="btn btn-sm btn-outline-primary"
-														data-bs-toggle="modal"
-														data-bs-target="#passwordModal<?php echo $userId; ?>"
-														<?php echo $hasResetRequest ? '' : 'disabled'; ?>
-														title="<?php echo $hasResetRequest ? 'Set temporary password' : 'No pending reset request'; ?>">
-														Set Password
-													</button>
 													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_user.php" class="d-inline">
 														<input type="hidden" name="user_id" value="<?= (int) $row['user_id'] ?>">
 														<input type="hidden" name="action" value="approve">
@@ -161,32 +136,6 @@ if ($resetTable && $resetTable->num_rows > 0) {
 												<?php endif; ?>
 											</td>
 										</tr>
-										<?php if ($canManageUsers): ?>
-										<div class="modal fade" id="passwordModal<?php echo (int) $row['user_id']; ?>" tabindex="-1" aria-hidden="true">
-											<div class="modal-dialog modal-dialog-centered">
-												<div class="modal-content">
-													<div class="modal-header">
-														<h5 class="modal-title">Set Temporary Password</h5>
-														<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-													</div>
-													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_set_user_password.php">
-														<div class="modal-body">
-															<p class="text-muted small mb-3">Set a temporary password for this user. They should change it after logging in.</p>
-															<input type="hidden" name="user_id" value="<?php echo (int) $row['user_id']; ?>">
-															<div class="mb-3">
-																<label class="form-label">Temporary Password</label>
-																<input type="text" name="temp_password" class="form-control" required>
-															</div>
-														</div>
-														<div class="modal-footer">
-															<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-															<button type="submit" class="btn btn-primary">Save Password</button>
-														</div>
-													</form>
-												</div>
-											</div>
-										</div>
-										<?php endif; ?>
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>

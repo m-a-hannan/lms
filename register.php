@@ -24,8 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$errors[] = 'Username, email, and password are required.';
 	} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 		$errors[] = 'Please enter a valid email address.';
-	} elseif (strlen($password) < 6) {
-		$errors[] = 'Password must be at least 6 characters.';
+	} elseif (strlen($password) < 8) {
+		$errors[] = 'Password must be at least 8 characters.';
+	} elseif (!preg_match('/[a-z]/i', $password)) {
+		$errors[] = 'Password must contain at least one letter.';
+	} elseif (!preg_match('/[0-9]/', $password)) {
+		$errors[] = 'Password must contain at least one number.';
 	} else {
 		$stmt = $conn->prepare('SELECT user_id, account_status FROM users WHERE email = ? OR username = ? LIMIT 1');
 		if ($stmt === false) {

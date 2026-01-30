@@ -16,6 +16,7 @@ $identifier = '';
 $registered = isset($_GET['registered']) && $_GET['registered'] === '1';
 $loggedOut = isset($_GET['logged_out']) && $_GET['logged_out'] === '1';
 $resetRequest = $_GET['reset_request'] ?? '';
+$resetSuccess = isset($_GET['reset']) && $_GET['reset'] === 'success';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$identifier = trim($_POST['identifier'] ?? '');
@@ -337,6 +338,16 @@ button {
 						<div class="alert alert-success">Registration complete. Please log in.</div>
 					<?php endif; ?>
 
+					<?php if ($resetSuccess): ?>
+						<div class="alert alert-success">Password updated. Please log in with your new password.</div>
+					<?php endif; ?>
+
+					<?php if ($resetRequest === 'sent'): ?>
+						<div class="alert alert-success">If the email exists and is approved, a reset link has been sent.</div>
+					<?php elseif ($resetRequest === 'error'): ?>
+						<div class="alert alert-danger">Unable to send reset email. Please try again.</div>
+					<?php endif; ?>
+
 					<?php if (!empty($errors)): ?>
 						<div class="alert alert-danger">
 							<?php echo htmlspecialchars(implode(' ', $errors)); ?>
@@ -396,8 +407,8 @@ button {
 				<form method="post" action="<?php echo BASE_URL; ?>actions/request_password_reset.php" id="forgotPasswordForm">
 					<div class="modal-body">
 						<p class="small mb-3">
-							Enter the email linked to your account. An admin will set a temporary password.
-							Once you receive it, log in and change your password from your profile.
+							Enter the email linked to your account. We’ll email you a reset link if the account is approved.
+							The link expires in 30 minutes.
 						</p>
 						<div class="mb-3">
 							<label class="form-label">Email Address</label>
