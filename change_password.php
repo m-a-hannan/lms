@@ -20,8 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 	if ($newPassword === '' || $confirmPassword === '') {
 		$alerts[] = ['danger', 'New password and confirmation are required.'];
-	} elseif (strlen($newPassword) < 6) {
-		$alerts[] = ['danger', 'Password must be at least 6 characters.'];
+	} elseif (strlen($newPassword) < 8) {
+		$alerts[] = ['danger', 'Password must be at least 8 characters.'];
+	} elseif (!preg_match('/[a-z]/i', $newPassword)) {
+		$alerts[] = ['danger', 'Password must contain at least one letter.'];
+	} elseif (!preg_match('/[0-9]/', $newPassword)) {
+		$alerts[] = ['danger', 'Password must contain at least one number.'];
 	} elseif ($newPassword !== $confirmPassword) {
 		$alerts[] = ['danger', 'New password and confirmation do not match.'];
 	}
