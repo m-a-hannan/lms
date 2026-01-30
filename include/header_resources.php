@@ -4,7 +4,7 @@
 	<!--begin::Head-->
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>AdminLTE | Dashboard v2</title>
+		<title>LMS | Dashboard</title>
 		<!--begin::Accessibility Meta Tags-->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 		<meta name="color-scheme" content="light dark" />
@@ -12,11 +12,11 @@
 		<meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
 		<!--end::Accessibility Meta Tags-->
 		<!--begin::Primary Meta Tags-->
-		<meta name="title" content="AdminLTE | Dashboard v2" />
+		<meta name="title" content="LMS | Dashboard" />
 		<meta name="author" content="ColorlibHQ" />
 		<meta
 			name="description"
-			content="AdminLTE is a Free Bootstrap 5 Admin Dashboard, 30 example pages using Vanilla JS. Fully accessible with WCAG 2.1 AA compliance."
+			content="LMS is a Free Bootstrap 5 Admin Dashboard, 30 example pages using Vanilla JS. Fully accessible with WCAG 2.1 AA compliance."
 		/>
 		<meta
 			name="keywords"
@@ -52,9 +52,9 @@
 			crossorigin="anonymous"
 		/>
 		<!--end::Third Party Plugin(Bootstrap Icons)-->
-		<!--begin::Required Plugin(AdminLTE)-->
+		<!--begin::Required Plugin(LMS)-->
 		<link rel="stylesheet" href="<?php echo BASE_URL; ?>css/adminlte.css" />
-		<!--end::Required Plugin(AdminLTE)-->
+		<!--end::Required Plugin(LMS)-->
 		<link rel="stylesheet" href="<?php echo BASE_URL; ?>css/custom.css" />
 		<!-- apexcharts -->
 		<link
