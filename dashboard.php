@@ -15,12 +15,10 @@ $perPage = 10;
 $loanPage = max(1, (int) ($_GET['loan_page'] ?? 1));
 $reservationPage = max(1, (int) ($_GET['reservation_page'] ?? 1));
 $returnPage = max(1, (int) ($_GET['return_page'] ?? 1));
-$resetPage = max(1, (int) ($_GET['reset_page'] ?? 1));
 
 $loanOffset = ($loanPage - 1) * $perPage;
 $reservationOffset = ($reservationPage - 1) * $perPage;
 $returnOffset = ($returnPage - 1) * $perPage;
-$resetOffset = ($resetPage - 1) * $perPage;
 
 $loanTotalRow = $conn->query("SELECT COUNT(*) AS total FROM loans WHERE status = 'pending'");
 $loanTotal = $loanTotalRow ? (int) ($loanTotalRow->fetch_assoc()['total'] ?? 0) : 0;
@@ -114,22 +112,6 @@ if ($reservationStatus !== '') {
 	} elseif ($reservationStatus === 'error') {
 		$alerts[] = ['danger', 'Reservation update failed.'];
 	}
-}
-
-$pendingPasswordResets = null;
-$resetTable = $conn->query("SHOW TABLES LIKE 'password_reset_requests'");
-if ($resetTable && $resetTable->num_rows > 0) {
-	$resetCountRow = $conn->query("SELECT COUNT(*) AS total FROM password_reset_requests WHERE status = 'pending'");
-	$resetTotal = $resetCountRow ? (int) ($resetCountRow->fetch_assoc()['total'] ?? 0) : 0;
-	$resetPages = max(1, (int) ceil($resetTotal / $perPage));
-	$pendingPasswordResets = $conn->query(
-		"SELECT pr.request_id, pr.created_date, u.username, u.email
-		 FROM password_reset_requests pr
-		 JOIN users u ON pr.user_id = u.user_id
-		 WHERE pr.status = 'pending'
-		 ORDER BY pr.created_date ASC
-		 LIMIT $perPage OFFSET $resetOffset"
-	);
 }
 
 $returnStatus = $_GET['return'] ?? '';
@@ -416,95 +398,6 @@ if ($returnStatus !== '') {
 									}
 								});
 							</script>
-						<?php endif; ?>
-						<?php if ($pendingPasswordResets !== null): ?>
-						<div class="col-12">
-							<div class="card shadow-sm">
-								<div class="card-header d-flex justify-content-between align-items-center">
-									<h5 class="mb-0">Pending Password Reset Requests</h5>
-								</div>
-								<div class="card-body">
-									<div class="table-responsive">
-										<table class="table table-bordered table-hover align-middle">
-											<thead class="table-light">
-												<tr>
-													<th>#</th>
-													<th>User</th>
-													<th>Email</th>
-													<th>Requested</th>
-													<th>Action</th>
-												</tr>
-											</thead>
-											<tbody>
-												<?php if ($pendingPasswordResets && $pendingPasswordResets->num_rows > 0): ?>
-												<?php while ($row = $pendingPasswordResets->fetch_assoc()): ?>
-												<tr>
-													<td><?= htmlspecialchars($row['request_id']) ?></td>
-													<td><?= htmlspecialchars($row['username'] ?: $row['email']) ?></td>
-													<td><?= htmlspecialchars($row['email']) ?></td>
-													<td><?= htmlspecialchars($row['created_date']) ?></td>
-													<td>
-														<button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#passwordResetModal<?php echo (int) $row['user_id']; ?>">
-															Set Password
-														</button>
-													</td>
-												</tr>
-												<div class="modal fade" id="passwordResetModal<?php echo (int) $row['user_id']; ?>" tabindex="-1" aria-hidden="true">
-													<div class="modal-dialog modal-dialog-centered">
-														<div class="modal-content">
-															<div class="modal-header">
-																<h5 class="modal-title">Set Temporary Password</h5>
-																<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-															</div>
-															<form method="post" action="<?php echo BASE_URL; ?>actions/admin_set_user_password.php">
-																<div class="modal-body">
-																	<p class="text-muted small mb-3">
-																		Set a temporary password for <?php echo htmlspecialchars($row['username'] ?: $row['email']); ?>. They should change it after logging in.
-																	</p>
-																	<input type="hidden" name="user_id" value="<?php echo (int) $row['user_id']; ?>">
-																	<input type="hidden" name="redirect" value="dashboard.php">
-																	<div class="mb-3">
-																		<label class="form-label">Temporary Password</label>
-																		<input type="text" name="temp_password" class="form-control" required>
-																	</div>
-																</div>
-																<div class="modal-footer">
-																	<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-																	<button type="submit" class="btn btn-primary">Save Password</button>
-																</div>
-															</form>
-														</div>
-													</div>
-												</div>
-												<?php endwhile; ?>
-												<?php else: ?>
-												<tr>
-													<td colspan="5" class="text-center text-muted">No pending password reset requests.</td>
-												</tr>
-												<?php endif; ?>
-											</tbody>
-										</table>
-									</div>
-									<?php if (!empty($resetPages) && $resetPages > 1): ?>
-									<nav>
-										<ul class="pagination pagination-sm mb-0">
-											<li class="page-item <?php echo $resetPage <= 1 ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('reset_page', max(1, $resetPage - 1)); ?>">Prev</a>
-											</li>
-											<?php for ($i = 1; $i <= $resetPages; $i++): ?>
-											<li class="page-item <?php echo $i === $resetPage ? 'active' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('reset_page', $i); ?>"><?php echo $i; ?></a>
-											</li>
-											<?php endfor; ?>
-											<li class="page-item <?php echo $resetPage >= $resetPages ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('reset_page', min($resetPages, $resetPage + 1)); ?>">Next</a>
-											</li>
-										</ul>
-									</nav>
-									<?php endif; ?>
-								</div>
-							</div>
-						</div>
 						<?php endif; ?>
 					</div>
 				</div>
