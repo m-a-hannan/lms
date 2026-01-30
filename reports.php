@@ -104,7 +104,17 @@ if (column_exists($conn, 'returns', 'status')) {
 $overdueCount = 0;
 if (column_exists($conn, 'loans', 'due_date')) {
 	$overdueResult = $conn->query(
-		"SELECT COUNT(*) AS total FROM loans WHERE deleted_date IS NULL AND due_date IS NOT NULL AND due_date < CURDATE() AND (return_date IS NULL OR return_date = '')"
+		"SELECT COUNT(*) AS total
+		 FROM loans
+		 WHERE deleted_date IS NULL
+		   AND CAST(due_date AS CHAR) <> ''
+		   AND CAST(due_date AS CHAR) <> '0000-00-00'
+		   AND STR_TO_DATE(CAST(due_date AS CHAR), '%Y-%m-%d') < CURDATE()
+		   AND (
+				return_date IS NULL
+				OR CAST(return_date AS CHAR) = ''
+				OR CAST(return_date AS CHAR) = '0000-00-00'
+		   )"
 	);
 	if ($overdueResult && ($row = $overdueResult->fetch_assoc())) {
 		$overdueCount = (int) ($row['total'] ?? 0);
@@ -122,17 +132,41 @@ $digitalTotals = [
 	'files' => 0,
 	'downloads' => 0,
 ];
+if (column_exists($conn, 'books', 'book_type')) {
+	$ebookTotals = $conn->query(
+		"SELECT COUNT(*) AS total,
+			SUM(CASE WHEN ebook_file_path IS NOT NULL AND ebook_file_path <> '' THEN 1 ELSE 0 END) AS files
+		 FROM books
+		 WHERE deleted_date IS NULL AND book_type = 'ebook'"
+	);
+	if ($ebookTotals && ($row = $ebookTotals->fetch_assoc())) {
+		$digitalTotals['resources'] += (int) ($row['total'] ?? 0);
+		$digitalTotals['files'] += (int) ($row['files'] ?? 0);
+	}
+}
 if (column_exists($conn, 'digital_resources', 'resource_id')) {
 	$digitalResources = $conn->query("SELECT COUNT(*) AS total FROM digital_resources WHERE deleted_date IS NULL");
 	if ($digitalResources && ($row = $digitalResources->fetch_assoc())) {
-		$digitalTotals['resources'] = (int) ($row['total'] ?? 0);
+		$digitalTotals['resources'] += (int) ($row['total'] ?? 0);
 	}
 }
 if (column_exists($conn, 'digital_files', 'file_id')) {
 	$digitalFiles = $conn->query("SELECT COUNT(*) AS total, COALESCE(SUM(download_count), 0) AS downloads FROM digital_files WHERE deleted_date IS NULL");
 	if ($digitalFiles && ($row = $digitalFiles->fetch_assoc())) {
-		$digitalTotals['files'] = (int) ($row['total'] ?? 0);
+		$digitalTotals['files'] += (int) ($row['total'] ?? 0);
 		$digitalTotals['downloads'] = (int) ($row['downloads'] ?? 0);
+	}
+}
+
+if (column_exists($conn, 'audit_logs', 'log_id')) {
+	$downloadLogs = $conn->query(
+		"SELECT COUNT(*) AS total
+		 FROM audit_logs
+		 WHERE action = 'download_ebook'
+		   AND deleted_date IS NULL"
+	);
+	if ($downloadLogs && ($row = $downloadLogs->fetch_assoc())) {
+		$digitalTotals['downloads'] += (int) ($row['total'] ?? 0);
 	}
 }
 
@@ -239,7 +273,7 @@ if (column_exists($conn, 'search_logs', 'query_text')) {
 
 $activityUsers = [];
 $activityData = [
-	'all' => ['loan' => [], 'reserve' => [], 'return' => []],
+	'all' => ['loan' => [], 'reserve' => [], 'return' => [], 'download' => []],
 	'users' => [],
 ];
 
@@ -257,7 +291,7 @@ if ($userResult) {
 
 $addActivity = function (&$store, string $type, string $day, int $userId, int $count) {
 	if (!isset($store['users'][$userId])) {
-		$store['users'][$userId] = ['loan' => [], 'reserve' => [], 'return' => []];
+		$store['users'][$userId] = ['loan' => [], 'reserve' => [], 'return' => [], 'download' => []];
 	}
 	$store['users'][$userId][$type][$day] = ($store['users'][$userId][$type][$day] ?? 0) + $count;
 	$store['all'][$type][$day] = ($store['all'][$type][$day] ?? 0) + $count;
@@ -276,6 +310,12 @@ $activityQueries = [
 		FROM returns
 		WHERE created_date >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)
 		GROUP BY DATE(created_date), created_by",
+	'download' => "SELECT DATE(COALESCE(time_stamp, created_date)) AS day, user_id, COUNT(*) AS total
+		FROM audit_logs
+		WHERE action = 'download_ebook'
+		  AND COALESCE(time_stamp, created_date) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)
+		  AND user_id IS NOT NULL
+		GROUP BY DATE(COALESCE(time_stamp, created_date)), user_id",
 ];
 
 foreach ($activityQueries as $type => $sql) {
@@ -420,6 +460,7 @@ foreach ($activityQueries as $type => $sql) {
 									<option value="loan">Loans</option>
 									<option value="reserve">Reservations</option>
 									<option value="return">Returns</option>
+									<option value="download">Downloads</option>
 								</select>
 							</div>
 						</div>
@@ -461,6 +502,13 @@ foreach ($activityQueries as $type => $sql) {
 										<div class="day activity-return level-2"></div>
 										<div class="day activity-return level-3"></div>
 										<div class="day activity-return level-4"></div>
+									</div>
+									<div class="legend-row">
+										<span class="legend-label">Downloads</span>
+										<div class="day activity-download level-1"></div>
+										<div class="day activity-download level-2"></div>
+										<div class="day activity-download level-3"></div>
+										<div class="day activity-download level-4"></div>
 									</div>
 								</div>
 							</div>
@@ -667,20 +715,26 @@ foreach ($activityQueries as $type => $sql) {
 		}).render();
 
 		const digital = <?php echo json_encode($digitalTotals); ?>;
-		new ApexCharts(document.querySelector('#digitalChart'), {
-			chart: {
-				type: 'bar',
-				height: 250
-			},
-			series: [{
-				name: 'Total',
-				data: Object.values(digital)
-			}],
-			xaxis: {
-				categories: ['Resources', 'Files', 'Downloads']
-			},
-			colors: [palette[1]],
-		}).render();
+		const digitalValues = Object.values(digital);
+		const digitalBox = document.querySelector('#digitalChart');
+		if (digitalBox && digitalValues.every((value) => Number(value) === 0)) {
+			digitalBox.innerHTML = '<div class="text-muted small d-flex align-items-center justify-content-center h-100">No digital library activity yet.</div>';
+		} else {
+			new ApexCharts(digitalBox, {
+				chart: {
+					type: 'bar',
+					height: 250
+				},
+				series: [{
+					name: 'Total',
+					data: digitalValues
+				}],
+				xaxis: {
+					categories: ['Resources', 'Files', 'Downloads']
+				},
+				colors: [palette[1]],
+			}).render();
+		}
 
 		const finance = {
 			Fines: <?php echo json_encode($fineTotals); ?>,
@@ -769,11 +823,12 @@ foreach ($activityQueries as $type => $sql) {
 				return: {}
 			});
 
-		const types = ['loan', 'reserve', 'return'];
+		const types = ['loan', 'reserve', 'return', 'download'];
 		const maxByType = {
 			loan: 1,
 			reserve: 1,
-			return: 1
+			return: 1,
+			download: 1
 		};
 
 		types.forEach((type) => {
@@ -802,9 +857,10 @@ foreach ($activityQueries as $type => $sql) {
 			const key = date.toISOString().slice(0, 10);
 
 			const counts = {
-				loan: source.loan?. [key] || 0,
-				reserve: source.reserve?. [key] || 0,
-				return: source.return?. [key] || 0,
+			loan: source.loan?. [key] || 0,
+			reserve: source.reserve?. [key] || 0,
+			return: source.return?. [key] || 0,
+			download: source.download?. [key] || 0,
 			};
 
 			let activity = selectedType === 'all' ? 'loan' : selectedType;

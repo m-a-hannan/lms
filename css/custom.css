@@ -494,6 +494,12 @@
 .activity-return.level-3 { background: #34d399; }
 .activity-return.level-4 { background: #059669; }
 
+.activity-download.level-0 { background: #e5e7eb; }
+.activity-download.level-1 { background: #BDE8F5; }
+.activity-download.level-2 { background: #4988C4; }
+.activity-download.level-3 { background: #1C4D8D; }
+.activity-download.level-4 { background: #0F2854; }
+
 
 .legend {
 	display: flex;

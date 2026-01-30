@@ -54,6 +54,19 @@ if (!is_file($fullPath) || !is_readable($fullPath)) {
 	exit;
 }
 
+$logTable = $conn->query("SHOW TABLES LIKE 'audit_logs'");
+if ($logTable && $logTable->num_rows > 0) {
+	$logStmt = $conn->prepare(
+		"INSERT INTO audit_logs (user_id, action, target_table, target_id, time_stamp)
+		 VALUES (?, 'download_ebook', 'books', ?, NOW())"
+	);
+	if ($logStmt) {
+		$logStmt->bind_param('ii', $userId, $bookId);
+		$logStmt->execute();
+		$logStmt->close();
+	}
+}
+
 $filename = basename($fullPath);
 $title = trim((string) ($row['title'] ?? 'ebook'));
 if ($title !== '') {
