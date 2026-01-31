@@ -154,13 +154,5 @@ if ($result === false) {
 </main>
 <!--end::App Main-->
 <?php include(ROOT_PATH . '/include/footer.php') ?>
+<script src="<?php echo BASE_URL; ?>js/pages/user_list.js"></script>
 <?php include(ROOT_PATH . '/include/footer_resources.php') ?>
-<script>
-	window.addEventListener('load', () => {
-		const toastRoot = document.getElementById('userListToasts');
-		if (!toastRoot || !window.bootstrap) return;
-		toastRoot.querySelectorAll('.toast').forEach((toastEl) => {
-			new bootstrap.Toast(toastEl, { delay: 4000 }).show();
-		});
-	});
-</script>

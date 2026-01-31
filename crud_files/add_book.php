@@ -289,49 +289,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </main>
 <!--end::App Main-->
 <?php include(ROOT_PATH . '/include/footer.php') ?>
+<script src="<?php echo BASE_URL; ?>js/pages/add_book.js"></script>
 <?php include(ROOT_PATH . '/include/footer_resources.php') ?>
-
-<script>
-	const bookTypeSelect = document.getElementById('bookTypeSelect');
-	const ebookFormatGroup = document.getElementById('ebookFormatGroup');
-	const ebookFormatSelect = document.getElementById('ebookFormatSelect');
-	const initialCopiesInput = document.getElementById('initialCopiesInput');
-	const ebookFileGroup = document.getElementById('ebookFileGroup');
-	const ebookFileInput = document.getElementById('ebookFileInput');
-
-	const updateBookTypeFields = () => {
-		const isEbook = bookTypeSelect && bookTypeSelect.value === 'ebook';
-		if (ebookFormatGroup) {
-			ebookFormatGroup.classList.toggle('d-none', !isEbook);
-		}
-		if (ebookFormatSelect) {
-			ebookFormatSelect.required = isEbook;
-			if (!isEbook) {
-				ebookFormatSelect.value = '';
-			}
-		}
-		if (initialCopiesInput) {
-			initialCopiesInput.disabled = isEbook;
-			if (isEbook) {
-				initialCopiesInput.value = 0;
-			}
-		}
-		if (ebookFileGroup) {
-			ebookFileGroup.classList.toggle('d-none', !isEbook);
-		}
-		if (ebookFileInput) {
-			ebookFileInput.required = isEbook;
-			if (!isEbook) {
-				ebookFileInput.value = '';
-			}
-		}
-	};
-
-	if (bookTypeSelect) {
-		bookTypeSelect.addEventListener('change', updateBookTypeFields);
-		updateBookTypeFields();
-	}
-</script>
 
 <?php if (isset($_GET["success"])): ?>
 <div class="alert alert-success">Book added successfully.</div>

@@ -219,27 +219,6 @@ function is_checked($pageId, $key, $stored, $posted)
 	</div>
 </main>
 <!--end::App Main-->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-	document.querySelectorAll('.perm-deny').forEach(function(checkbox) {
-		checkbox.addEventListener('change', function() {
-			var row = checkbox.closest('tr');
-			if (!row) {
-				return;
-			}
-			if (checkbox.checked) {
-				var readBox = row.querySelector('.perm-read');
-				var writeBox = row.querySelector('.perm-write');
-				if (readBox) {
-					readBox.checked = false;
-				}
-				if (writeBox) {
-					writeBox.checked = false;
-				}
-			}
-		});
-	});
-});
-</script>
 <?php include(ROOT_PATH . '/include/footer.php') ?>
+<script src="<?php echo BASE_URL; ?>js/pages/permission_management.js"></script>
 <?php include(ROOT_PATH . '/include/footer_resources.php') ?>

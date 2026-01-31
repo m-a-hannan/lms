@@ -244,3 +244,47 @@ body {
         margin-left: 0;
     }
 }
+
+body.page-data-view {
+    padding-top: 88px;
+    background: #f6f7fb;
+}
+
+.page-data-view .page-title {
+    font-weight: 700;
+}
+
+.page-data-view .table-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.page-data-view .table-grid a {
+    width: 100%;
+}
+
+@media (max-width: 992px) {
+    .page-data-view .table-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .page-data-view .table-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+body.page-crud-check {
+    padding-top: 88px;
+    background: #f6f7fb;
+}
+
+.page-crud-check .page-title {
+    font-weight: 700;
+}
+
+.page-crud-check .status-badge {
+    font-size: 0.85rem;
+}

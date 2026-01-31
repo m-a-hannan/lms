@@ -185,26 +185,7 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 
 	<!-- Custom JS -->
 	<!-- <script src="script.js"></script> -->
-	<script>
-	// Placeholder for future interactions
-	document.querySelector('.add-btn').addEventListener('click', () => {
-		alert("Add new book feature coming soon!");
-	});
-
-	// Close dropdown after selecting a menu item
-	document.querySelectorAll('.dropdown-menu .dropdown-item').forEach((item) => {
-		item.addEventListener('click', () => {
-			const dropdown = item.closest('.dropdown');
-			if (!dropdown) {
-				return;
-			}
-			const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
-			if (toggle) {
-				toggle.click();
-			}
-		});
-	});
-	</script>
+	<script src="js/pages/index.js"></script>
 </body>
 
 </html>

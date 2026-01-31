@@ -95,7 +95,8 @@ if ($profileResult && $profileResult->num_rows === 1) {
 	}
 }
 ?>
-	<body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+	<?php $bodyClass = isset($bodyClass) ? trim((string) $bodyClass) : ''; ?>
+	<body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary<?php echo $bodyClass !== '' ? ' ' . htmlspecialchars($bodyClass) : ''; ?>">
 		<!--begin::App Wrapper-->
 		<div class="app-wrapper">
 			<!--begin::Header-->

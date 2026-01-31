@@ -144,7 +144,7 @@ if ($returnStatus !== '') {
 						<h1 class="mb-0">Librarian Dashboard</h1>
 						<div class="row">
 							<div class="col-md-12">
-								<div id="deployStatus" class="small text-muted"></div>
+								<div id="deployStatus" class="small text-muted" data-status-url="/deploy/status.json" data-sha-url="/DEPLOYED_SHA.txt"></div>
 							</div>
 						</div>
 					</div>
@@ -381,7 +381,7 @@ if ($returnStatus !== '') {
 							}
 						?>
 						<?php if ($alerts): ?>
-							<div class="toast-container position-fixed top-0 end-0 p-3">
+							<div class="toast-container position-fixed top-0 end-0 p-3" data-auto-toast>
 								<?php foreach ($alerts as $alert): ?>
 									<div class="toast text-bg-<?php echo htmlspecialchars($alert[0]); ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
 										<div class="d-flex">
@@ -391,13 +391,6 @@ if ($returnStatus !== '') {
 									</div>
 								<?php endforeach; ?>
 							</div>
-							<script>
-								document.querySelectorAll('.toast').forEach((toastEl) => {
-									if (window.bootstrap) {
-										new bootstrap.Toast(toastEl, { delay: 4000 }).show();
-									}
-								});
-							</script>
 						<?php endif; ?>
 					</div>
 				</div>
@@ -408,35 +401,5 @@ if ($returnStatus !== '') {
 </main>
 <!--end::App Main-->
 <?php include('include/footer.php') ?>
-<!-- Deployment Details -->
-<script>
-Promise.all([
-  fetch('/deploy/status.json', { cache: 'no-store' }).then(r => r.json()),
-  fetch('/DEPLOYED_SHA.txt', { cache: 'no-store' }).then(r => r.text())
-])
-  .then(([status, shaText]) => {
-    const container = document.getElementById('deployStatus');
-    container.textContent = '';
-
-    const sha = shaText.trim(); // important: remove newline
-
-    const rows = [
-      `Last deploy: ${status.time}`,
-      `SHA: ${sha}`,
-      `DB: ${status.dump}`,
-      `Result: ${status.result}`
-    ];
-
-    rows.forEach(text => {
-      const div = document.createElement('div');
-      div.textContent = text;
-      container.appendChild(div);
-    });
-  })
-  .catch(() => {
-    const container = document.getElementById('deployStatus');
-    container.textContent = 'Deploy status unavailable';
-  });
-</script>
-
+<script src="<?php echo BASE_URL; ?>js/pages/dashboard.js"></script>
 <?php include('include/footer_resources.php') ?>

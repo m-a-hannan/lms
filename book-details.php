@@ -12,58 +12,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
   <link rel="stylesheet" href="book-details.css">
-	<style>
-		.book-details-card {
-  background: #1b2024;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  overflow: hidden;
-}
-
-.book-details-header {
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  background: linear-gradient(to bottom, #20262b, #1b2024);
-}
-
-.book-details-body {
-  padding: 1.5rem;
-}
-
-.book-cover {
-  width: 100%;
-  max-width: 220px;
-  border-radius: 6px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-
-.author-name {
-  color: #4da3ff;
-  text-decoration: none;
-}
-
-.author-name:hover {
-  text-decoration: underline;
-}
-
-.rating-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.stars i {
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-
-.book-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-	</style>
 </head>
 <body class="text-light p-4">
 

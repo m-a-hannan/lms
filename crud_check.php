@@ -402,14 +402,9 @@ foreach ($results as $row) {
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 
-    <style>
-        body { padding-top: 88px; background: #f6f7fb; }
-        .page-title { font-weight: 700; }
-        .status-badge { font-size: 0.85rem; }
-    </style>
 </head>
 
-<body>
+<body class="page-crud-check">
     <!-- ================= NAVBAR ================= -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
         <div class="container">
