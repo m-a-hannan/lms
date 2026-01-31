@@ -2,7 +2,7 @@
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
-$result = $conn->query("SELECT * FROM roles ORDER BY role_id DESC");
+$result = $conn->query("SELECT * FROM roles WHERE deleted_date IS NULL ORDER BY role_id DESC");
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
@@ -58,7 +58,7 @@ if ($result === false) {
 
 													<a href="<?php echo BASE_URL; ?>crud_files/delete_role.php?id=<?= $row['role_id'] ?>"
 														class="text-danger" title="Delete"
-														onclick="return confirm('Are you sure you want to delete this book?');">
+ data-confirm-delete>
 														<i class="bi bi-trash fs-5"></i>
 													</a>
 												</td>

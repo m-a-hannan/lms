@@ -27,7 +27,7 @@ jobs:
           test -d public/assets/css
           test -d public/assets/js
           test -d app/includes
-          test -d db
+          test -d DB
           echo "Structure looks OK."
 
       - name: PHP syntax check (lint)

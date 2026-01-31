@@ -38,7 +38,7 @@ if ($isUserView) {
 	$stmt->execute();
 	$result = $stmt->get_result();
 } else {
-	$result = $conn->query("SELECT * FROM notifications ORDER BY notification_id DESC");
+	$result = $conn->query("SELECT * FROM notifications WHERE deleted_date IS NULL ORDER BY notification_id DESC");
 	if ($result === false) {
 		die("Query failed: " . $conn->error);
 	}
@@ -118,11 +118,11 @@ if ($isUserView) {
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 												<a href="<?php echo BASE_URL; ?>crud_files/delete_notification.php?id=<?= $row['notification_id'] ?>" class="text-danger" title="Delete"
-													onclick="return confirm('Are you sure you want to delete this item?');">
+ data-confirm-delete>
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 												<?php else: ?>
-												<form method="post" action="<?php echo BASE_URL; ?>actions/remove_notification.php" class="d-inline">
+												<form method="post" action="<?php echo BASE_URL; ?>actions/remove_notification.php" class="d-inline" data-confirm-delete data-delete-label="notification" data-delete-id="<?= (int) $row['notification_id'] ?>">
 													<input type="hidden" name="notification_id" value="<?= (int) $row['notification_id'] ?>">
 													<button class="btn btn-sm btn-outline-danger">
 														Remove

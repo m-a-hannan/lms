@@ -5,38 +5,51 @@ require_once ROOT_PATH . '/app/includes/connection.php';
 $result = $conn->query(
 	"SELECT books.*,
 	        categories.category_name,
-	        (SELECT COUNT(*) FROM book_editions WHERE book_id = books.book_id) AS edition_count,
+	        (SELECT COUNT(*)
+	         FROM book_editions
+	         WHERE book_id = books.book_id AND deleted_date IS NULL) AS edition_count,
 	        (SELECT COUNT(*)
 	         FROM book_copies bc
 	         JOIN book_editions be ON bc.edition_id = be.edition_id
-	         WHERE be.book_id = books.book_id) AS copy_count,
+	         WHERE be.book_id = books.book_id
+	           AND bc.deleted_date IS NULL
+	           AND be.deleted_date IS NULL) AS copy_count,
 	        (SELECT COUNT(*)
 	         FROM loans l
 	         JOIN book_copies bc ON l.copy_id = bc.copy_id
 	         JOIN book_editions be ON bc.edition_id = be.edition_id
-	         WHERE be.book_id = books.book_id) AS loan_count,
+	         WHERE be.book_id = books.book_id
+	           AND l.deleted_date IS NULL) AS loan_count,
 	        (SELECT COUNT(*)
 	         FROM returns r
 	         JOIN loans l ON r.loan_id = l.loan_id
 	         JOIN book_copies bc ON l.copy_id = bc.copy_id
 	         JOIN book_editions be ON bc.edition_id = be.edition_id
-	         WHERE be.book_id = books.book_id) AS return_count,
+	         WHERE be.book_id = books.book_id
+	           AND r.deleted_date IS NULL) AS return_count,
 	        (SELECT COUNT(*)
 	         FROM fines f
 	         JOIN loans l ON f.loan_id = l.loan_id
 	         JOIN book_copies bc ON l.copy_id = bc.copy_id
 	         JOIN book_editions be ON bc.edition_id = be.edition_id
-	         WHERE be.book_id = books.book_id) AS fine_count,
+	         WHERE be.book_id = books.book_id
+	           AND f.deleted_date IS NULL) AS fine_count,
 	        (SELECT COUNT(*)
 	         FROM reservations r
-	         WHERE r.book_id = books.book_id
+	         WHERE r.deleted_date IS NULL
+	           AND (r.book_id = books.book_id
 	            OR r.copy_id IN (
 	                SELECT bc.copy_id
 	                FROM book_copies bc
 	                JOIN book_editions be ON bc.edition_id = be.edition_id
 	                WHERE be.book_id = books.book_id
-	            )) AS reservation_count,
-	        (SELECT COUNT(*) FROM book_categories bc WHERE bc.book_id = books.book_id) AS category_count
+	                  AND bc.deleted_date IS NULL
+	                  AND be.deleted_date IS NULL
+	            ))) AS reservation_count,
+	        (SELECT COUNT(*)
+	         FROM book_categories bc
+	         WHERE bc.book_id = books.book_id
+	           AND bc.deleted_date IS NULL) AS category_count
 	 FROM books
 	 LEFT JOIN categories ON categories.category_id = books.category_id
 	 WHERE books.deleted_date IS NULL
@@ -46,7 +59,6 @@ if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
 
-$deleteModals = [];
 ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 
@@ -110,54 +122,26 @@ $deleteModals = [];
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 
-												<a href="#" class="text-danger" title="Delete"
-													data-bs-toggle="modal" data-bs-target="#deleteBookModal<?= (int) $row['book_id'] ?>">
+												<?php
+													$deleteMessage = sprintf(
+														"Delete book #%d? Related: editions %d, copies %d, loans %d, returns %d, fines %d, reservations %d, categories %d. Hide removes the book from lists but keeps related history. Delete permanently removes related records.",
+														(int) $row['book_id'],
+														(int) $row['edition_count'],
+														(int) $row['copy_count'],
+														(int) $row['loan_count'],
+														(int) $row['return_count'],
+														(int) $row['fine_count'],
+														(int) $row['reservation_count'],
+														(int) $row['category_count']
+													);
+												?>
+												<a href="<?php echo BASE_URL; ?>crud_files/delete_book.php?id=<?= (int) $row['book_id'] ?>" class="text-danger" title="Delete"
+													data-confirm-delete data-delete-title="Delete book #<?= (int) $row['book_id'] ?>"
+													data-delete-message="<?php echo htmlspecialchars($deleteMessage, ENT_QUOTES); ?>">
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 											</td>
 										</tr>
-										<?php
-											ob_start();
-										?>
-										<div class="modal fade" id="deleteBookModal<?= (int) $row['book_id'] ?>" tabindex="-1" aria-hidden="true">
-											<div class="modal-dialog modal-dialog-centered">
-												<div class="modal-content">
-													<div class="modal-header">
-														<h5 class="modal-title">Delete book #<?= (int) $row['book_id'] ?></h5>
-														<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-													</div>
-													<div class="modal-body">
-														<p class="mb-2">Related records found:</p>
-														<ul class="list-unstyled mb-3">
-															<li>Book editions: <strong><?= (int) $row['edition_count'] ?></strong></li>
-															<li>Book copies: <strong><?= (int) $row['copy_count'] ?></strong></li>
-															<li>Loans: <strong><?= (int) $row['loan_count'] ?></strong></li>
-															<li>Returns: <strong><?= (int) $row['return_count'] ?></strong></li>
-															<li>Fines: <strong><?= (int) $row['fine_count'] ?></strong></li>
-															<li>Reservations: <strong><?= (int) $row['reservation_count'] ?></strong></li>
-															<li>Book categories: <strong><?= (int) $row['category_count'] ?></strong></li>
-														</ul>
-														<div class="alert alert-warning mb-0" role="alert" data-no-toast>
-															Soft delete hides the book but keeps related history. Hard delete permanently removes related records.
-														</div>
-													</div>
-													<div class="modal-footer">
-														<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-														<a class="btn btn-warning"
-															href="<?php echo BASE_URL; ?>crud_files/delete_book.php?id=<?= (int) $row['book_id'] ?>&mode=soft">
-															Soft delete
-														</a>
-														<a class="btn btn-danger"
-															href="<?php echo BASE_URL; ?>crud_files/delete_book.php?id=<?= (int) $row['book_id'] ?>&mode=hard">
-															Hard delete
-														</a>
-													</div>
-												</div>
-											</div>
-										</div>
-										<?php
-											$deleteModals[] = ob_get_clean();
-										?>
 										<?php endwhile; ?>
 										<?php else: ?>
 										<tr>
@@ -170,10 +154,6 @@ $deleteModals = [];
 									</tbody>
 								</table>
 							</div>
-							<?php if ($deleteModals): ?>
-								<?php echo implode("\n", $deleteModals); ?>
-							<?php endif; ?>
-
 						</div>
 					</div>
 					

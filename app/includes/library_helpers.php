@@ -7,6 +7,51 @@ function library_set_current_user(mysqli $conn, int $userId): void
 	}
 }
 
+function library_delete_mode(): string
+{
+	$mode = strtolower(trim((string) ($_REQUEST['mode'] ?? 'hard')));
+	return $mode === 'soft' ? 'soft' : 'hard';
+}
+
+function library_is_valid_identifier(string $identifier): bool
+{
+	return (bool) preg_match('/^[A-Za-z0-9_]+$/', $identifier);
+}
+
+function library_soft_delete(mysqli $conn, string $table, string $pkColumn, int $pkValue, ?int $userId = null): bool
+{
+	if (!library_is_valid_identifier($table) || !library_is_valid_identifier($pkColumn)) {
+		return false;
+	}
+
+	if ($userId !== null && $userId > 0) {
+		$stmt = $conn->prepare("UPDATE `$table` SET deleted_date = NOW(), deleted_by = ? WHERE `$pkColumn` = ?");
+		if (!$stmt) {
+			return false;
+		}
+		$stmt->bind_param('ii', $userId, $pkValue);
+	} else {
+		$stmt = $conn->prepare("UPDATE `$table` SET deleted_date = NOW(), deleted_by = NULL WHERE `$pkColumn` = ?");
+		if (!$stmt) {
+			return false;
+		}
+		$stmt->bind_param('i', $pkValue);
+	}
+
+	$ok = $stmt->execute();
+	$stmt->close();
+	return $ok;
+}
+
+function library_hard_delete(mysqli $conn, string $table, string $pkColumn, int $pkValue): bool
+{
+	if (!library_is_valid_identifier($table) || !library_is_valid_identifier($pkColumn)) {
+		return false;
+	}
+
+	return (bool) $conn->query("DELETE FROM `$table` WHERE `$pkColumn` = $pkValue");
+}
+
 function library_get_policy_days(mysqli $conn, string $policyName, int $defaultDays = 14): int
 {
 	$policyName = $conn->real_escape_string($policyName);

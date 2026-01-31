@@ -2,6 +2,7 @@
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
+require_once ROOT_PATH . '/app/includes/library_helpers.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
@@ -33,33 +34,44 @@ $statusMap = [
 ];
 $status = $statusMap[$action] ?? null;
 $actorId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
+$mode = library_delete_mode();
 
 if ($action === 'delete') {
 	$conn->begin_transaction();
 	try {
-		// Remove user-owned records first.
-		$conn->query("DELETE FROM user_roles WHERE user_id = $userId");
-		$conn->query("DELETE FROM user_profiles WHERE user_id = $userId");
-		$conn->query("DELETE FROM notifications WHERE user_id = $userId");
-		$conn->query("DELETE FROM loans WHERE user_id = $userId");
-		$conn->query("DELETE FROM reservations WHERE user_id = $userId");
-		$conn->query("DELETE FROM audit_logs WHERE user_id = $userId");
+		library_set_current_user($conn, $actorId);
 
-		// Null out audit/ownership references to avoid FK failures.
-		$auditTables = [
-			'announcements', 'audit_logs', 'backups', 'book_categories', 'book_copies',
-			'book_editions', 'books', 'categories', 'digital_files', 'digital_resources',
-			'fine_waivers', 'fines', 'holidays', 'library_policies', 'loans', 'notifications',
-			'payments', 'policy_changes', 'reservations', 'returns', 'roles', 'system_settings',
-			'user_profiles', 'user_roles'
-		];
-		foreach ($auditTables as $table) {
-			$conn->query("UPDATE {$table} SET created_by = NULL WHERE created_by = $userId");
-			$conn->query("UPDATE {$table} SET modified_by = NULL WHERE modified_by = $userId");
-			$conn->query("UPDATE {$table} SET deleted_by = NULL WHERE deleted_by = $userId");
+		if ($mode === 'soft') {
+			library_soft_delete($conn, 'users', 'user_id', $userId, $actorId);
+			library_soft_delete($conn, 'user_roles', 'user_id', $userId, $actorId);
+			library_soft_delete($conn, 'user_profiles', 'user_id', $userId, $actorId);
+			library_soft_delete($conn, 'notifications', 'user_id', $userId, $actorId);
+		} else {
+			// Remove user-owned records first.
+			$conn->query("DELETE FROM user_roles WHERE user_id = $userId");
+			$conn->query("DELETE FROM user_profiles WHERE user_id = $userId");
+			$conn->query("DELETE FROM notifications WHERE user_id = $userId");
+			$conn->query("DELETE FROM loans WHERE user_id = $userId");
+			$conn->query("DELETE FROM reservations WHERE user_id = $userId");
+			$conn->query("DELETE FROM audit_logs WHERE user_id = $userId");
+
+			// Null out audit/ownership references to avoid FK failures.
+			$auditTables = [
+				'announcements', 'audit_logs', 'backups', 'book_categories', 'book_copies',
+				'book_editions', 'books', 'categories', 'digital_files', 'digital_resources',
+				'fine_waivers', 'fines', 'holidays', 'library_policies', 'loans', 'notifications',
+				'payments', 'policy_changes', 'reservations', 'returns', 'roles', 'system_settings',
+				'user_profiles', 'user_roles'
+			];
+			foreach ($auditTables as $table) {
+				$conn->query("UPDATE {$table} SET created_by = NULL WHERE created_by = $userId");
+				$conn->query("UPDATE {$table} SET modified_by = NULL WHERE modified_by = $userId");
+				$conn->query("UPDATE {$table} SET deleted_by = NULL WHERE deleted_by = $userId");
+			}
+
+			$conn->query("DELETE FROM users WHERE user_id = $userId");
 		}
 
-		$conn->query("DELETE FROM users WHERE user_id = $userId");
 		$conn->commit();
 		header('Location: ' . BASE_URL . 'user_list.php?status=deleted');
 		exit;
