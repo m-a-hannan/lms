@@ -1,0 +1,38 @@
+Group-A
+
+Topic: Library Management System(LMS)
+
+   01. Md. Abdul Hannan (Team Leader)
+   02. Ruma Akter
+   03. Md. Abul Kasem
+   04. Md. Khairul Haque	
+   05. Mahbuba Jesmin
+
+Website's Features:
+
+01. Registration and Login Panel 												- done
+02. Search option 																			- done
+03. Book requisition 																		- done
+
+Admin Panel Features::
+
+01. Book Category Entry Form 														- done
+02. Book Details Entry Form 														- done
+03. Requisition approval page with notification send. 	- done
+04. Book issue after approval 													- done
+05. Book Receive 																				- done
+
+Report Part::
+
+01. Book issue report 																	- done
+02. Book receive report																	- done
+03. Book available status report												- done
+
+User Part:
+
+01. Admin User Information 															- done
+02. Role 																								- done
+03. Permission 																					- done
+04. Login/Logout 																				- done
+
+

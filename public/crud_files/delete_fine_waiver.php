@@ -1,0 +1,2 @@
+<?php
+require_once __DIR__ . '/../../app/modules/fines/crud/delete_fine_waiver.php';

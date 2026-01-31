@@ -22,12 +22,12 @@ jobs:
       - name: Validate required structure
         run: |
           set -e
-          test -f index.php
-          test -f include/connection.php
-          test -d css
-          test -d js
-          test -d include
-          test -d DB
+          test -f public/index.php
+          test -f app/includes/connection.php
+          test -d public/assets/css
+          test -d public/assets/js
+          test -d app/includes
+          test -d db
           echo "Structure looks OK."
 
       - name: PHP syntax check (lint)
