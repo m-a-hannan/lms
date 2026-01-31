@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
+require_once ROOT_PATH . '/app/includes/library_helpers.php';
 
 $errors = [];
 $editId = 0;
@@ -24,14 +25,21 @@ $hasRoleName = in_array('role_name', $userRoleColumns, true);
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 	$deleteId = (int) $_GET['delete'];
-	$conn->query("DELETE FROM user_roles WHERE user_role_id = $deleteId");
+	$mode = library_delete_mode();
+	$userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
+	library_set_current_user($conn, $userId);
+	if ($mode === 'soft') {
+		library_soft_delete($conn, 'user_roles', 'user_role_id', $deleteId, $userId);
+	} else {
+		library_hard_delete($conn, 'user_roles', 'user_role_id', $deleteId);
+	}
 	header("Location: " . BASE_URL . "manage_user_role.php");
 	exit;
 }
 
 if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
 	$editId = (int) $_GET['edit'];
-	$editResult = $conn->query("SELECT user_role_id, user_id, role_id FROM user_roles WHERE user_role_id = $editId");
+	$editResult = $conn->query("SELECT user_role_id, user_id, role_id FROM user_roles WHERE user_role_id = $editId AND deleted_date IS NULL");
 	if ($editResult && $editResult->num_rows === 1) {
 		$editRow = $editResult->fetch_assoc();
 		$selectedUserId = (int) $editRow['user_id'];
@@ -51,7 +59,7 @@ if (isset($_POST['save'])) {
 		$errors[] = 'Please select both a user and a role.';
 	} else {
 		if ($userRoleId <= 0 && $hasUserId) {
-			$existingRole = $conn->query("SELECT user_role_id FROM user_roles WHERE user_id = $userId LIMIT 1");
+			$existingRole = $conn->query("SELECT user_role_id FROM user_roles WHERE user_id = $userId AND deleted_date IS NULL LIMIT 1");
 			if ($existingRole && $existingRole->num_rows === 1) {
 				$existingRow = $existingRole->fetch_assoc();
 				$userRoleId = (int) ($existingRow['user_role_id'] ?? 0);
@@ -159,7 +167,7 @@ if ($userResult) {
 }
 
 $roles = [];
-$roleResult = $conn->query("SELECT role_id, role_name FROM roles ORDER BY role_name ASC");
+$roleResult = $conn->query("SELECT role_id, role_name FROM roles WHERE deleted_date IS NULL ORDER BY role_name ASC");
 if ($roleResult) {
 	while ($row = $roleResult->fetch_assoc()) {
 		$roles[] = $row;
@@ -181,6 +189,7 @@ $assignments = $conn->query(
 	 FROM user_roles ur
 	 LEFT JOIN users u ON ur.user_id = u.user_id
 	 LEFT JOIN roles r ON ur.role_id = r.role_id
+	 WHERE ur.deleted_date IS NULL
 	 ORDER BY ur.user_role_id DESC"
 );
 ?>
@@ -299,7 +308,7 @@ $assignments = $conn->query(
 														<i class="bi bi-pencil-square fs-5"></i>
 													</a>
 													<a href="<?php echo BASE_URL; ?>manage_user_role.php?delete=<?php echo (int) $row['user_role_id']; ?>" class="text-danger" title="Delete"
-														onclick="return confirm('Are you sure you want to delete this assignment?');">
+ data-confirm-delete data-delete-label="user role" data-delete-id="<?= (int) $row['user_role_id'] ?>">
 														<i class="bi bi-trash fs-5"></i>
 													</a>
 												</td>

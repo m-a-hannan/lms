@@ -8,12 +8,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 $book_id = (int) $_GET['id'];
-$mode = strtolower(trim((string) ($_GET['mode'] ?? '')));
-
-if (!in_array($mode, ['soft', 'hard'], true)) {
-	header('Location: ' . BASE_URL . 'book_list.php');
-	exit;
-}
+$mode = library_delete_mode();
 
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 if ($userId > 0) {

@@ -27,3 +27,25 @@ $shortSha = $sha !== 'unknown' ? substr($sha, 0, 7) : $sha;
 	<!--end::Copyright-->
 </footer>
 <!--end::Footer-->
+
+<div class="modal fade report-config-modal modal-top-center" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title d-flex align-items-center gap-2" id="confirmDeleteTitle">
+					<i class="bi bi-trash"></i>
+					Confirm delete
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p class="mb-0" id="confirmDeleteMessage">Are you sure you want to delete this item?</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+				<a class="btn btn-glass btn-reset" href="#" data-delete-mode="soft" id="confirmDeleteSoftButton">Hide</a>
+				<a class="btn btn-glass btn-disable" href="#" data-delete-mode="hard" id="confirmDeleteHardButton">Delete</a>
+			</div>
+		</div>
+	</div>
+</div>

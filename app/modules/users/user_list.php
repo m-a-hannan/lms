@@ -29,7 +29,7 @@ $result = $conn->query(
 	"SELECT u.user_id, u.username, u.email, u.account_status, u.created_date,
 		COALESCE(GROUP_CONCAT(DISTINCT ur.role_name ORDER BY ur.role_name SEPARATOR ', '), '-') AS roles
 	 FROM users u
-	 LEFT JOIN user_roles ur ON ur.user_id = u.user_id
+	 LEFT JOIN user_roles ur ON ur.user_id = u.user_id AND ur.deleted_date IS NULL
 	 WHERE u.deleted_date IS NULL
 	 GROUP BY u.user_id
 	 ORDER BY u.user_id DESC"
@@ -126,7 +126,7 @@ if ($result === false) {
 														<input type="hidden" name="action" value="suspend">
 														<button type="submit" class="btn btn-sm btn-outline-warning" <?php echo $statusValue === 'suspended' ? 'disabled' : ''; ?>>Suspend</button>
 													</form>
-													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_user.php" class="d-inline" onsubmit="return confirm('Delete this user?');">
+													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_user.php" class="d-inline" data-confirm-delete data-delete-label="user" data-delete-id="<?= (int) $row['user_id'] ?>">
 														<input type="hidden" name="user_id" value="<?= (int) $row['user_id'] ?>">
 														<input type="hidden" name="action" value="delete">
 														<button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>

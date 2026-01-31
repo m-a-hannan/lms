@@ -11,6 +11,7 @@ $result = $conn->query(
 	 JOIN book_copies c ON l.copy_id = c.copy_id
 	 JOIN book_editions e ON c.edition_id = e.edition_id
 	 JOIN books b ON e.book_id = b.book_id
+	 WHERE r.deleted_date IS NULL
 	 ORDER BY r.return_id DESC"
 );
 if ($result === false) {
@@ -63,7 +64,7 @@ if ($result === false) {
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 												<a href="<?php echo BASE_URL; ?>crud_files/delete_return.php?id=<?= $row['return_id'] ?>" class="text-danger" title="Delete"
-													onclick="return confirm('Are you sure you want to delete this item?');">
+ data-confirm-delete>
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 											</td>
