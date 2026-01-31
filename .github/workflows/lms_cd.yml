@@ -68,7 +68,6 @@ jobs:
             --exclude-from ".gitignore" \
             --exclude ".env" \
             --exclude "app/includes/config.php" \
-            --exclude "public/uploads/" \
             "$STAGE/" "$TARGET/"
 
           echo "Fix ownership to www-data..."
