@@ -110,15 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $profileImage = $profile['profile_picture'] ?? '';
 $profileImage = $profileImage !== '' ? htmlspecialchars($profileImage) : 'assets/img/avatar.png';
+$bodyClass = 'page-edit-profile';
 ?>
 
 <?php include(ROOT_PATH . '/include/header_resources.php') ?>
-<style>
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0);
-  opacity: 0.9;
-}
-</style>
+
 <?php include(ROOT_PATH . '/include/header.php') ?>
 <?php include(ROOT_PATH . '/sidebar.php') ?>
 
@@ -209,22 +205,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 <!--end::App Main-->
 
 <?php include(ROOT_PATH . '/include/footer.php') ?>
-<script>
-const profileInput = document.getElementById('profileInput');
-const profilePreview = document.getElementById('profilePreview');
-
-if (profileInput && profilePreview) {
-	profileInput.addEventListener('change', () => {
-		const file = profileInput.files && profileInput.files[0];
-		if (!file) {
-			return;
-		}
-		const reader = new FileReader();
-		reader.onload = (event) => {
-			profilePreview.src = event.target.result;
-		};
-		reader.readAsDataURL(file);
-	});
-}
-</script>
+<script src="<?php echo BASE_URL; ?>js/pages/edit_profile.js"></script>
 <?php include(ROOT_PATH . '/include/footer_resources.php') ?>

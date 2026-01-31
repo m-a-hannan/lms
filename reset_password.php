@@ -58,89 +58,12 @@ if ($tokenError === '') {
 	<!-- Bootstrap 5.3 -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
-				"Lucida Sans", Arial, sans-serif;
-		}
+	<link rel="stylesheet" href="<?php echo BASE_URL; ?>css/main.css">
 
-		html, body {
-			min-height: 100%;
-		}
-
-		body {
-			background: url("https://images.unsplash.com/photo-1529148482759-b35b25c5f217") no-repeat center center fixed;
-			background-size: cover;
-		}
-
-		body::before {
-			content: "";
-			position: fixed;
-			inset: 0;
-			background: rgba(0, 0, 0, 0.35);
-		}
-
-		section {
-			position: relative;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			min-height: 100vh;
-			width: 100%;
-		}
-
-		.form-box {
-			position: relative;
-			width: 440px;
-			padding: 36px 28px;
-			margin: 25px 0;
-			background: rgba(255, 255, 255, 0.18);
-			border: 1px solid rgba(255, 255, 255, 0.2);
-			backdrop-filter: blur(16px) brightness(80%);
-			border-radius: 20px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-
-		h2 {
-			font-size: 2em;
-			color: #111827;
-			text-align: center;
-			margin-bottom: 20px;
-		}
-
-		.form-control {
-			background: rgba(255, 255, 255, 0.7);
-			border: none;
-		}
-
-		.btn-primary {
-			width: 100%;
-			border-radius: 40px;
-			background-color: #111827;
-			border: none;
-			font-weight: 600;
-		}
-
-		.helper-link {
-			display: block;
-			text-align: center;
-			margin-top: 16px;
-		}
-
-		@media screen and (max-width: 480px) {
-			.form-box {
-				width: calc(100% - 32px);
-				border-radius: 16px;
-			}
-		}
-	</style>
+	
 </head>
 
-<body>
+<body class="auth-page">
 	<section>
 		<div class="form-box">
 			<div class="form-value w-100">

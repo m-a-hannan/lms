@@ -689,3 +689,131 @@
 .heatmap-cell[data-count='6']::after,
 .heatmap-cell[data-count='7']::after,
 .heatmap-cell[data-count='8']::after { background: rgba(13, 110, 253, 0.8); }
+
+.page-view-profile {
+	background-color: #f9f9fa;
+}
+
+.page-view-profile .user-card-full {
+	overflow: hidden;
+	width: 100%;
+}
+
+.page-view-profile .card {
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
+	box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
+	border: none;
+	margin-bottom: 30px;
+}
+
+.page-view-profile .m-r-0 {
+	margin-right: 0px;
+}
+
+.page-view-profile .m-l-0 {
+	margin-left: 0px;
+}
+
+.page-view-profile .user-card-full .user-profile {
+	border-radius: 5px 0 0 5px;
+}
+
+.page-view-profile .bg-c-lite-green {
+	background: -webkit-gradient(linear, left top, right top, from(#f29263), to(#ee5a6f));
+	background: linear-gradient(to right, #ee5a6f, #f29263);
+}
+
+.page-view-profile .user-profile {
+	padding: 20px 0;
+}
+
+.page-view-profile .card-block {
+	padding: 1.25rem;
+}
+
+.page-view-profile .m-b-25 {
+	margin-bottom: 25px;
+}
+
+.page-view-profile .img-radius {
+	border-radius: 50%;
+	width: 150px;
+	height: 150px;
+	object-fit: cover;
+}
+
+/* Fallbacks if body class is missing */
+.user-card-full .user-profile {
+	border-radius: 5px 0 0 5px;
+}
+
+.bg-c-lite-green {
+	background: -webkit-gradient(linear, left top, right top, from(#f29263), to(#ee5a6f));
+	background: linear-gradient(to right, #ee5a6f, #f29263);
+}
+
+.img-radius {
+	border-radius: 50%;
+	width: 150px;
+	height: 150px;
+	object-fit: cover;
+}
+
+.page-view-profile h6 {
+	font-size: 14px;
+}
+
+.page-view-profile .card .card-block p {
+	line-height: 25px;
+}
+
+@media only screen and (min-width: 1400px) {
+	.page-view-profile p {
+		font-size: 14px;
+	}
+}
+
+.page-view-profile .b-b-default {
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.page-view-profile .m-b-20 {
+	margin-bottom: 20px;
+}
+
+.page-view-profile .p-b-5 {
+	padding-bottom: 5px !important;
+}
+
+.page-view-profile .m-b-10 {
+	margin-bottom: 10px;
+}
+
+.page-view-profile .text-muted {
+	color: #919aa3 !important;
+}
+
+.page-view-profile .f-w-600 {
+	font-weight: 600;
+}
+
+.page-view-profile .m-t-40 {
+	margin-top: 20px;
+}
+
+.page-view-profile .user-card-full .social-link li {
+	display: inline-block;
+}
+
+.page-view-profile .user-card-full .social-link li a {
+	font-size: 20px;
+	margin: 0 10px 0 0;
+	-webkit-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
+}
+
+.page-edit-profile input[type="date"]::-webkit-calendar-picker-indicator {
+	filter: invert(0);
+	opacity: 0.9;
+}

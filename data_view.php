@@ -60,25 +60,9 @@ if (isset($_GET['table'])) {
 	<!-- Custom CSS -->
 	<link rel="stylesheet" href="style.css">
 
-	<style>
-		body { padding-top: 88px; background: #f6f7fb; }
-		.page-title { font-weight: 700; }
-		.table-grid {
-			display: grid;
-			grid-template-columns: repeat(5, minmax(0, 1fr));
-			gap: 10px;
-		}
-		.table-grid a { width: 100%; }
-		@media (max-width: 992px) {
-			.table-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-		}
-		@media (max-width: 576px) {
-			.table-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-		}
-	</style>
 </head>
 
-<body>
+<body class="page-data-view">
 	<!-- ================= NAVBAR ================= -->
 	<nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
 		<div class="container">

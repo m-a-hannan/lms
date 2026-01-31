@@ -1729,7 +1729,7 @@ CREATE TABLE `search_logs` (
   PRIMARY KEY (`search_log_id`),
   KEY `idx_search_logs_user` (`user_id`),
   KEY `idx_search_logs_query` (`query_text`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1738,7 +1738,7 @@ CREATE TABLE `search_logs` (
 
 LOCK TABLES `search_logs` WRITE;
 /*!40000 ALTER TABLE `search_logs` DISABLE KEYS */;
-INSERT INTO `search_logs` VALUES (1,1,'Digital Fortress',1,'2026-01-27 14:27:26'),(2,1,'Digital Fortress',1,'2026-01-27 14:29:43'),(3,1,'Digital Fortress',1,'2026-01-27 14:32:05'),(4,1,'Lord of the Mysteries',1,'2026-01-27 18:03:22'),(5,1,'lor',1,'2026-01-27 19:05:19');
+INSERT INTO `search_logs` VALUES (1,1,'Digital Fortress',1,'2026-01-27 14:27:26'),(2,1,'Digital Fortress',1,'2026-01-27 14:29:43'),(3,1,'Digital Fortress',1,'2026-01-27 14:32:05'),(4,1,'Lord of the Mysteries',1,'2026-01-27 18:03:22'),(5,1,'lor',1,'2026-01-27 19:05:19'),(6,1,'Online Plagiarism Checker',1,'2026-01-31 13:38:53');
 /*!40000 ALTER TABLE `search_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1923,7 +1923,7 @@ CREATE TABLE `user_roles` (
   CONSTRAINT `user_roles_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_roles_ibfk_4` FOREIGN KEY (`modified_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `user_roles_ibfk_5` FOREIGN KEY (`deleted_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1932,7 +1932,7 @@ CREATE TABLE `user_roles` (
 
 LOCK TABLES `user_roles` WRITE;
 /*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
-INSERT INTO `user_roles` VALUES (1,3,'tahmid',3,'Librarian',NULL,'2026-01-26 14:27:25',NULL,'2026-01-26 14:27:33',NULL,NULL),(2,2,'kasem',2,'User',NULL,'2026-01-26 14:27:40',1,'2026-01-28 13:03:36',NULL,NULL),(3,1,'lms_admin',1,'Admin',NULL,'2026-01-26 16:13:09',NULL,'2026-01-26 16:13:09',NULL,NULL),(5,4,'hannan',2,'User',NULL,'2026-01-27 20:28:29',1,'2026-01-27 20:28:55',NULL,NULL),(8,6,'mamun',2,'User',1,'2026-01-28 13:03:41',NULL,'2026-01-28 13:03:41',NULL,NULL);
+INSERT INTO `user_roles` VALUES (1,3,'tahmid',3,'Librarian',NULL,'2026-01-26 14:27:25',NULL,'2026-01-26 14:27:33',NULL,NULL),(2,2,'kasem',2,'User',NULL,'2026-01-26 14:27:40',1,'2026-01-28 13:03:36',NULL,NULL),(3,1,'lms_admin',1,'Admin',NULL,'2026-01-26 16:13:09',NULL,'2026-01-26 16:13:09',NULL,NULL),(5,4,'hannan',2,'User',NULL,'2026-01-27 20:28:29',1,'2026-01-27 20:28:55',NULL,NULL),(8,6,'mamun',2,'User',1,'2026-01-28 13:03:41',1,'2026-01-31 13:21:05',NULL,NULL);
 /*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -2003,7 +2003,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'lms_admin','lms_admin@karigori.site','$2y$10$4TjZaY2iUx2D7Rppf/fXPOtxZIKXknnRBCXnrYkHexNf64IeZf8rG','approved',NULL,'2026-01-26 09:31:29',1,'2026-01-30 18:12:01',NULL,NULL,NULL,NULL),(2,'kasem','kasem@karigori.site','$2y$10$oin764E5Mk.S56PEGrXFHuPnMGOqWcmKjRpe7cCyeLfkbf.pVWFx6','approved',NULL,'2026-01-26 12:29:04',1,'2026-01-28 13:04:02',NULL,NULL,NULL,NULL),(3,'tahmid','tahmid@karigori.site','$2y$10$gnvL2hZoxmqE17G/v4yYPOf3yPU4dEiIxGwrhN6IVBF429CcyMvnK','approved',NULL,'2026-01-26 12:29:45',1,'2026-01-27 19:53:50',NULL,NULL,NULL,NULL),(4,'hannan','hannan@email.com','$2y$10$As/trCIXnrKX8/8TT/Xw1urJyOnC3dyJLdyM2QdPG0nbq5jODT6l2','approved',NULL,'2026-01-27 19:33:51',1,'2026-01-29 12:46:13',NULL,NULL,NULL,NULL),(6,'mamun','mamun@email.com','$2y$10$tT/kGC/2/J8TiIAhtD3RBu2QUkhUHfAY3IOwLgb2KEMq97lhXz7Si','approved',NULL,'2026-01-27 20:29:55',1,'2026-01-28 13:03:41',NULL,NULL,NULL,NULL);
+INSERT INTO `users` VALUES (1,'lms_admin','lms_admin@karigori.site','$2y$10$4TjZaY2iUx2D7Rppf/fXPOtxZIKXknnRBCXnrYkHexNf64IeZf8rG','approved',NULL,'2026-01-26 09:31:29',1,'2026-01-30 18:12:01',NULL,NULL,NULL,NULL),(2,'kasem','kasem@karigori.site','$2y$10$oin764E5Mk.S56PEGrXFHuPnMGOqWcmKjRpe7cCyeLfkbf.pVWFx6','approved',NULL,'2026-01-26 12:29:04',1,'2026-01-28 13:04:02',NULL,NULL,NULL,NULL),(3,'tahmid','tahmid@karigori.site','$2y$10$gnvL2hZoxmqE17G/v4yYPOf3yPU4dEiIxGwrhN6IVBF429CcyMvnK','approved',NULL,'2026-01-26 12:29:45',1,'2026-01-27 19:53:50',NULL,NULL,NULL,NULL),(4,'hannan','hannan@email.com','$2y$10$As/trCIXnrKX8/8TT/Xw1urJyOnC3dyJLdyM2QdPG0nbq5jODT6l2','approved',NULL,'2026-01-27 19:33:51',1,'2026-01-29 12:46:13',NULL,NULL,NULL,NULL),(6,'mamun','mamun@email.com','$2y$10$tT/kGC/2/J8TiIAhtD3RBu2QUkhUHfAY3IOwLgb2KEMq97lhXz7Si','approved',NULL,'2026-01-27 20:29:55',1,'2026-01-31 13:21:05',NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -2051,4 +2051,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-31 10:58:38
+-- Dump completed on 2026-01-31 13:41:36

@@ -166,6 +166,14 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 										</a>
 									</li>
 									<?php endif; ?>
+									<?php if (rbac_can_access($conn, 'book_bulk_import.php')): ?>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>book_bulk_import.php" class="nav-link">
+											<i class="bi bi-link-45deg"></i>
+											<p>Bulk Book Import</p>
+										</a>
+									</li>
+									<?php endif; ?>
 									<?php if (rbac_can_access($conn, 'loan_list.php')): ?>
 									<li class="nav-item">
 										<a href="<?php echo BASE_URL; ?>loan_list.php" class="nav-link">
