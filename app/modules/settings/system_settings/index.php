@@ -4,7 +4,14 @@ require_once ROOT_PATH . '/app/includes/connection.php';
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 	$menu_id = (int) $_GET['delete'];
-	$deleted = $conn->query("DELETE FROM menus WHERE menu_id = $menu_id");
+	require_once ROOT_PATH . '/app/includes/library_helpers.php';
+	$mode = library_delete_mode();
+	$userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
+	library_set_current_user($conn, $userId);
+
+	$deleted = $mode === 'soft'
+		? library_soft_delete($conn, 'menus', 'menu_id', $menu_id, $userId)
+		: library_hard_delete($conn, 'menus', 'menu_id', $menu_id);
 	if (!$deleted) {
 		die('Delete failed: ' . $conn->error);
 	}
@@ -15,6 +22,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 $sql = "SELECT m.menu_id, m.menu_title, m.menu_order, m.icon, m.is_active, p.page_name, p.page_path
 	FROM menus m
 	LEFT JOIN page_list p ON m.page_id = p.page_id
+	WHERE m.deleted_date IS NULL
 	ORDER BY m.menu_order ASC, m.menu_title ASC";
 $result = $conn->query($sql);
 if ($result === false) {
@@ -72,7 +80,7 @@ if ($result === false) {
 												<a href="<?php echo BASE_URL; ?>system_settings/home.php?id=<?= $row['menu_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
-												<a href="<?php echo BASE_URL; ?>system_settings/index.php?delete=<?= $row['menu_id'] ?>" class="text-danger" title="Delete" onclick="return confirm('Delete this menu item?');">
+												<a href="<?php echo BASE_URL; ?>system_settings/index.php?delete=<?= $row['menu_id'] ?>" class="text-danger" title="Delete" data-confirm-delete data-delete-label="menu" data-delete-id="<?= (int) $row['menu_id'] ?>">
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 											</td>

@@ -7,8 +7,9 @@ $summaryResult = $conn->query(
 		COUNT(c.copy_id) AS total_copies,
 		SUM(CASE WHEN c.status IS NULL OR c.status = '' OR c.status = 'available' THEN 1 ELSE 0 END) AS available_copies
 	 FROM books b
-	 LEFT JOIN book_editions e ON e.book_id = b.book_id
-	 LEFT JOIN book_copies c ON c.edition_id = e.edition_id
+	 LEFT JOIN book_editions e ON e.book_id = b.book_id AND e.deleted_date IS NULL
+	 LEFT JOIN book_copies c ON c.edition_id = e.edition_id AND c.deleted_date IS NULL
+	 WHERE b.deleted_date IS NULL
 	 GROUP BY b.book_id
 	 ORDER BY b.book_id DESC"
 );
@@ -18,6 +19,9 @@ $result = $conn->query(
 	 FROM book_copies c
 	 LEFT JOIN book_editions e ON c.edition_id = e.edition_id
 	 LEFT JOIN books b ON e.book_id = b.book_id
+	 WHERE c.deleted_date IS NULL
+	   AND e.deleted_date IS NULL
+	   AND b.deleted_date IS NULL
 	 ORDER BY c.copy_id DESC"
 );
 if ($result === false) {
@@ -99,7 +103,7 @@ if ($result === false) {
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 												<a href="<?php echo BASE_URL; ?>crud_files/delete_book_copy.php?id=<?= $row['copy_id'] ?>" class="text-danger" title="Delete"
-													onclick="return confirm('Are you sure you want to delete this item?');">
+ data-confirm-delete>
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 											</td>

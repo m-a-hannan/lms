@@ -82,7 +82,7 @@ if ($result === false) {
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 												<a href="<?php echo BASE_URL; ?>crud_files/delete_user_profile.php?id=<?= $row['profile_id'] ?>" class="text-danger" title="Delete"
-													onclick="return confirm('Are you sure you want to delete this item?');">
+ data-confirm-delete>
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 											</td>

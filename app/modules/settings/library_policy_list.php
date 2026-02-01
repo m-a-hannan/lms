@@ -10,7 +10,7 @@ $isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
 $showAuditColumns = $context['is_admin'] || $isLibrarian;
 $userLookup = $showAuditColumns ? library_user_map($conn) : [];
 
-$result = $conn->query("SELECT * FROM library_policies ORDER BY policy_id DESC");
+$result = $conn->query("SELECT * FROM library_policies WHERE deleted_date IS NULL ORDER BY policy_id DESC");
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
@@ -73,7 +73,7 @@ if ($result === false) {
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
 												<a href="<?php echo BASE_URL; ?>crud_files/delete_library_policy.php?id=<?= $row['policy_id'] ?>" class="text-danger" title="Delete"
-													onclick="return confirm('Are you sure you want to delete this item?');">
+ data-confirm-delete>
 													<i class="bi bi-trash fs-5"></i>
 												</a>
 											</td>

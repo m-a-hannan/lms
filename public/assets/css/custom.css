@@ -368,6 +368,18 @@
 	overflow-y: auto;
 }
 
+.modal-top-center {
+	align-items: flex-start;
+}
+
+.modal-top-center .modal-dialog {
+	margin-top: 1.5rem;
+}
+
+#confirmDeleteMessage {
+	white-space: pre-line;
+}
+
 .report-card-hidden {
 	display: none !important;
 }
