@@ -141,7 +141,7 @@ foreach ([$coverPath, $ebookPath] as $path) {
 	if ($path === '') {
 		continue;
 	}
-	$filePath = ROOT_PATH . '/' . ltrim($path, '/');
+	$filePath = ROOT_PATH . '/public' . ltrim($path, '/');
 	if (is_file($filePath)) {
 		unlink($filePath);
 	}

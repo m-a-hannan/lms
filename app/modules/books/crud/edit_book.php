@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ebook_format = "";
     }
 
-    $uploadDir = ROOT_PATH . "/uploads/book_cover/";
+    $uploadDir = ROOT_PATH . "/public/uploads/book_cover/";
     $imagePath = $book["book_cover_path"]; // default: keep existing
     $ebookFilePath = $book["ebook_file_path"] ?? null;
     $ebookFileSize = $book["ebook_file_size"] ?? null;
@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if ($book_type === "ebook" && !empty($_FILES["ebook_file"]["name"])) {
-        $ebookDir = ROOT_PATH . "/uploads/ebooks/";
+        $ebookDir = ROOT_PATH . "/public/uploads/ebooks/";
         if (!is_dir($ebookDir)) {
             if (!mkdir($ebookDir, 0755, true)) {
                 die("Ebook upload directory not available.");

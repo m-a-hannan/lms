@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ebook_format = "";
     }
 
-    $uploadDir = ROOT_PATH . "/uploads/book_cover/";
+    $uploadDir = ROOT_PATH . "/public/uploads/book_cover/";
     $imagePath = null;
     $ebookFilePath = null;
     $ebookFileSize = null;
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             die("Ebook file is required.");
         }
 
-        $ebookDir = ROOT_PATH . "/uploads/ebooks/";
+        $ebookDir = ROOT_PATH . "/public/uploads/ebooks/";
         if (!is_dir($ebookDir)) {
             if (!mkdir($ebookDir, 0755, true)) {
                 die("Ebook upload directory not available.");

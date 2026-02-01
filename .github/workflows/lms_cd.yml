@@ -2,8 +2,8 @@ name: LMS CD
 
 on:
   workflow_run:
-    workflows: ["LMS CI"]
-    branches: ["main"]
+    workflows: ['LMS CI']
+    branches: ['main']
     types:
       - completed
 
@@ -68,7 +68,6 @@ jobs:
             --exclude-from ".gitignore" \
             --exclude ".env" \
             --exclude "app/includes/config.php" \
-            --exclude "public/uploads/" \
             "$STAGE/" "$TARGET/"
 
           echo "Fix ownership to www-data..."
