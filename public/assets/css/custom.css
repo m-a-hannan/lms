@@ -186,6 +186,141 @@
 	display: none !important;
 }
 
+/* Media gallery */
+.media-gallery-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(230px, 200px));
+	gap: 16px;
+	justify-content: start;
+}
+
+.media-card {
+	background: #fff;
+	border: 1px solid #e6e9ee;
+	border-radius: 12px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+	width: 230px;
+}
+
+.media-thumb {
+	position: relative;
+	background: #f8f9fa;
+	width: 230px;
+	height: 200px;
+}
+
+.media-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	background: #f8f9fa;
+}
+
+.media-label {
+	position: absolute;
+	left: 8px;
+	top: 8px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	letter-spacing: 0.2px;
+	background: rgba(17, 24, 39, 0.75);
+	color: #fff;
+	z-index: 2;
+}
+
+.media-overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 2rem;
+	color: #ffffff;
+	z-index: 3;
+}
+
+.media-check {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 28px;
+	height: 28px;
+	border-radius: 999px;
+	background: rgba(17, 24, 39, 0.75);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	cursor: pointer;
+	z-index: 4;
+}
+
+.media-check input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.media-check-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.9rem;
+	opacity: 0.5;
+}
+
+.media-check input:checked + .media-check-icon {
+	opacity: 1;
+}
+
+.media-meta {
+	padding: 0.45rem 0.6rem 0.35rem;
+}
+
+.media-name {
+	font-weight: 600;
+	font-size: 0.85rem;
+	color: #212529;
+}
+
+.media-sub {
+	font-size: 0.7rem;
+	color: #6c757d;
+}
+
+.media-actions {
+	padding: 0.4rem 0.6rem 0.6rem;
+	display: flex;
+	justify-content: flex-end;
+	border-top: 1px solid #eef1f4;
+}
+
+.media-empty {
+	grid-column: 1 / -1;
+}
+
+@media (max-width: 575.98px) {
+	.media-gallery-grid {
+		grid-template-columns: repeat(auto-fill, minmax(160px, 160px));
+		justify-content: center;
+	}
+
+	.media-card {
+		width: 160px;
+	}
+
+	.media-thumb {
+		width: 160px;
+		height: 160px;
+	}
+}
+
 /* Topbar search */
 .topbar-search {
 	display: inline-flex;

@@ -144,7 +144,14 @@ if ($returnStatus !== '') {
 						<h1 class="mb-0">Librarian Dashboard</h1>
 						<div class="row">
 							<div class="col-md-12">
-								<div id="deployStatus" class="small text-muted" data-status-url="/deploy/status.json" data-sha-url="/DEPLOYED_SHA.txt"></div>
+								<div
+									id="deployStatus"
+									class="small text-muted"
+									data-status-url="<?php echo BASE_URL; ?>deploy/status.json"
+									data-sha-url="<?php echo BASE_URL; ?>DEPLOYED_SHA.txt"
+									data-fallback-status-url="/deploy/status.json"
+									data-fallback-sha-url="/DEPLOYED_SHA.txt"
+								></div>
 							</div>
 						</div>
 					</div>

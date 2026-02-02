@@ -14,19 +14,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const statusUrl = deployContainer.dataset.statusUrl || '/deploy/status.json';
   const shaUrl = deployContainer.dataset.shaUrl || '/DEPLOYED_SHA.txt';
+  const fallbackStatusUrl = deployContainer.dataset.fallbackStatusUrl || statusUrl;
+  const fallbackShaUrl = deployContainer.dataset.fallbackShaUrl || shaUrl;
 
-  Promise.all([
-    fetch(statusUrl, { cache: 'no-store' }).then((res) => res.json()),
-    fetch(shaUrl, { cache: 'no-store' }).then((res) => res.text()),
-  ])
+  const fetchDeploy = (statusPath, shaPath) => Promise.all([
+    fetch(statusPath, { cache: 'no-store' }).then((res) => {
+      if (!res.ok) {
+        throw new Error('status fetch failed');
+      }
+      return res.json();
+    }),
+    fetch(shaPath, { cache: 'no-store' }).then((res) => {
+      if (!res.ok) {
+        throw new Error('sha fetch failed');
+      }
+      return res.text();
+    }),
+  ]);
+
+  fetchDeploy(statusUrl, shaUrl)
+    .catch(() => fetchDeploy(fallbackStatusUrl, fallbackShaUrl))
     .then(([status, shaText]) => {
       deployContainer.textContent = '';
       const sha = shaText.trim();
       const rows = [
-        `Last deploy: ${status.time}`,
-        `SHA: ${sha}`,
-        `DB: ${status.dump}`,
-        `Result: ${status.result}`,
+        `Last deploy: ${status.time || 'unknown'}`,
+        `SHA: ${sha || 'unknown'}`,
+        `DB: ${status.dump || 'unknown'}`,
+        `Result: ${status.result || 'unknown'}`,
       ];
       rows.forEach((text) => {
         const div = document.createElement('div');
