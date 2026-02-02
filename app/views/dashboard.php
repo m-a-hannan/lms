@@ -145,11 +145,39 @@ if ($returnStatus !== '') {
 						<!-- Deployment Status Log -->
 						<div class="row">
 							<div class="col-md-12">
+								<?php
+								$deployShaFile = ROOT_PATH . '/DEPLOYED_SHA.txt';
+								$deployTimeFile = ROOT_PATH . '/DEPLOYED_AT.txt';
+								$deployDbFile = ROOT_PATH . '/DEPLOYED_DB.txt';
+								$deploySha = is_file($deployShaFile) ? trim((string) file_get_contents($deployShaFile)) : '';
+								$deployTime = is_file($deployTimeFile) ? trim((string) file_get_contents($deployTimeFile)) : '';
+								$deployDb = is_file($deployDbFile) ? trim((string) file_get_contents($deployDbFile)) : '';
+								$deployRows = [];
+								if ($deployTime !== '') {
+									$deployRows[] = 'Last deploy: ' . $deployTime;
+								}
+								if ($deploySha !== '') {
+									$deployRows[] = 'SHA: ' . $deploySha;
+								}
+								if ($deployDb !== '') {
+									$deployRows[] = 'DB: ' . $deployDb;
+								}
+								?>
 								<div id="deployStatus" class="small text-muted"
 									data-sha-url="<?php echo BASE_URL; ?>DEPLOYED_SHA.txt"
 									data-time-url="<?php echo BASE_URL; ?>DEPLOYED_AT.txt"
+									data-db-url="<?php echo BASE_URL; ?>DEPLOYED_DB.txt"
 									data-fallback-sha-url="/DEPLOYED_SHA.txt"
-									data-fallback-time-url="/DEPLOYED_AT.txt"></div>
+									data-fallback-time-url="/DEPLOYED_AT.txt"
+									data-fallback-db-url="/DEPLOYED_DB.txt">
+									<?php if ($deployRows): ?>
+										<?php foreach ($deployRows as $row): ?>
+											<div><?php echo htmlspecialchars($row); ?></div>
+										<?php endforeach; ?>
+									<?php else: ?>
+										<div>Deploy status unavailable</div>
+									<?php endif; ?>
+								</div>
 							</div>
 						</div>
 						<!-- Deployment Status Log -->
@@ -423,5 +451,4 @@ if ($returnStatus !== '') {
 </main>
 <!--end::App Main-->
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
-<script src="<?php echo BASE_URL; ?>assets/js/pages/dashboard.js"></script>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>
