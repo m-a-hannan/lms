@@ -90,15 +90,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 							<form method="post" class="row g-3" autocomplete="off">
 								<div class="col-md-6">
 									<label class="form-label">Current Password</label>
-									<input type="password" name="current_password" class="form-control" autocomplete="current-password" required>
+									<div class="input-group password-toggle-group">
+										<input type="password" name="current_password" id="currentPassword" class="form-control" autocomplete="current-password" required>
+										<span class="input-group-text password-toggle" data-target="currentPassword" role="button" aria-label="Show password" tabindex="0">
+											<i class="bi bi-lock"></i>
+										</span>
+									</div>
 								</div>
 								<div class="col-md-6">
 									<label class="form-label">New Password</label>
-									<input type="password" name="new_password" class="form-control" autocomplete="new-password" required>
+									<div class="input-group password-toggle-group">
+										<input type="password" name="new_password" id="newPassword" class="form-control" autocomplete="new-password" required>
+										<span class="input-group-text password-toggle" data-target="newPassword" role="button" aria-label="Show password" tabindex="0">
+											<i class="bi bi-lock"></i>
+										</span>
+									</div>
 								</div>
 								<div class="col-md-6">
 									<label class="form-label">Confirm New Password</label>
-									<input type="password" name="confirm_password" class="form-control" autocomplete="new-password" required>
+									<div class="input-group password-toggle-group">
+										<input type="password" name="confirm_password" id="confirmPassword" class="form-control" autocomplete="new-password" required>
+										<span class="input-group-text password-toggle" data-target="confirmPassword" role="button" aria-label="Show password" tabindex="0">
+											<i class="bi bi-lock"></i>
+										</span>
+									</div>
 								</div>
 								<div class="col-12">
 									<button type="submit" class="btn btn-primary">Update Password</button>
@@ -112,4 +127,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	</div>
 </main>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<script src="<?php echo BASE_URL; ?>assets/js/password_toggle.js"></script>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>
