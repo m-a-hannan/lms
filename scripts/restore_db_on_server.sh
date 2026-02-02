@@ -10,6 +10,7 @@ DEPLOY_LOG_DIR="/var/log/lms-deploy"
 DB_ARCHIVE_DIR="/var/backups/lms-db"
 STATUS_DIR="${WEBROOT}/deploy"
 STATUS_JSON="${STATUS_DIR}/status.json"
+DEPLOYED_DB_FILE="${WEBROOT}/DEPLOYED_DB.txt"
 
 err(){ echo "[ERROR] $*" >&2; }
 info(){ echo "[INFO]  $*"; }
@@ -98,6 +99,9 @@ main() {
   "result": "success"
 }
 EOF
+
+    info "Writing deployed DB marker..."
+    echo "$dump_file" > "$DEPLOYED_DB_FILE"
 
     info "Done."
   } | tee -a "$log_file"

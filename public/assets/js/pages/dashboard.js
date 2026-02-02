@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchText(timePath),
   ]);
 
+  const initialContent = deployContainer.textContent.trim();
+
   fetchDeploy(shaUrl, timeUrl)
     .catch(() => fetchDeploy(fallbackShaUrl, fallbackTimeUrl))
     .then(([shaText, timeText]) => {
@@ -46,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     })
     .catch(() => {
-      deployContainer.textContent = 'Deploy status unavailable';
+      if (initialContent === '') {
+        deployContainer.textContent = 'Deploy status unavailable';
+      }
     });
 });

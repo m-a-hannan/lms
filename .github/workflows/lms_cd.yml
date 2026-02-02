@@ -93,5 +93,7 @@ jobs:
           sudo cat /var/www/html/DEPLOYED_SHA.txt || true
           echo "Deployed time on server:"
           sudo cat /var/www/html/DEPLOYED_AT.txt || true
+          echo "Deployed DB file:"
+          sudo cat /var/www/html/DEPLOYED_DB.txt || true
           echo "Deploy status JSON:"
           sudo cat /var/www/html/deploy/status.json || true
