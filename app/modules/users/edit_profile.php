@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$institution = $conn->real_escape_string(trim($_POST['institution_name'] ?? ''));
 	$designation = $conn->real_escape_string(trim($_POST['designation'] ?? ''));
 
-	$uploadDir = ROOT_PATH . '/uploads/profile_picture/';
+	$uploadDir = ROOT_PATH . '/public/uploads/profile_picture/';
 	$imagePath = $profile['profile_picture'] ?? '';
 
 	if (!empty($_FILES['profile_picture']['name'])) {

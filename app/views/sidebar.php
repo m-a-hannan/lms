@@ -19,6 +19,7 @@ $libraryPages = [
 	'loan_list.php',
 	'reservation_list.php',
 	'return_list.php',
+	'gallery_list.php',
 ];
 $userRolePages = [
 	'user_list.php',
@@ -196,6 +197,14 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 										<a href="<?php echo BASE_URL; ?>return_list.php" class="nav-link">
 											<i class="bi bi-link-45deg"></i>
 											<p>Return List</p>
+										</a>
+									</li>
+									<?php endif; ?>
+									<?php if (rbac_can_access($conn, 'gallery_list.php')): ?>
+									<li class="nav-item">
+										<a href="<?php echo BASE_URL; ?>gallery_list.php" class="nav-link">
+											<i class="bi bi-link-45deg"></i>
+											<p>Media Gallery</p>
 										</a>
 									</li>
 									<?php endif; ?>
