@@ -146,9 +146,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 					<div class="inputbox">
 
-					<i class="bi bi-lock input-icon"></i>
+						<i class="bi bi-lock input-icon password-toggle" data-target="loginPassword" role="button" aria-label="Show password" tabindex="0"></i>
 
-						<input type="password" name="password" placeholder="Password" aria-label="Password" required>
+						<input type="password" id="loginPassword" name="password" placeholder="Password" aria-label="Password" required>
 
 						<label class="sr-only">Password</label>
 
@@ -209,6 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 	<script src="<?php echo BASE_URL; ?>assets/js/pages/login.js"></script>
+	<script src="<?php echo BASE_URL; ?>assets/js/password_toggle.js"></script>
 
 </body>
 

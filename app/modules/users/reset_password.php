@@ -57,6 +57,7 @@ if ($tokenError === '') {
 
 	<!-- Bootstrap 5.3 -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 	<link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/main.css">
 
@@ -80,12 +81,22 @@ if ($tokenError === '') {
 						<input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
 						<div class="mb-3">
 							<label class="form-label">New Password</label>
-							<input type="password" name="password" class="form-control" required>
+							<div class="input-group password-toggle-group">
+								<input type="password" name="password" id="resetPassword" class="form-control" required>
+								<span class="input-group-text password-toggle" data-target="resetPassword" role="button" aria-label="Show password" tabindex="0">
+									<i class="bi bi-lock"></i>
+								</span>
+							</div>
 							<div class="form-text">Minimum 8 characters, including at least one letter and one number.</div>
 						</div>
 						<div class="mb-3">
 							<label class="form-label">Confirm Password</label>
-							<input type="password" name="password_confirmation" class="form-control" required>
+							<div class="input-group password-toggle-group">
+								<input type="password" name="password_confirmation" id="resetPasswordConfirm" class="form-control" required>
+								<span class="input-group-text password-toggle" data-target="resetPasswordConfirm" role="button" aria-label="Show password" tabindex="0">
+									<i class="bi bi-lock"></i>
+								</span>
+							</div>
 						</div>
 						<button type="submit" class="btn btn-primary">Update Password</button>
 					</form>
@@ -94,6 +105,7 @@ if ($tokenError === '') {
 			</div>
 		</div>
 	</section>
+	<script src="<?php echo BASE_URL; ?>assets/js/password_toggle.js"></script>
 </body>
 
 </html>

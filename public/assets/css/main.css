@@ -108,6 +108,14 @@
   transform: translateY(-50%);
 }
 
+.auth-page .password-toggle {
+  cursor: pointer;
+}
+
+.auth-page .password-toggle:focus {
+  outline: none;
+}
+
 .auth-page button {
   width: 100%;
   height: 42px;
