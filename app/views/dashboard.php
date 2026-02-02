@@ -142,21 +142,20 @@ if ($returnStatus !== '') {
 				<div class="container py-5">
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<h1 class="mb-0">Librarian Dashboard</h1>
+						<!-- Deployment Status Log -->
 						<div class="row">
 							<div class="col-md-12">
-								<div
-									id="deployStatus"
-									class="small text-muted"
-									data-status-url="<?php echo BASE_URL; ?>deploy/status.json"
+								<div id="deployStatus" class="small text-muted"
 									data-sha-url="<?php echo BASE_URL; ?>DEPLOYED_SHA.txt"
-									data-fallback-status-url="/deploy/status.json"
+									data-time-url="<?php echo BASE_URL; ?>DEPLOYED_AT.txt"
 									data-fallback-sha-url="/DEPLOYED_SHA.txt"
-								></div>
+									data-fallback-time-url="/DEPLOYED_AT.txt"></div>
 							</div>
 						</div>
+						<!-- Deployment Status Log -->
 					</div>
 
-<?php if ($alerts): ?>
+					<?php if ($alerts): ?>
 					<div class="mb-3">
 						<?php foreach ($alerts as $alert): ?>
 						<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
@@ -164,7 +163,7 @@ if ($returnStatus !== '') {
 						</div>
 						<?php endforeach; ?>
 					</div>
-<?php endif; ?>
+					<?php endif; ?>
 
 					<?php
 					$buildPageLink = function (string $param, int $page) {
@@ -203,11 +202,13 @@ if ($returnStatus !== '') {
 													<td><?= htmlspecialchars($row['username'] ?: $row['email']) ?></td>
 													<td><?= htmlspecialchars($row['created_date']) ?></td>
 													<td class="text-center">
-														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_loan.php" class="d-inline">
+														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_loan.php"
+															class="d-inline">
 															<input type="hidden" name="loan_id" value="<?= (int) $row['loan_id'] ?>">
 															<button class="btn btn-sm btn-success" name="action" value="approve">Approve</button>
 														</form>
-														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_loan.php" class="d-inline">
+														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_loan.php"
+															class="d-inline">
 															<input type="hidden" name="loan_id" value="<?= (int) $row['loan_id'] ?>">
 															<button class="btn btn-sm btn-danger" name="action" value="reject">Reject</button>
 														</form>
@@ -226,7 +227,8 @@ if ($returnStatus !== '') {
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
 											<li class="page-item <?php echo $loanPage <= 1 ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('loan_page', max(1, $loanPage - 1)); ?>">Prev</a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('loan_page', max(1, $loanPage - 1)); ?>">Prev</a>
 											</li>
 											<?php for ($i = 1; $i <= $loanPages; $i++): ?>
 											<li class="page-item <?php echo $i === $loanPage ? 'active' : ''; ?>">
@@ -234,7 +236,8 @@ if ($returnStatus !== '') {
 											</li>
 											<?php endfor; ?>
 											<li class="page-item <?php echo $loanPage >= $loanPages ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('loan_page', min($loanPages, $loanPage + 1)); ?>">Next</a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('loan_page', min($loanPages, $loanPage + 1)); ?>">Next</a>
 											</li>
 										</ul>
 									</nav>
@@ -271,11 +274,13 @@ if ($returnStatus !== '') {
 													<td><?= htmlspecialchars($row['username'] ?: $row['email']) ?></td>
 													<td><?= htmlspecialchars($row['created_date']) ?></td>
 													<td class="text-center">
-														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_reservation.php" class="d-inline">
+														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_reservation.php"
+															class="d-inline">
 															<input type="hidden" name="reservation_id" value="<?= (int) $row['reservation_id'] ?>">
 															<button class="btn btn-sm btn-success" name="action" value="approve">Approve</button>
 														</form>
-														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_reservation.php" class="d-inline">
+														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_reservation.php"
+															class="d-inline">
 															<input type="hidden" name="reservation_id" value="<?= (int) $row['reservation_id'] ?>">
 															<button class="btn btn-sm btn-danger" name="action" value="reject">Reject</button>
 														</form>
@@ -294,15 +299,18 @@ if ($returnStatus !== '') {
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
 											<li class="page-item <?php echo $reservationPage <= 1 ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', max(1, $reservationPage - 1)); ?>">Prev</a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('reservation_page', max(1, $reservationPage - 1)); ?>">Prev</a>
 											</li>
 											<?php for ($i = 1; $i <= $resPages; $i++): ?>
 											<li class="page-item <?php echo $i === $reservationPage ? 'active' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', $i); ?>"><?php echo $i; ?></a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('reservation_page', $i); ?>"><?php echo $i; ?></a>
 											</li>
 											<?php endfor; ?>
 											<li class="page-item <?php echo $reservationPage >= $resPages ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', min($resPages, $reservationPage + 1)); ?>">Next</a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('reservation_page', min($resPages, $reservationPage + 1)); ?>">Next</a>
 											</li>
 										</ul>
 									</nav>
@@ -339,11 +347,13 @@ if ($returnStatus !== '') {
 													<td><?= htmlspecialchars($row['username'] ?: $row['email']) ?></td>
 													<td><?= htmlspecialchars($row['created_date']) ?></td>
 													<td class="text-center">
-														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_return.php" class="d-inline">
+														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_return.php"
+															class="d-inline">
 															<input type="hidden" name="return_id" value="<?= (int) $row['return_id'] ?>">
 															<button class="btn btn-sm btn-success" name="action" value="approve">Approve</button>
 														</form>
-														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_return.php" class="d-inline">
+														<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_return.php"
+															class="d-inline">
 															<input type="hidden" name="return_id" value="<?= (int) $row['return_id'] ?>">
 															<button class="btn btn-sm btn-danger" name="action" value="reject">Reject</button>
 														</form>
@@ -362,15 +372,18 @@ if ($returnStatus !== '') {
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
 											<li class="page-item <?php echo $returnPage <= 1 ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('return_page', max(1, $returnPage - 1)); ?>">Prev</a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('return_page', max(1, $returnPage - 1)); ?>">Prev</a>
 											</li>
 											<?php for ($i = 1; $i <= $returnPages; $i++): ?>
 											<li class="page-item <?php echo $i === $returnPage ? 'active' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('return_page', $i); ?>"><?php echo $i; ?></a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('return_page', $i); ?>"><?php echo $i; ?></a>
 											</li>
 											<?php endfor; ?>
 											<li class="page-item <?php echo $returnPage >= $returnPages ? 'disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink('return_page', min($returnPages, $returnPage + 1)); ?>">Next</a>
+												<a class="page-link"
+													href="<?php echo $buildPageLink('return_page', min($returnPages, $returnPage + 1)); ?>">Next</a>
 											</li>
 										</ul>
 									</nav>
@@ -388,16 +401,18 @@ if ($returnStatus !== '') {
 							}
 						?>
 						<?php if ($alerts): ?>
-							<div class="toast-container position-fixed top-0 end-0 p-3" data-auto-toast>
-								<?php foreach ($alerts as $alert): ?>
-									<div class="toast text-bg-<?php echo htmlspecialchars($alert[0]); ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
-										<div class="d-flex">
-											<div class="toast-body"><?php echo htmlspecialchars($alert[1]); ?></div>
-											<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-										</div>
-									</div>
-								<?php endforeach; ?>
+						<div class="toast-container position-fixed top-0 end-0 p-3" data-auto-toast>
+							<?php foreach ($alerts as $alert): ?>
+							<div class="toast text-bg-<?php echo htmlspecialchars($alert[0]); ?> border-0" role="alert"
+								aria-live="assertive" aria-atomic="true">
+								<div class="d-flex">
+									<div class="toast-body"><?php echo htmlspecialchars($alert[1]); ?></div>
+									<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+										aria-label="Close"></button>
+								</div>
 							</div>
+							<?php endforeach; ?>
+						</div>
 						<?php endif; ?>
 					</div>
 				</div>
