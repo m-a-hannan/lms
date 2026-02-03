@@ -1,4 +1,7 @@
-<?php require_once __DIR__ . '/config.php'; ?>
+<?php
+// Load base configuration for URLs and constants.
+require_once __DIR__ . '/config.php';
+?>
 <!doctype html>
 <html lang="en">
 	<!--begin::Head-->

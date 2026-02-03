@@ -1,8 +1,10 @@
 <?php
+// Load core configuration, database connection, and RBAC helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Redirect admins/librarians to the main dashboard.
 $context = rbac_get_context($conn);
 $roleName = $context['role_name'] ?? '';
 $isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
@@ -11,22 +13,28 @@ if ($context['is_admin'] || $isLibrarian) {
 	exit;
 }
 
+// Resolve current user id from context.
 $userId = (int) ($context['user_id'] ?? 0);
 
+// Initialize data containers for dashboard tables.
 $loans = [];
 $reservations = [];
 $returns = [];
 
+// Load dashboard data only for valid users.
 if ($userId > 0) {
+	// Pagination settings for each table.
 	$perPage = 10;
 	$loanPage = max(1, (int) ($_GET['loan_page'] ?? 1));
 	$reservationPage = max(1, (int) ($_GET['reservation_page'] ?? 1));
 	$returnPage = max(1, (int) ($_GET['return_page'] ?? 1));
 
+	// Compute offsets based on page selections.
 	$loanOffset = ($loanPage - 1) * $perPage;
 	$reservationOffset = ($reservationPage - 1) * $perPage;
 	$returnOffset = ($returnPage - 1) * $perPage;
 
+	// Count total loans for pagination.
 	$loanCountStmt = $conn->prepare("SELECT COUNT(*) AS total FROM loans WHERE user_id = ?");
 	$loanPages = 1;
 	if ($loanCountStmt) {
@@ -38,6 +46,7 @@ if ($userId > 0) {
 		$loanCountStmt->close();
 	}
 
+	// Count total reservations for pagination.
 	$resCountStmt = $conn->prepare("SELECT COUNT(*) AS total FROM reservations WHERE user_id = ?");
 	$resPages = 1;
 	if ($resCountStmt) {
@@ -49,6 +58,7 @@ if ($userId > 0) {
 		$resCountStmt->close();
 	}
 
+	// Count total returns for pagination.
 	$returnCountStmt = $conn->prepare(
 		"SELECT COUNT(*) AS total
 		 FROM returns r
@@ -65,6 +75,7 @@ if ($userId > 0) {
 		$returnCountStmt->close();
 	}
 
+	// Load the current page of loan records.
 	$stmt = $conn->prepare(
 		"SELECT l.loan_id, l.status, l.issue_date, l.due_date, l.return_date,
 				b.title, c.copy_id,
@@ -80,17 +91,20 @@ if ($userId > 0) {
 	$stmt->bind_param('i', $userId);
 	$stmt->execute();
 	$result = $stmt->get_result();
+	// Collect loan rows for rendering.
 	while ($result && ($row = $result->fetch_assoc())) {
 		$loans[] = $row;
 	}
 	$stmt->close();
 
+	// Detect reservation schema variant.
 	$hasReservationBookId = false;
 	$reservationColumnCheck = $conn->query("SHOW COLUMNS FROM reservations LIKE 'book_id'");
 	if ($reservationColumnCheck && $reservationColumnCheck->num_rows > 0) {
 		$hasReservationBookId = true;
 	}
 
+	// Load reservation rows using the available schema.
 	if ($hasReservationBookId) {
 		$stmt = $conn->prepare(
 			"SELECT r.reservation_id, r.status, r.reservation_date, r.expiry_date, b.title, r.copy_id
@@ -115,11 +129,13 @@ if ($userId > 0) {
 	$stmt->bind_param('i', $userId);
 	$stmt->execute();
 	$result = $stmt->get_result();
+	// Collect reservation rows for rendering.
 	while ($result && ($row = $result->fetch_assoc())) {
 		$reservations[] = $row;
 	}
 	$stmt->close();
 
+	// Load the current page of return request records.
 	$stmt = $conn->prepare(
 		"SELECT r.return_id, r.status, r.return_date, l.loan_id, b.title, c.copy_id
 		 FROM returns r
@@ -134,12 +150,14 @@ if ($userId > 0) {
 	$stmt->bind_param('i', $userId);
 	$stmt->execute();
 	$result = $stmt->get_result();
+	// Collect return rows for rendering.
 	while ($result && ($row = $result->fetch_assoc())) {
 		$returns[] = $row;
 	}
 	$stmt->close();
 }
 
+// Build alert messages from return request status.
 $alerts = [];
 $returnStatus = $_GET['return'] ?? '';
 if ($returnStatus !== '') {
@@ -154,6 +172,7 @@ if ($returnStatus !== '') {
 	}
 }
 
+// Render a bootstrap badge for a status string.
 function status_badge(string $status): string
 {
 	$status = strtolower(trim($status));
@@ -168,8 +187,11 @@ function status_badge(string $status): string
 	return '<span class="badge text-bg-' . $color . '">' . htmlspecialchars($label) . '</span>';
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -182,8 +204,10 @@ function status_badge(string $status): string
 						<a href="<?php echo BASE_URL; ?>home.php" class="btn btn-outline-primary btn-sm">Browse Books</a>
 					</div>
 
+					<?php // Display return-related alerts when present. ?>
 					<?php if ($alerts): ?>
 					<div class="mb-3">
+						<?php // Render each alert message. ?>
 						<?php foreach ($alerts as $alert): ?>
 						<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
 							<?php echo htmlspecialchars($alert[1]); ?>
@@ -193,6 +217,7 @@ function status_badge(string $status): string
 					<?php endif; ?>
 
 					<?php
+					// Helper to build pagination links while preserving query params.
 					$buildPageLink = function (string $param, int $page) {
 						$query = $_GET;
 						$query[$param] = $page;
@@ -221,9 +246,12 @@ function status_badge(string $status): string
 												</tr>
 											</thead>
 											<tbody>
+												<?php // Show loan rows when data exists. ?>
 												<?php if ($loans): ?>
+												<?php // Render each loan row. ?>
 												<?php foreach ($loans as $row): ?>
 												<?php
+													// Enable return action only when eligible.
 													$canReturn = $row['status'] === 'approved'
 														&& empty($row['return_date'])
 														&& (int) $row['pending_return'] === 0;
@@ -236,6 +264,7 @@ function status_badge(string $status): string
 													<td><?= htmlspecialchars($row['due_date'] ?: '-') ?></td>
 													<td><?= status_badge((string) $row['status']) ?></td>
 													<td class="text-center">
+														<?php // Show return request form when allowed. ?>
 														<?php if ($canReturn): ?>
 														<form method="post" action="<?php echo BASE_URL; ?>actions/request_return.php" class="d-inline">
 															<input type="hidden" name="loan_id" value="<?= (int) $row['loan_id'] ?>">
@@ -255,12 +284,14 @@ function status_badge(string $status): string
 											</tbody>
 										</table>
 									</div>
+									<?php // Show pagination controls for loans when needed. ?>
 									<?php if ($loanPages > 1): ?>
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
 											<li class="page-item <?php echo $loanPage <= 1 ? 'disabled' : ''; ?>">
 												<a class="page-link" href="<?php echo $buildPageLink('loan_page', max(1, $loanPage - 1)); ?>">Prev</a>
 											</li>
+											<?php // Render each loan page link. ?>
 											<?php for ($i = 1; $i <= $loanPages; $i++): ?>
 											<li class="page-item <?php echo $i === $loanPage ? 'active' : ''; ?>">
 												<a class="page-link" href="<?php echo $buildPageLink('loan_page', $i); ?>"><?php echo $i; ?></a>
@@ -295,7 +326,9 @@ function status_badge(string $status): string
 												</tr>
 											</thead>
 											<tbody>
+												<?php // Show reservation rows when data exists. ?>
 												<?php if ($reservations): ?>
+												<?php // Render each reservation row. ?>
 												<?php foreach ($reservations as $row): ?>
 												<tr>
 													<td><?= htmlspecialchars($row['reservation_id']) ?></td>
@@ -314,12 +347,14 @@ function status_badge(string $status): string
 											</tbody>
 										</table>
 									</div>
+									<?php // Show pagination controls for reservations when needed. ?>
 									<?php if ($resPages > 1): ?>
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
 											<li class="page-item <?php echo $reservationPage <= 1 ? 'disabled' : ''; ?>">
 												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', max(1, $reservationPage - 1)); ?>">Prev</a>
 											</li>
+											<?php // Render each reservation page link. ?>
 											<?php for ($i = 1; $i <= $resPages; $i++): ?>
 											<li class="page-item <?php echo $i === $reservationPage ? 'active' : ''; ?>">
 												<a class="page-link" href="<?php echo $buildPageLink('reservation_page', $i); ?>"><?php echo $i; ?></a>
@@ -353,7 +388,9 @@ function status_badge(string $status): string
 												</tr>
 											</thead>
 											<tbody>
+												<?php // Show return rows when data exists. ?>
 												<?php if ($returns): ?>
+												<?php // Render each return row. ?>
 												<?php foreach ($returns as $row): ?>
 												<tr>
 													<td><?= htmlspecialchars($row['return_id']) ?></td>
@@ -371,12 +408,14 @@ function status_badge(string $status): string
 											</tbody>
 										</table>
 									</div>
+									<?php // Show pagination controls for returns when needed. ?>
 									<?php if ($returnPages > 1): ?>
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
 											<li class="page-item <?php echo $returnPage <= 1 ? 'disabled' : ''; ?>">
 												<a class="page-link" href="<?php echo $buildPageLink('return_page', max(1, $returnPage - 1)); ?>">Prev</a>
 											</li>
+											<?php // Render each return page link. ?>
 											<?php for ($i = 1; $i <= $returnPages; $i++): ?>
 											<li class="page-item <?php echo $i === $returnPage ? 'active' : ''; ?>">
 												<a class="page-link" href="<?php echo $buildPageLink('return_page', $i); ?>"><?php echo $i; ?></a>
@@ -397,5 +436,7 @@ function status_badge(string $status): string
 		</div>
 	</div>
 </main>
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

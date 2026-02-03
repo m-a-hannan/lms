@@ -1,12 +1,15 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . "/app/includes/connection.php";
 
+// Handle role creation submission.
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Basic input handling
     $role_name = $conn->real_escape_string(trim($_POST["role_name"]));
 
+    // Insert the new role record.
     $sql = "INSERT INTO roles (role_name) VALUES ('$role_name')";
     if ($conn->query($sql)) {
         header("Location: " . BASE_URL . "role_list.php?success=1");
@@ -18,9 +21,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 ?>
 
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -72,9 +78,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>
 
+<?php // Show success alert after adding a role. ?>
 <?php if (isset($_GET["success"])): ?>
 <div class="alert alert-success">Category added successfully.</div>
 <?php endif; ?>

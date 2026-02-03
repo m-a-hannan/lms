@@ -1,13 +1,16 @@
 <?php
+// Load core configuration, database connection, RBAC, and helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 require_once ROOT_PATH . '/app/includes/library_helpers.php';
 
+// Ensure session is active for user context.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 
+// Initialize profile state and enforce authentication.
 $profile = null;
 $profileMissing = false;
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
@@ -16,24 +19,29 @@ if ($userId <= 0) {
 	exit;
 }
 
+// Determine role-based UI visibility.
 $context = rbac_get_context($conn);
 $roleName = $context['role_name'] ?? '';
 $isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
 $showAuditColumns = $context['is_admin'] || $isLibrarian;
 $userLookup = $showAuditColumns ? library_user_map($conn) : [];
 $canChangePassword = rbac_can_access($conn, 'change_password.php', 'read');
+// Load the most recent profile for the current user.
 $result = $conn->query("SELECT * FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
 if ($result && $result->num_rows === 1) {
 	$profile = $result->fetch_assoc();
 }
+// Track missing profile for conditional UI.
 if (!$profile) {
 	$profileMissing = true;
 }
 
+// Normalize profile data to an array.
 if (!is_array($profile)) {
 	$profile = [];
 }
 
+// Format values for safe display with fallbacks.
 function display_value($value)
 {
 	if ($value === null) {
@@ -48,17 +56,21 @@ function display_value($value)
 	return htmlspecialchars((string) $value);
 }
 
+// Resolve profile image and display name.
 $profileImage = $profile['profile_picture'] ?? '';
 $profileImage = $profileImage !== '' ? htmlspecialchars($profileImage) : 'assets/img/avatar.png';
 $fullName = trim(($profile['first_name'] ?? '') . ' ' . ($profile['last_name'] ?? ''));
 $fullName = $fullName !== '' ? htmlspecialchars($fullName) : '-';
 $bodyClass = 'page-view-profile';
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
 
 
 
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -77,6 +89,7 @@ $bodyClass = 'page-view-profile';
 							</div>
 						</div>
 
+						<?php // Show an onboarding message if the profile is missing. ?>
 						<?php if ($profileMissing): ?>
 						<div class="alert alert-warning">
 							Profile not found. Please create your profile first.
@@ -137,6 +150,7 @@ $bodyClass = 'page-view-profile';
 														</div>
 
 
+														<?php // Show audit metadata only for admins/librarians. ?>
 														<?php if ($showAuditColumns): ?>
 														<h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600">Metadata</h6>
 														<div class="row">
@@ -169,5 +183,7 @@ $bodyClass = 'page-view-profile';
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

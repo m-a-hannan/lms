@@ -1,12 +1,15 @@
 <?php
+// Load core configuration, database connection, and RBAC helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Determine whether the current user can manage accounts.
 $context = rbac_get_context($conn);
 $isLibrarian = strcasecmp($context['role_name'] ?? '', 'Librarian') === 0;
 $canManageUsers = $context['is_admin'] || $isLibrarian;
 
+// Build alert messages from status query param.
 $alerts = [];
 $status = $_GET['status'] ?? '';
 if ($status === 'approved') {
@@ -25,6 +28,7 @@ if ($status === 'approved') {
 	$alerts[] = ['danger', 'Unable to update user status.'];
 }
 
+// Fetch users with aggregated role names.
 $result = $conn->query(
 	"SELECT u.user_id, u.username, u.email, u.account_status, u.created_date,
 		COALESCE(GROUP_CONCAT(DISTINCT ur.role_name ORDER BY ur.role_name SEPARATOR ', '), '-') AS roles
@@ -39,8 +43,11 @@ if ($result === false) {
 }
 
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -57,8 +64,10 @@ if ($result === false) {
 					</div>
 					<div class="card shadow-sm">
 						<div class="card-body">
+							<?php // Show toast alerts when status messages exist. ?>
 							<?php if ($alerts): ?>
 							<div class="toast-container position-fixed top-0 end-0 p-3" id="userListToasts">
+								<?php // Render each alert as a toast. ?>
 								<?php foreach ($alerts as $alert): ?>
 								<div class="toast text-bg-<?php echo htmlspecialchars($alert[0]); ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
 									<div class="d-flex">
@@ -83,9 +92,12 @@ if ($result === false) {
 										</tr>
 									</thead>
 									<tbody>
+										<?php // Show records when the result set has rows. ?>
 										<?php if ($result->num_rows > 0): ?>
+										<?php // Render each user row. ?>
 										<?php while ($row = $result->fetch_assoc()): ?>
 										<?php
+											// Normalize status text and map to badge color.
 											$statusValue = strtolower($row['account_status'] ?? 'pending');
 											$statusLabel = ucfirst($statusValue !== '' ? $statusValue : 'pending');
 											$statusClass = 'secondary';
@@ -110,6 +122,7 @@ if ($result === false) {
 											<td><span class="badge bg-<?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span></td>
 											
 											<td class="text-center">
+												<?php // Show action buttons only for authorized roles. ?>
 												<?php if ($canManageUsers): ?>
 													<form method="post" action="<?php echo BASE_URL; ?>actions/admin_process_user.php" class="d-inline">
 														<input type="hidden" name="user_id" value="<?= (int) $row['user_id'] ?>">
@@ -153,6 +166,9 @@ if ($result === false) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<!-- Page-specific behavior for user list actions -->
 <script src="<?php echo BASE_URL; ?>assets/js/pages/user_list.js"></script>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

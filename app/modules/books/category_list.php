@@ -1,16 +1,19 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Fetch category records for display.
 $result = $conn->query("SELECT * FROM categories ORDER BY category_id DESC");
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
 ?>
-<?php
-?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -43,7 +46,9 @@ if ($result === false) {
 										</thead>
 										<tbody>
 
+											<?php // Show records when the result set has rows. ?>
 											<?php if ($result->num_rows > 0): ?>
+											<?php // Render each category row. ?>
 											<?php while ($row = $result->fetch_assoc()): ?>
 											<tr>
 												<td><?= $row["category_id"] ?></td>
@@ -86,5 +91,7 @@ if ($result === false) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

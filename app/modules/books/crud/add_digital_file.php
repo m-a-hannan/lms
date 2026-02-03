@@ -1,16 +1,20 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Handle digital file creation submission.
 if (isset($_POST['save'])) {
     $resource_id = (int) $_POST['resource_id'];
     $file_path = $conn->real_escape_string(trim($_POST['file_path']));
     $file_size = (int) $_POST['file_size'];
     $download_count = (int) $_POST['download_count'];
 
+    // Insert the new digital file record.
     $sql = "INSERT INTO digital_files (resource_id, file_path, file_size, download_count) VALUES ($resource_id, '$file_path', $file_size, $download_count)";
     $result = $conn->query($sql);
 
+    // Redirect back to list on success.
     if ($result) {
         header("Location: " . BASE_URL . "digital_file_list.php");
         exit;
@@ -19,8 +23,11 @@ if (isset($_POST['save'])) {
     }
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -67,5 +74,7 @@ if (isset($_POST['save'])) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

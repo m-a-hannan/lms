@@ -1,18 +1,22 @@
 <?php
+// Load core configuration, database connection, RBAC, and helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 require_once ROOT_PATH . '/app/includes/library_helpers.php';
 
+// Ensure session is active for admin context.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 
+// Accept only POST requests for loan processing.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 	header('Location: ' . BASE_URL . 'dashboard.php');
 	exit;
 }
 
+// Require admin or librarian role to approve/reject loans.
 $context = rbac_get_context($conn);
 $roleName = $context['role_name'] ?? '';
 $isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
@@ -21,6 +25,7 @@ if (!$context['is_admin'] && !$isLibrarian) {
 	exit('Access denied.');
 }
 
+// Validate request inputs.
 $adminId = $context['user_id'] ?? 0;
 $loanId = isset($_POST['loan_id']) ? (int) $_POST['loan_id'] : 0;
 $action = $_POST['action'] ?? '';
@@ -30,11 +35,14 @@ if ($adminId <= 0 || $loanId <= 0 || !in_array($action, ['approve', 'reject'], t
 	exit;
 }
 
+// Set DB session context for auditing triggers.
 library_set_current_user($conn, $adminId);
 
+// Wrap all updates in a transaction.
 $conn->begin_transaction();
 
 try {
+	// Lock and load the loan record with book details.
 	$stmt = $conn->prepare(
 		"SELECT l.loan_id, l.copy_id, l.user_id, l.status, b.title, b.book_id
 		 FROM loans l
@@ -51,6 +59,7 @@ try {
 	$loan = $result ? $result->fetch_assoc() : null;
 	$stmt->close();
 
+	// Reject when the loan is missing or not pending.
 	if (!$loan || $loan['status'] !== 'pending') {
 		$conn->rollback();
 		header('Location: ' . BASE_URL . 'dashboard.php?loan=invalid');
@@ -62,8 +71,10 @@ try {
 	$title = trim((string) ($loan['title'] ?? 'Book'));
 	$bookId = (int) ($loan['book_id'] ?? 0);
 
+	// Approve flow: allocate a copy and update statuses.
 	if ($action === 'approve') {
 		$useReservedCopy = false;
+		// Prefer the reserved copy when it's valid for this user.
 		if ($copyId > 0) {
 			$checkStmt = $conn->prepare(
 				"SELECT c.copy_id
@@ -86,6 +97,7 @@ try {
 			$useReservedCopy = (bool) $copyOk;
 		}
 
+		// Fall back to any available copy for the book.
 		if (!$useReservedCopy) {
 			$copyStmt = $conn->prepare(
 				"SELECT c.copy_id
@@ -111,9 +123,11 @@ try {
 
 			$copyId = (int) $copyRow['copy_id'];
 		}
+		// Calculate due date from policy days.
 		$days = library_get_policy_days($conn, 'loan_period_days', 14);
 		$dueDate = (new DateTimeImmutable('today'))->modify('+' . $days . ' days')->format('Y-m-d');
 
+		// Update the loan record with approval details.
 		$stmt = $conn->prepare(
 			"UPDATE loans
 			 SET status = 'approved',
@@ -129,6 +143,7 @@ try {
 		}
 		$stmt->close();
 
+		// Mark the allocated copy as loaned.
 		$stmt = $conn->prepare("UPDATE book_copies SET status = 'loaned', modified_by = ? WHERE copy_id = ?");
 		$stmt->bind_param('ii', $adminId, $copyId);
 		if (!$stmt->execute()) {
@@ -136,6 +151,7 @@ try {
 		}
 		$stmt->close();
 
+		// Fulfill any matching reservation when applicable.
 		if ($useReservedCopy) {
 			$resStmt = $conn->prepare(
 				"UPDATE reservations
@@ -150,6 +166,7 @@ try {
 			$resStmt->close();
 		}
 
+		// Notify the user about approval.
 		library_notify_user(
 			$conn,
 			$userId,
@@ -158,6 +175,7 @@ try {
 			$adminId
 		);
 	} else {
+		// Reject flow: update loan status and notify user.
 		$stmt = $conn->prepare("UPDATE loans SET status = 'rejected', modified_by = ? WHERE loan_id = ?");
 		$stmt->bind_param('ii', $adminId, $loanId);
 		if (!$stmt->execute()) {
@@ -174,12 +192,15 @@ try {
 		);
 	}
 
+	// Commit all changes after successful processing.
 	$conn->commit();
 } catch (Throwable $e) {
+	// Roll back and report errors.
 	$conn->rollback();
 	header('Location: ' . BASE_URL . 'dashboard.php?loan=error');
 	exit;
 }
 
+// Redirect back with success status.
 header('Location: ' . BASE_URL . 'dashboard.php?loan=success');
 exit;

@@ -1,19 +1,24 @@
 <?php
+// Load app configuration, database connection, and permissions helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . "/app/includes/connection.php";
 require_once ROOT_PATH . "/app/includes/permissions.php";
 
+// Resolve dashboard path and current user context.
 $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 $context = rbac_get_context($conn);
 $currentUserId = (int) ($context['user_id'] ?? 0);
 
+// Initialize query inputs and result containers.
 $query = trim($_GET['q'] ?? '');
 $results = [];
 $availableByBook = [];
 $reservedByBook = [];
 
+// Run the search when a query is provided.
 if ($query !== '') {
 	$like = '%' . $query . '%';
+	// Prepare the search query for titles/authors.
 	$stmt = $conn->prepare(
 		"SELECT books.*, categories.category_name
 		 FROM books
@@ -22,22 +27,26 @@ if ($query !== '') {
 		 ORDER BY books.title ASC
 		 LIMIT 60"
 	);
+	// Execute the prepared statement and collect results.
 	if ($stmt) {
 		$stmt->bind_param('ss', $like, $like);
 		$stmt->execute();
 		$result = $stmt->get_result();
+		// Build the result list from returned rows.
 		while ($result && ($row = $result->fetch_assoc())) {
 			$results[] = $row;
 		}
 		$stmt->close();
 	}
 
+	// Fetch availability counts for found books.
 	if ($results) {
 		$bookIds = array_map(
 			static fn($row) => (int) ($row['book_id'] ?? 0),
 			$results
 		);
 		$bookIds = array_values(array_filter($bookIds));
+		// Run the availability query when book ids exist.
 		if ($bookIds) {
 			$placeholders = implode(',', array_fill(0, count($bookIds), '?'));
 			$types = str_repeat('i', count($bookIds));
@@ -48,10 +57,12 @@ if ($query !== '') {
 				  AND (c.status IS NULL OR c.status = '' OR c.status = 'available')
 				GROUP BY e.book_id";
 			$availStmt = $conn->prepare($sql);
+			// Execute the availability query if prepared.
 			if ($availStmt) {
 				$availStmt->bind_param($types, ...$bookIds);
 				$availStmt->execute();
 				$availResult = $availStmt->get_result();
+				// Store availability counts by book id.
 				while ($availResult && ($row = $availResult->fetch_assoc())) {
 					$availableByBook[(int) $row['book_id']] = (int) $row['available_count'];
 				}
@@ -60,12 +71,14 @@ if ($query !== '') {
 		}
 	}
 
+	// Fetch reservation counts for the current user.
 	if ($results && $currentUserId > 0) {
 		$bookIds = array_map(
 			static fn($row) => (int) ($row['book_id'] ?? 0),
 			$results
 		);
 		$bookIds = array_values(array_filter($bookIds));
+		// Run the reservation query when book ids exist.
 		if ($bookIds) {
 			$placeholders = implode(',', array_fill(0, count($bookIds), '?'));
 			$types = 'i' . str_repeat('i', count($bookIds));
@@ -79,11 +92,13 @@ if ($query !== '') {
 				  AND r.book_id IN ($placeholders)
 				GROUP BY r.book_id";
 			$resStmt = $conn->prepare($sql);
+			// Execute the reservation query if prepared.
 			if ($resStmt) {
 				$params = array_merge([$currentUserId], $bookIds);
 				$resStmt->bind_param($types, ...$params);
 				$resStmt->execute();
 				$resResult = $resStmt->get_result();
+				// Store reservation counts by book id.
 				while ($resResult && ($row = $resResult->fetch_assoc())) {
 					$reservedByBook[(int) $row['book_id']] = (int) $row['reserved_count'];
 				}
@@ -92,12 +107,15 @@ if ($query !== '') {
 		}
 	}
 
+	// Optionally log the search when the table exists.
 	$logCheck = $conn->query("SHOW TABLES LIKE 'search_logs'");
+	// Insert a search log entry if logging is available.
 	if ($logCheck && $logCheck->num_rows > 0) {
 		$logStmt = $conn->prepare(
 			"INSERT INTO search_logs (user_id, query_text, results_count, created_at)
 			 VALUES (?, ?, ?, NOW())"
 		);
+		// Execute the log insert with query metadata.
 		if ($logStmt) {
 			$resultsCount = count($results);
 			$userId = $currentUserId > 0 ? $currentUserId : null;
@@ -108,30 +126,40 @@ if ($query !== '') {
 	}
 }
 
+// Format display values with safe escaping and placeholders.
 function display_value($value)
 {
+	// Return placeholder for null values.
 	if ($value === null) {
 		return "-";
 	}
+	// Normalize strings before checking emptiness.
 	if (is_string($value)) {
 		$value = trim($value);
 	}
+	// Return placeholder for empty strings.
 	if ($value === "") {
 		return "-";
 	}
+	// Escape output for safe HTML display.
 	return htmlspecialchars((string) $value);
 }
 
+// Convert a byte size into a readable MB string.
 function format_file_size($bytes)
 {
+	// Normalize the incoming size to an integer.
 	$bytes = (int) $bytes;
+	// Return placeholder for non-positive sizes.
 	if ($bytes <= 0) {
 		return "-";
 	}
+	// Convert to MB with two decimal places.
 	$mb = $bytes / 1048576;
 	return number_format($mb, 2) . " MB";
 }
 ?>
+<!-- Search results page layout and assets. -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 
@@ -154,23 +182,29 @@ function format_file_size($bytes)
 
 	<!-- Top Navbar -->
 	<nav class="navbar navbar-dark fixed-top px-3">
+		<!-- Sidebar toggle button. -->
 		<button class="btn btn-icon" id="sidebarToggle">
 			<i class="bi bi-list"></i>
 		</button>
 
+		<!-- Brand label. -->
 		<span class="navbar-brand ms-2">LMS</span>
 
+		<!-- Search bar with live suggestions. -->
 		<div class="mx-auto search-wrap">
 			<div class="search-container">
+				<!-- Search form targets the results page. -->
 				<form id="searchBox" class="search-box" action="<?php echo BASE_URL; ?>search_results.php" method="get" data-suggest-url="<?php echo BASE_URL; ?>actions/search_suggest.php" autocomplete="off">
 					<i class="bi bi-binoculars-fill"></i>
 					<input type="text" name="q" id="searchInput" value="<?php echo htmlspecialchars($query); ?>" placeholder="Type book or author name">
 					<i class="bi bi-mic-fill"></i>
 				</form>
+				<!-- Suggestion dropdown container. -->
 				<div id="searchSuggest" class="search-suggest"></div>
 			</div>
 		</div>
 
+		<!-- User actions: logout and theme toggle. -->
 		<div class="d-flex align-items-center gap-2">
 			<a href="<?php echo BASE_URL; ?>logout.php" class="btn btn-outline-light btn-sm">Logout</a>
 			<button class="btn btn-icon" id="themeToggle">
@@ -184,12 +218,14 @@ function format_file_size($bytes)
 
 		<!-- Sidebar -->
 		<aside id="sidebar" class="sidebar">
+			<!-- Home navigation links. -->
 			<div class="sidebar-section">
 				<small>HOME</small>
 				<a class="active" href="<?php echo $dashboardUrl; ?>"><i class="bi bi-speedometer2"></i> Dashboard</a>
 				<a><i class="bi bi-book"></i> All Books</a>
 			</div>
 
+			<!-- Library shortcuts. -->
 			<div class="sidebar-section">
 				<small>LIBRARIES</small>
 				<a><i class="bi bi-journal-bookmark"></i> Novels</a>
@@ -201,8 +237,10 @@ function format_file_size($bytes)
 
 		<!-- Main Content -->
 		<main class="content">
+			<!-- Search results section. -->
 			<section>
 				<h5>Search Results</h5>
+				<!-- Display prompt, empty state, or results based on input. -->
 				<?php if ($query === ''): ?>
 					<p class="text-muted">Type a book title or author name to search.</p>
 				<?php elseif (!$results): ?>
@@ -210,8 +248,10 @@ function format_file_size($bytes)
 				<?php else: ?>
 					<p class="text-muted">Found <?php echo count($results); ?> result(s) for "<?php echo htmlspecialchars($query); ?>".</p>
 					<div class="book-grid">
+						<!-- Render each matching book card. -->
 						<?php foreach ($results as $row): ?>
 						<?php
+							// Prepare cover and id values for the book card.
 							$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
 							$bookId = (int) ($row['book_id'] ?? 0);
 						?>
@@ -235,9 +275,11 @@ function format_file_size($bytes)
 		</main>
 	</div>
 
+	<!-- Book detail modals for search results. -->
 	<?php if ($results): ?>
 	<?php foreach ($results as $row): ?>
 	<?php
+	// Compute per-book display values for the modal.
 	$bookId = (int) ($row['book_id'] ?? 0);
 	$reservedForUser = $reservedByBook[$bookId] ?? 0;
 	$availableCopies = ($availableByBook[$bookId] ?? 0) + $reservedForUser;
@@ -292,6 +334,7 @@ function format_file_size($bytes)
 									<div class="col-md-6">
 										<div><strong>Category:</strong> <span class="text-success"><?php echo display_value($row['category_name'] ?? null); ?></span></div>
 										<div><strong>Available Copies:</strong> <?php echo (int) $availableCopies; ?></div>
+										<!-- Display reservation note when applicable. -->
 										<?php if ($reservedForUser > 0): ?>
 											<div class="text-warning fw-semibold">Reserved for you</div>
 										<?php endif; ?>
@@ -311,24 +354,28 @@ function format_file_size($bytes)
 								</div>
 
 								<div class="book-actions mt-4">
+									<!-- Loan request action. -->
 									<form action="<?php echo BASE_URL; ?>actions/request_loan.php" method="post" class="d-inline">
 										<input type="hidden" name="book_id" value="<?php echo $bookId; ?>">
 										<button class="btn btn-outline-info" type="submit" <?php echo $bookId <= 0 ? 'disabled' : ''; ?>>
 											<i class="bi bi-box-arrow-in-right"></i> Request Loan
 										</button>
 									</form>
+									<!-- Reservation request action. -->
 									<form action="<?php echo BASE_URL; ?>actions/request_reservation.php" method="post" class="d-inline">
 										<input type="hidden" name="book_id" value="<?php echo $bookId; ?>">
 										<button class="btn btn-outline-secondary" type="submit" <?php echo ($bookId <= 0 || $availableCopies > 0) ? 'disabled' : ''; ?>>
 											<i class="bi bi-bookmark-plus"></i> Reserve
 										</button>
 									</form>
+									<!-- Read and shelf quick actions. -->
 									<button class="btn btn-outline-success" <?php echo $canRead ? '' : 'disabled'; ?>>
 										<i class="bi bi-book"></i> Read
 									</button>
 									<button class="btn btn-outline-primary">
 										<i class="bi bi-folder"></i> Shelf
 									</button>
+									<!-- Conditional download action for ebooks. -->
 									<?php if ($canDownload): ?>
 									<a class="btn btn-outline-success" href="<?php echo BASE_URL; ?>actions/download_ebook.php?book_id=<?php echo $bookId; ?>">
 										<i class="bi bi-download"></i> Download
@@ -338,6 +385,7 @@ function format_file_size($bytes)
 										<i class="bi bi-download"></i> Download
 									</button>
 									<?php endif; ?>
+									<!-- Utility actions dropdown. -->
 									<div class="btn-group">
 										<button class="btn btn-outline-warning">
 											<i class="bi bi-lightning"></i> Fetch

@@ -505,3 +505,94 @@ section h5 {
   border-radius: 2px;
   width: 40%;
 }
+
+/* ==============================
+   CATEGORY FILTER MODAL
+============================== */
+
+.sidebar-filter-btn {
+  font-size: 0.9rem;
+  padding: 0;
+  line-height: 1;
+}
+
+.sidebar-filter-btn i {
+  pointer-events: none;
+}
+
+.report-config-modal .modal-content {
+  background: rgba(30, 30, 30, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  color: #e5e7eb;
+}
+
+.report-config-modal .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.report-config-modal .modal-footer {
+  border-top: none;
+}
+
+.report-config-modal .btn-close {
+  filter: invert(1);
+}
+
+.btn-glass {
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 500;
+}
+
+.btn-enable {
+  background: rgba(34, 197, 94, 0.25);
+  color: #22c55e;
+}
+
+.btn-disable {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+}
+
+.btn-reset {
+  background: rgba(245, 158, 11, 0.25);
+  color: #f59e0b;
+}
+
+.section-title {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #e5e7eb;
+  margin-bottom: 0.5rem;
+}
+
+.divider {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1rem;
+}
+
+.report-config-modal .form-check-input {
+  background-color: transparent;
+  border: 2px solid #e5e7eb;
+}
+
+.report-config-modal .form-check-input:checked {
+  background-color: #e5e7eb;
+  border-color: #e5e7eb;
+}
+
+.report-config-modal .form-check-label {
+  color: #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.report-config-modal .modal-body {
+  max-height: 65vh;
+  overflow-y: auto;
+}

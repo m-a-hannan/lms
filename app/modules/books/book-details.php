@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="assets/css/book-details.css">
 </head>
 <body class="text-light p-4">
+<!-- Static book details layout (demo markup) -->
 
 <div class="book-details-card">
 
@@ -110,6 +111,7 @@
   </div>
 </div>
 
+<!-- Bootstrap JS for dropdowns and components -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

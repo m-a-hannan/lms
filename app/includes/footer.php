@@ -1,10 +1,13 @@
 <?php
+// Locate deployment metadata files for footer display.
 $shaFile  = ROOT_PATH . '/DEPLOYED_SHA.txt';
 $timeFile = ROOT_PATH . '/DEPLOYED_AT.txt';
 
+// Read deployment values with safe fallbacks.
 $sha  = file_exists($shaFile)  ? trim(file_get_contents($shaFile))  : 'unknown';
 $time = file_exists($timeFile) ? trim(file_get_contents($timeFile)) : 'unknown';
 
+// Shorten the SHA for a compact footer label.
 $shortSha = $sha !== 'unknown' ? substr($sha, 0, 7) : $sha;
 ?>
 <!--begin::Footer-->
@@ -12,6 +15,7 @@ $shortSha = $sha !== 'unknown' ? substr($sha, 0, 7) : $sha;
 	<!--begin::To the end-->
 	<div class="float-end d-none d-sm-inline text-muted">
 		Build <?= htmlspecialchars($shortSha) ?>
+		<?php // Only show deploy time when available. ?>
 		<?php if ($time !== 'unknown'): ?>
 		· <?= htmlspecialchars($time) ?>
 		<?php endif; ?>

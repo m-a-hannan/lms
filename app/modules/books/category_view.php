@@ -1,18 +1,23 @@
 <?php
+// Load core configuration, database connection, and RBAC helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . "/app/includes/connection.php";
 require_once ROOT_PATH . "/app/includes/permissions.php";
 
+// Resolve the appropriate dashboard link based on role.
 $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 
+// Read category and type filters from the query string.
 $categoryId = (int) ($_GET['category_id'] ?? 0);
 $type = strtolower(trim($_GET['type'] ?? ''));
 
+// Initialize data containers for the view.
 $categoryName = '';
 $books = [];
 $availableByBook = [];
 $ebookResources = [];
 
+// Load category details and book list when a category is selected.
 if ($categoryId > 0) {
 	$nameStmt = $conn->prepare("SELECT category_name FROM categories WHERE category_id = ?");
 	if ($nameStmt) {
@@ -25,6 +30,7 @@ if ($categoryId > 0) {
 		$nameStmt->close();
 	}
 
+	// Fetch books for the selected category.
 	$stmt = $conn->prepare(
 		"SELECT books.*, categories.category_name
 		 FROM books
@@ -42,6 +48,7 @@ if ($categoryId > 0) {
 		$stmt->close();
 	}
 
+	// Count available copies per book for the summary badge.
 	if ($books) {
 		$bookIds = array_map(
 			static fn($row) => (int) ($row['book_id'] ?? 0),
@@ -70,6 +77,7 @@ if ($categoryId > 0) {
 		}
 	}
 } elseif ($type === 'ebook') {
+	// Load ebook resources when switching to ebook view.
 	$digitalCheck = $conn->query("SHOW TABLES LIKE 'digital_resources'");
 	if ($digitalCheck && $digitalCheck->num_rows > 0) {
 		$ebookStmt = $conn->prepare(
@@ -89,6 +97,7 @@ if ($categoryId > 0) {
 	}
 }
 
+// Render safe values with default placeholders.
 function display_value($value)
 {
 	if ($value === null) {
@@ -103,6 +112,7 @@ function display_value($value)
 	return htmlspecialchars((string) $value);
 }
 
+// Format file sizes into MB labels.
 function format_file_size($bytes)
 {
 	$bytes = (int) $bytes;
@@ -186,6 +196,7 @@ function format_file_size($bytes)
 				<div class="d-flex justify-content-between align-items-center mb-2">
 					<h5 class="mb-0">
 						<?php
+						// Choose title based on current filter.
 						if ($categoryId > 0) {
 							echo htmlspecialchars($categoryName !== '' ? $categoryName : 'Category');
 						} elseif ($type === 'ebook') {
@@ -198,6 +209,7 @@ function format_file_size($bytes)
 					<a href="<?php echo BASE_URL; ?>home.php" class="btn btn-sm btn-outline-light">Back to Home</a>
 				</div>
 
+				<?php // Show appropriate content for category or ebook views. ?>
 				<?php if ($categoryId <= 0 && $type !== 'ebook'): ?>
 					<p class="text-muted">Pick a category from the Home page to see all books.</p>
 				<?php elseif ($categoryId > 0): ?>
@@ -205,8 +217,10 @@ function format_file_size($bytes)
 						<p class="text-muted">No books found in this category.</p>
 					<?php else: ?>
 						<div class="book-grid">
+							<?php // Render each book card for the category. ?>
 							<?php foreach ($books as $row): ?>
 							<?php
+								// Prepare cover and identifiers for the card.
 								$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
 								$bookId = (int) ($row['book_id'] ?? 0);
 							?>
@@ -231,6 +245,7 @@ function format_file_size($bytes)
 						<p class="text-muted">No ebooks available right now.</p>
 					<?php else: ?>
 						<div class="book-grid">
+							<?php // Render each ebook resource card. ?>
 							<?php foreach ($ebookResources as $row): ?>
 							<div class="book-item">
 								<div class="book-card">
@@ -249,9 +264,11 @@ function format_file_size($bytes)
 		</main>
 	</div>
 
+	<?php // Render book detail modals for category items. ?>
 	<?php if ($books): ?>
 	<?php foreach ($books as $row): ?>
 	<?php
+	// Prepare modal-specific fields for the book.
 	$bookId = (int) ($row['book_id'] ?? 0);
 	$availableCopies = $availableByBook[$bookId] ?? 0;
 	$cover = !empty($row['book_cover_path']) ? htmlspecialchars($row['book_cover_path']) : 'assets/img/book-cover.jpg';
@@ -321,6 +338,7 @@ function format_file_size($bytes)
 								</div>
 
 								<div class="book-actions mt-4">
+									<?php // Action buttons for loan/reservation and ebook access. ?>
 									<form action="<?php echo BASE_URL; ?>actions/request_loan.php" method="post" class="d-inline">
 										<input type="hidden" name="book_id" value="<?php echo $bookId; ?>">
 										<button class="btn btn-outline-info" type="submit" <?php echo $bookId <= 0 ? 'disabled' : ''; ?>>
@@ -339,6 +357,7 @@ function format_file_size($bytes)
 									<button class="btn btn-outline-primary">
 										<i class="bi bi-folder"></i> Shelf
 									</button>
+									<?php // Show download link only for available ebooks. ?>
 									<?php if ($canDownload): ?>
 									<a class="btn btn-outline-success" href="<?php echo BASE_URL; ?>actions/download_ebook.php?book_id=<?php echo $bookId; ?>">
 										<i class="bi bi-download"></i> Download
@@ -365,8 +384,8 @@ function format_file_size($bytes)
 				</div>
 			</div>
 		</div>
-		<?php endforeach; ?>
-		<?php endif; ?>
+	<?php endforeach; ?>
+	<?php endif; ?>
 
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>

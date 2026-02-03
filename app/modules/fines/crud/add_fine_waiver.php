@@ -1,8 +1,11 @@
 <?php
+// Load app configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Handle form submission for creating a fine waiver.
 if (isset($_POST['save'])) {
+    // Read and sanitize incoming form values.
     $fine_id = (int) $_POST['fine_id'];
     $approved_by = $conn->real_escape_string(trim($_POST['approved_by']));
     $waiver_date = $conn->real_escape_string(trim($_POST['waiver_date']));
@@ -13,10 +16,12 @@ if (isset($_POST['save'])) {
     $deleted_by = (int) $_POST['deleted_by'];
     $deleted_date = $conn->real_escape_string(str_replace('T', ' ', trim($_POST['deleted_date'])));
 
+    // Insert the waiver record into the database.
     $sql = "INSERT INTO fine_waivers (fine_id, approved_by, waiver_date, created_by, created_date, modified_by, modified_date, deleted_by, deleted_date) VALUES ($fine_id, '$approved_by', '$waiver_date', $created_by, '$created_date', $modified_by, '$modified_date', $deleted_by, '$deleted_date')";
     $result = $conn->query($sql);
 
     if ($result) {
+        // Redirect back to the list after saving.
         header("Location: " . BASE_URL . "fine_waiver_list.php");
         exit;
     } else {
@@ -24,6 +29,7 @@ if (isset($_POST['save'])) {
     }
 }
 ?>
+<?php // Shared header resources and layout chrome. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
@@ -33,52 +39,65 @@ if (isset($_POST['save'])) {
 		<div class="container-fluid">
 			<div class="row">
 				<div class="container py-5">
+					<!-- Page header with title and navigation. -->
 					<div class="mb-4 d-flex justify-content-between">
 						<h3>Add Fine Waiver</h3>
 						<a href="<?php echo BASE_URL; ?>fine_waiver_list.php" class="btn btn-secondary btn-sm">Back</a>
 					</div>
 					<div class="row mt">
 						<div class="col-md-6">
+							<!-- Fine waiver creation form card. -->
 							<div class="card card-primary card-outline mb-4">
+								<!-- Submission form for a new waiver. -->
 								<form action="<?php echo BASE_URL; ?>crud_files/add_fine_waiver.php" method="post">
 									<div class="card-body">
-							<div class="mb-3">
-								<label class="form-label">Fine Id</label>
-								<input type="number" class="form-control" name="fine_id" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Approved By</label>
-								<input type="text" class="form-control" name="approved_by" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Waiver Date</label>
-								<input type="date" class="form-control" name="waiver_date" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Created By</label>
-								<input type="number" class="form-control" name="created_by" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Created Date</label>
-								<input type="datetime-local" class="form-control" name="created_date" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Modified By</label>
-								<input type="number" class="form-control" name="modified_by" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Modified Date</label>
-								<input type="datetime-local" class="form-control" name="modified_date" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Deleted By</label>
-								<input type="number" class="form-control" name="deleted_by" />
-							</div>
-							<div class="mb-3">
-								<label class="form-label">Deleted Date</label>
-								<input type="datetime-local" class="form-control" name="deleted_date" />
-							</div>
+										<!-- Fine reference input. -->
+										<div class="mb-3">
+											<label class="form-label">Fine Id</label>
+											<input type="number" class="form-control" name="fine_id" />
+										</div>
+										<!-- Approved by input. -->
+										<div class="mb-3">
+											<label class="form-label">Approved By</label>
+											<input type="text" class="form-control" name="approved_by" />
+										</div>
+										<!-- Waiver date input. -->
+										<div class="mb-3">
+											<label class="form-label">Waiver Date</label>
+											<input type="date" class="form-control" name="waiver_date" />
+										</div>
+										<!-- Created by input. -->
+										<div class="mb-3">
+											<label class="form-label">Created By</label>
+											<input type="number" class="form-control" name="created_by" />
+										</div>
+										<!-- Created date input. -->
+										<div class="mb-3">
+											<label class="form-label">Created Date</label>
+											<input type="datetime-local" class="form-control" name="created_date" />
+										</div>
+										<!-- Modified by input. -->
+										<div class="mb-3">
+											<label class="form-label">Modified By</label>
+											<input type="number" class="form-control" name="modified_by" />
+										</div>
+										<!-- Modified date input. -->
+										<div class="mb-3">
+											<label class="form-label">Modified Date</label>
+											<input type="datetime-local" class="form-control" name="modified_date" />
+										</div>
+										<!-- Deleted by input. -->
+										<div class="mb-3">
+											<label class="form-label">Deleted By</label>
+											<input type="number" class="form-control" name="deleted_by" />
+										</div>
+										<!-- Deleted date input. -->
+										<div class="mb-3">
+											<label class="form-label">Deleted Date</label>
+											<input type="datetime-local" class="form-control" name="deleted_date" />
+										</div>
 									</div>
+									<!-- Form actions. -->
 									<div class="card-footer">
 										<button type="submit" name="save" class="btn btn-primary">Submit</button>
 									</div>
@@ -92,5 +111,6 @@ if (isset($_POST['save'])) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer layout and scripts. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

@@ -1,12 +1,15 @@
 <?php
+// Load core configuration, database connection, and RBAC helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Ensure session is active for RBAC and result payloads.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 
+// Restrict bulk import to admin/librarian roles.
 $context = rbac_get_context($conn);
 $isLibrarian = strcasecmp($context['role_name'] ?? '', 'Librarian') === 0;
 if (!($context['is_admin'] || $isLibrarian)) {
@@ -14,6 +17,7 @@ if (!($context['is_admin'] || $isLibrarian)) {
 	exit;
 }
 
+// Load optional import results stored in session.
 $token = $_GET['token'] ?? '';
 $resultPayload = null;
 if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
@@ -21,8 +25,11 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 	unset($_SESSION['bulk_import_results'][$token]);
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <main class="app-main">
 	<div class="app-content">
@@ -34,8 +41,10 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 						<a href="<?php echo BASE_URL; ?>book_list.php" class="btn btn-secondary btn-sm">Back</a>
 					</div>
 
+					<?php // Show summary and error report when results exist. ?>
 					<?php if ($resultPayload): ?>
 						<?php
+							// Extract summary and errors from the payload.
 							$summary = $resultPayload['summary'] ?? [];
 							$errors = $resultPayload['errors'] ?? [];
 						?>
@@ -89,6 +98,7 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 												</tr>
 											</thead>
 											<tbody>
+												<?php // Render each error detail row. ?>
 												<?php foreach ($errors as $index => $error): ?>
 													<tr>
 														<td><?php echo (int) ($index + 1); ?></td>
@@ -100,6 +110,7 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 											</tbody>
 										</table>
 									</div>
+									<?php // Store JSON for client-side CSV export. ?>
 									<div id="bulkImportErrors" class="d-none" data-errors='<?php echo htmlspecialchars(json_encode($errors), ENT_QUOTES, "UTF-8"); ?>'></div>
 								</div>
 							</div>
@@ -112,6 +123,7 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 								<h5 class="mb-0">Upload CSV + ZIP</h5>
 								<a class="btn btn-outline-secondary btn-sm" href="<?php echo BASE_URL; ?>actions/download_sample_books_csv.php">Sample CSV</a>
 							</div>
+							<?php // Bulk import upload form (CSV + ZIP). ?>
 							<form id="bulkImportForm" method="post" enctype="multipart/form-data" action="<?php echo BASE_URL; ?>actions/import_books_bulk.php">
 								<div class="row g-3">
 									<div class="col-md-6">
@@ -132,6 +144,7 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 									</div>
 								</div>
 
+								<?php // Upload progress feedback. ?>
 								<div class="mt-4">
 									<div class="progress mb-2" style="height: 8px; display: none;" id="uploadProgressWrap">
 										<div class="progress-bar" role="progressbar" style="width: 0%;" id="uploadProgressBar"></div>
@@ -149,6 +162,7 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 					<div class="card shadow-sm mt-4">
 						<div class="card-body">
 							<h6 class="mb-2">Rules</h6>
+							<?php // Import rules and constraints list. ?>
 							<ul class="mb-0">
 								<li>Physical books require a cover image.</li>
 								<li>Ebooks require both cover image and ebook file.</li>
@@ -162,6 +176,9 @@ if ($token !== '' && isset($_SESSION['bulk_import_results'][$token])) {
 		</div>
 	</div>
 </main>
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<!-- Page-specific behavior for bulk import -->
 <script src="<?php echo BASE_URL; ?>assets/js/pages/book_bulk_import.js"></script>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

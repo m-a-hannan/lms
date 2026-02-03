@@ -1,29 +1,36 @@
 <?php
+// Load core configuration, database connection, and permission helpers.
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Resolve RBAC context and role information for the current user.
 $context = rbac_get_context($conn);
 $roleName = $context['role_name'] ?? '';
 $isLibrarian = strcasecmp($roleName, 'Librarian') === 0;
+// Redirect non-admin, non-librarian users to the standard dashboard.
 if (!$context['is_admin'] && !$isLibrarian) {
 	header('Location: ' . BASE_URL . 'user_dashboard.php');
 	exit;
 }
 
+// Pagination settings shared by all pending request tables.
 $perPage = 10;
 $loanPage = max(1, (int) ($_GET['loan_page'] ?? 1));
 $reservationPage = max(1, (int) ($_GET['reservation_page'] ?? 1));
 $returnPage = max(1, (int) ($_GET['return_page'] ?? 1));
 
+// Compute row offsets for each paginated list.
 $loanOffset = ($loanPage - 1) * $perPage;
 $reservationOffset = ($reservationPage - 1) * $perPage;
 $returnOffset = ($returnPage - 1) * $perPage;
 
+// Count total pending loans to determine pagination bounds.
 $loanTotalRow = $conn->query("SELECT COUNT(*) AS total FROM loans WHERE status = 'pending'");
 $loanTotal = $loanTotalRow ? (int) ($loanTotalRow->fetch_assoc()['total'] ?? 0) : 0;
 $loanPages = max(1, (int) ceil($loanTotal / $perPage));
 
+// Load the current page of pending loan requests.
 $pendingLoans = $conn->query(
 	"SELECT l.loan_id, l.created_date, u.username, u.email, b.title, c.copy_id
 	 FROM loans l
@@ -36,16 +43,21 @@ $pendingLoans = $conn->query(
 	 LIMIT $perPage OFFSET $loanOffset"
 );
 
+// Detect reservation schema variant to choose the correct join path.
 $hasReservationBookId = false;
 $reservationColumnCheck = $conn->query("SHOW COLUMNS FROM reservations LIKE 'book_id'");
+// Flag whether the reservations table includes a direct book_id.
 if ($reservationColumnCheck && $reservationColumnCheck->num_rows > 0) {
 	$hasReservationBookId = true;
 }
 
+// Load pending reservations based on available schema.
 if ($hasReservationBookId) {
+	// Count pending reservations for pagination.
 	$resCountRow = $conn->query("SELECT COUNT(*) AS total FROM reservations WHERE status = 'pending'");
 	$resTotal = $resCountRow ? (int) ($resCountRow->fetch_assoc()['total'] ?? 0) : 0;
 	$resPages = max(1, (int) ceil($resTotal / $perPage));
+	// Query pending reservations via book_id join.
 	$pendingReservations = $conn->query(
 		"SELECT r.reservation_id, r.created_date, u.username, u.email, b.title, r.copy_id
 		 FROM reservations r
@@ -56,9 +68,11 @@ if ($hasReservationBookId) {
 		 LIMIT $perPage OFFSET $reservationOffset"
 	);
 } else {
+	// Count pending reservations for pagination.
 	$resCountRow = $conn->query("SELECT COUNT(*) AS total FROM reservations WHERE status = 'pending'");
 	$resTotal = $resCountRow ? (int) ($resCountRow->fetch_assoc()['total'] ?? 0) : 0;
 	$resPages = max(1, (int) ceil($resTotal / $perPage));
+	// Query pending reservations via copy/edition joins.
 	$pendingReservations = $conn->query(
 		"SELECT r.reservation_id, r.created_date, u.username, u.email, b.title, r.copy_id
 		 FROM reservations r
@@ -72,10 +86,12 @@ if ($hasReservationBookId) {
 	);
 }
 
+// Count pending returns to determine pagination bounds.
 $returnTotalRow = $conn->query("SELECT COUNT(*) AS total FROM returns WHERE status = 'pending'");
 $returnTotal = $returnTotalRow ? (int) ($returnTotalRow->fetch_assoc()['total'] ?? 0) : 0;
 $returnPages = max(1, (int) ceil($returnTotal / $perPage));
 
+// Load the current page of pending return requests.
 $pendingReturns = $conn->query(
 	"SELECT r.return_id, r.created_date, l.loan_id, u.username, u.email, b.title, c.copy_id
 	 FROM returns r
@@ -89,8 +105,10 @@ $pendingReturns = $conn->query(
 	 LIMIT $perPage OFFSET $returnOffset"
 );
 
+// Collect status alerts from query string feedback.
 $alerts = [];
 $loanStatus = $_GET['loan'] ?? '';
+// Append loan-related alert messages when provided.
 if ($loanStatus !== '') {
 	if ($loanStatus === 'success') {
 		$alerts[] = ['success', 'Loan request updated successfully.'];
@@ -101,7 +119,9 @@ if ($loanStatus !== '') {
 	}
 }
 
+// Add reservation status feedback messages.
 $reservationStatus = $_GET['reservation'] ?? '';
+// Append reservation-related alert messages when provided.
 if ($reservationStatus !== '') {
 	if ($reservationStatus === 'success') {
 		$alerts[] = ['success', 'Reservation updated successfully.'];
@@ -114,7 +134,9 @@ if ($reservationStatus !== '') {
 	}
 }
 
+// Add return status feedback messages.
 $returnStatus = $_GET['return'] ?? '';
+// Append return-related alert messages when provided.
 if ($returnStatus !== '') {
 	if ($returnStatus === 'success') {
 		$alerts[] = ['success', 'Return request updated successfully.'];
@@ -126,9 +148,12 @@ if ($returnStatus !== '') {
 }
 ?>
 
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -146,19 +171,24 @@ if ($returnStatus !== '') {
 						<div class="row">
 							<div class="col-md-12">
 								<?php
+								// Read deployment metadata files for display.
 								$deployShaFile = ROOT_PATH . '/DEPLOYED_SHA.txt';
 								$deployTimeFile = ROOT_PATH . '/DEPLOYED_AT.txt';
 								$deployDbFile = ROOT_PATH . '/DEPLOYED_DB.txt';
 								$deploySha = is_file($deployShaFile) ? trim((string) file_get_contents($deployShaFile)) : '';
 								$deployTime = is_file($deployTimeFile) ? trim((string) file_get_contents($deployTimeFile)) : '';
 								$deployDb = is_file($deployDbFile) ? trim((string) file_get_contents($deployDbFile)) : '';
+								// Assemble non-empty deployment fields for the UI.
 								$deployRows = [];
+								// Add deploy time if available.
 								if ($deployTime !== '') {
 									$deployRows[] = 'Last deploy: ' . $deployTime;
 								}
+								// Add commit SHA if available.
 								if ($deploySha !== '') {
 									$deployRows[] = 'SHA: ' . $deploySha;
 								}
+								// Add database tag if available.
 								if ($deployDb !== '') {
 									$deployRows[] = 'DB: ' . $deployDb;
 								}
@@ -170,7 +200,9 @@ if ($returnStatus !== '') {
 									data-fallback-sha-url="/DEPLOYED_SHA.txt"
 									data-fallback-time-url="/DEPLOYED_AT.txt"
 									data-fallback-db-url="/DEPLOYED_DB.txt">
+									<?php // Render deployment rows when data is available. ?>
 									<?php if ($deployRows): ?>
+										<?php // List each deployment metadata line. ?>
 										<?php foreach ($deployRows as $row): ?>
 											<div><?php echo htmlspecialchars($row); ?></div>
 										<?php endforeach; ?>
@@ -183,8 +215,10 @@ if ($returnStatus !== '') {
 						<!-- Deployment Status Log -->
 					</div>
 
+					<?php // Display status alerts from recent actions. ?>
 					<?php if ($alerts): ?>
 					<div class="mb-3">
+						<?php // Render each alert message. ?>
 						<?php foreach ($alerts as $alert): ?>
 						<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
 							<?php echo htmlspecialchars($alert[1]); ?>
@@ -194,6 +228,7 @@ if ($returnStatus !== '') {
 					<?php endif; ?>
 
 					<?php
+					// Helper to build pagination links while preserving query params.
 					$buildPageLink = function (string $param, int $page) {
 						$query = $_GET;
 						$query[$param] = $page;
@@ -221,7 +256,9 @@ if ($returnStatus !== '') {
 												</tr>
 											</thead>
 											<tbody>
+												<?php // Show pending loan rows when records exist. ?>
 												<?php if ($pendingLoans && $pendingLoans->num_rows > 0): ?>
+												<?php // Loop through each pending loan request. ?>
 												<?php while ($row = $pendingLoans->fetch_assoc()): ?>
 												<tr>
 													<td><?= htmlspecialchars($row['loan_id']) ?></td>
@@ -251,6 +288,7 @@ if ($returnStatus !== '') {
 											</tbody>
 										</table>
 									</div>
+									<?php // Show pagination controls for loans when needed. ?>
 									<?php if ($loanPages > 1): ?>
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
@@ -258,6 +296,7 @@ if ($returnStatus !== '') {
 												<a class="page-link"
 													href="<?php echo $buildPageLink('loan_page', max(1, $loanPage - 1)); ?>">Prev</a>
 											</li>
+											<?php // Render each loan page link. ?>
 											<?php for ($i = 1; $i <= $loanPages; $i++): ?>
 											<li class="page-item <?php echo $i === $loanPage ? 'active' : ''; ?>">
 												<a class="page-link" href="<?php echo $buildPageLink('loan_page', $i); ?>"><?php echo $i; ?></a>
@@ -293,7 +332,9 @@ if ($returnStatus !== '') {
 												</tr>
 											</thead>
 											<tbody>
+												<?php // Show pending reservation rows when records exist. ?>
 												<?php if ($pendingReservations && $pendingReservations->num_rows > 0): ?>
+												<?php // Loop through each pending reservation request. ?>
 												<?php while ($row = $pendingReservations->fetch_assoc()): ?>
 												<tr>
 													<td><?= htmlspecialchars($row['reservation_id']) ?></td>
@@ -323,6 +364,7 @@ if ($returnStatus !== '') {
 											</tbody>
 										</table>
 									</div>
+									<?php // Show pagination controls for reservations when needed. ?>
 									<?php if (!empty($resPages) && $resPages > 1): ?>
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
@@ -330,6 +372,7 @@ if ($returnStatus !== '') {
 												<a class="page-link"
 													href="<?php echo $buildPageLink('reservation_page', max(1, $reservationPage - 1)); ?>">Prev</a>
 											</li>
+											<?php // Render each reservation page link. ?>
 											<?php for ($i = 1; $i <= $resPages; $i++): ?>
 											<li class="page-item <?php echo $i === $reservationPage ? 'active' : ''; ?>">
 												<a class="page-link"
@@ -366,7 +409,9 @@ if ($returnStatus !== '') {
 												</tr>
 											</thead>
 											<tbody>
+												<?php // Show pending return rows when records exist. ?>
 												<?php if ($pendingReturns && $pendingReturns->num_rows > 0): ?>
+												<?php // Loop through each pending return request. ?>
 												<?php while ($row = $pendingReturns->fetch_assoc()): ?>
 												<tr>
 													<td><?= htmlspecialchars($row['return_id']) ?></td>
@@ -396,6 +441,7 @@ if ($returnStatus !== '') {
 											</tbody>
 										</table>
 									</div>
+									<?php // Show pagination controls for returns when needed. ?>
 									<?php if ($returnPages > 1): ?>
 									<nav>
 										<ul class="pagination pagination-sm mb-0">
@@ -403,6 +449,7 @@ if ($returnStatus !== '') {
 												<a class="page-link"
 													href="<?php echo $buildPageLink('return_page', max(1, $returnPage - 1)); ?>">Prev</a>
 											</li>
+											<?php // Render each return page link. ?>
 											<?php for ($i = 1; $i <= $returnPages; $i++): ?>
 											<li class="page-item <?php echo $i === $returnPage ? 'active' : ''; ?>">
 												<a class="page-link"
@@ -420,16 +467,20 @@ if ($returnStatus !== '') {
 							</div>
 						</div>
 						<?php
+							// Build toast alerts for password reset actions.
 							$status = $_GET['status'] ?? '';
 							$alerts = [];
+							// Translate status flags into user-facing messages.
 							if ($status === 'temp_password') {
 								$alerts[] = ['success', 'Temporary password saved. Let the user know to log in and change it.'];
 							} elseif ($status === 'error') {
 								$alerts[] = ['danger', 'Unable to update password. Please try again.'];
 							}
 						?>
+						<?php // Render toast notifications when alerts exist. ?>
 						<?php if ($alerts): ?>
 						<div class="toast-container position-fixed top-0 end-0 p-3" data-auto-toast>
+							<?php // Output each toast alert message. ?>
 							<?php foreach ($alerts as $alert): ?>
 							<div class="toast text-bg-<?php echo htmlspecialchars($alert[0]); ?> border-0" role="alert"
 								aria-live="assertive" aria-atomic="true">
@@ -450,5 +501,7 @@ if ($returnStatus !== '') {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

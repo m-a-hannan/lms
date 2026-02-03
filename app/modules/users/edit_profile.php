@@ -1,28 +1,36 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Ensure session is active for profile edits.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 
+// Load the current user's profile if logged in.
 $profile = null;
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 
+// Redirect unauthenticated users to login.
 if ($userId <= 0) {
 	header('Location: ' . BASE_URL . 'login.php');
 	exit;
 }
 
+// Fetch the current profile record for the user.
 $result = $conn->query("SELECT * FROM user_profiles WHERE user_id = $userId LIMIT 1");
 if ($result && $result->num_rows === 1) {
 	$profile = $result->fetch_assoc();
 	$profileId = (int) $profile['profile_id'];
 }
 
+// Collect validation errors for display.
 $errors = [];
 
+// Handle profile update form submission.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	// Sanitize input fields for SQL usage.
 	$firstName = $conn->real_escape_string(trim($_POST['first_name'] ?? ''));
 	$lastName = $conn->real_escape_string(trim($_POST['last_name'] ?? ''));
 	$dob = $conn->real_escape_string(trim($_POST['dob'] ?? ''));
@@ -31,23 +39,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$institution = $conn->real_escape_string(trim($_POST['institution_name'] ?? ''));
 	$designation = $conn->real_escape_string(trim($_POST['designation'] ?? ''));
 
+	// Prepare upload paths and current image reference.
 	$uploadDir = ROOT_PATH . '/public/uploads/profile_picture/';
 	$imagePath = $profile['profile_picture'] ?? '';
 
+	// Handle profile image upload if provided.
 	if (!empty($_FILES['profile_picture']['name'])) {
 		$fileName = time() . '_' . basename($_FILES['profile_picture']['name']);
 		$targetFile = $uploadDir . $fileName;
 		$ext = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 		$allowed = ['jpg', 'jpeg', 'png', 'webp'];
 
+		// Validate image extension.
 		if (!in_array($ext, $allowed, true)) {
 			$errors[] = 'Invalid image format.';
 		}
 
+		// Enforce image size limit.
 		if ($_FILES['profile_picture']['size'] > 2 * 1024 * 1024) {
 			$errors[] = 'Image must be under 2MB.';
 		}
 
+		// Ensure the upload directory exists.
 		if (empty($errors)) {
 			if (!is_dir($uploadDir)) {
 				if (!mkdir($uploadDir, 0755, true)) {
@@ -56,10 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			}
 		}
 
+		// Move the uploaded file into place.
 		if (empty($errors) && !move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFile)) {
 			$errors[] = 'Image upload failed.';
 		}
 
+		// Replace the old profile image if the upload succeeded.
 		if (empty($errors)) {
 			if (!empty($imagePath)) {
 				$oldPath = ROOT_PATH . '/' . ltrim($imagePath, '/');
@@ -71,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		}
 	}
 
+	// Normalize nullable fields for SQL.
 	$dobValue = $dob !== '' ? "'$dob'" : 'NULL';
 	$addressValue = $address !== '' ? "'$address'" : 'NULL';
 	$phoneValue = $phone !== '' ? "'$phone'" : 'NULL';
@@ -78,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$designationValue = $designation !== '' ? "'$designation'" : 'NULL';
 	$imageValue = $imagePath !== '' ? "'" . $conn->real_escape_string($imagePath) . "'" : 'NULL';
 
+	// Update or insert profile record when no errors exist.
 	if (empty($errors)) {
 		if ($profile) {
 			$sql = "UPDATE user_profiles
@@ -96,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				VALUES ($userId, '$firstName', '$lastName', $dobValue, $addressValue, $phoneValue, $institutionValue, $designationValue, $imageValue)";
 		}
 
+		// Execute the profile write and redirect on success.
 		if ($conn->query($sql)) {
 			$redirect = BASE_URL . 'view_profile.php?success=1';
 			if ($profileId) {
@@ -108,14 +126,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 }
 
+// Resolve preview image and body class.
 $profileImage = $profile['profile_picture'] ?? '';
 $profileImage = $profileImage !== '' ? htmlspecialchars($profileImage) : 'assets/img/avatar.png';
 $bodyClass = 'page-edit-profile';
 ?>
 
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 
 <!--begin::App Main-->
@@ -132,12 +154,14 @@ $bodyClass = 'page-edit-profile';
 						<a href="<?php echo BASE_URL; ?>view_profile.php" class="btn btn-secondary btn-sm">Back</a>
 					</div>
 
+					<?php // Show validation errors when present. ?>
 					<?php if (!empty($errors)): ?>
 						<div class="alert alert-danger">
 							<?php echo htmlspecialchars(implode(' ', $errors)); ?>
 						</div>
 					<?php endif; ?>
 
+					<?php // Show success message after update. ?>
 					<?php if (isset($_GET['success'])): ?>
 						<div class="alert alert-success">Profile updated successfully.</div>
 					<?php endif; ?>
@@ -204,6 +228,9 @@ $bodyClass = 'page-edit-profile';
 </main>
 <!--end::App Main-->
 
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<!-- Page-specific behavior for profile preview -->
 <script src="<?php echo BASE_URL; ?>assets/js/pages/edit_profile.js"></script>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

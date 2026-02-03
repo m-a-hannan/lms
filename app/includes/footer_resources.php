@@ -15,6 +15,7 @@
 			crossorigin="anonymous"
 		></script>
 		<!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
+		<!-- Local admin UI scripts -->
 		<script src="<?php echo BASE_URL; ?>assets/js/adminlte.js"></script>
 		<!--end::Required Plugin(AdminLTE)-->
 		<script src="<?php echo BASE_URL; ?>assets/js/custom.js"></script>

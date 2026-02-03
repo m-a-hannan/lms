@@ -123,68 +123,12 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 			</div>
 		</div>
 
-		<!--  -->
-		<section class="container my-5">
-			<div class="row g-4">
-				<!-- New Arrivals -->
-				<div class="col-md-6">
-					<h4 class="mb-3">Latest Transactions</h4>
-					<ul class="list-group">
-						<li class="list-group-item">
-							<span class="badge bg-success me-2">Issued</span>
-							"The Alchemist" to Rohan
-						</li>
-						<li class="list-group-item">
-							<span class="badge bg-secondary me-2">Returned</span>
-							"Data Science Basics" by Sneha
-						</li>
-						<li class="list-group-item">
-							<span class="badge bg-success me-2">Issued</span>
-							"Rich Dad Poor Dad" to Ankit
-						</li>
-						<li class="list-group-item">
-							<span class="badge bg-secondary me-2">Returned</span>
-							"Python Programming" by Asha
-						</li>
-					</ul>
-				</div>
-
-				<!-- Transactions -->
-				<div class="col-md-6">
-
-					<h5 class="mt-4">Announcements</h5>
-					<ul class="list-group">
-						<li class="list-group-item">
-							<span class="badge bg-danger me-2"><i class="bi bi-megaphone-fill"></i></span>
-							Library will remain closed on upcoming holiday
-						</li>
-						<li class="list-group-item">
-							<span class="badge bg-success me-2"><i class="bi bi-megaphone-fill"></i></span>
-							Library will remain closed on upcoming holiday
-						</li>
-						<li class="list-group-item">
-							<span class="badge bg-danger me-2"><i class="bi bi-megaphone-fill"></i></span>
-							Library will remain closed on upcoming holiday
-						</li>
-						<li class="list-group-item">
-							<span class="badge bg-success me-2"><i class="bi bi-megaphone-fill"></i></span>
-							Library will remain closed on upcoming holiday
-						</li>
-					</ul>
-				</div>
-			</div>
-		</section>
-
-
-		<!-- Floating Add Button -->
-		<button class="add-btn">+</button>
 	</section>
 
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 	<!-- Custom JS -->
-	<!-- <script src="script.js"></script> -->
 	<script src="assets/js/pages/index.js"></script>
 </body>
 

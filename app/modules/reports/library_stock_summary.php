@@ -1,8 +1,10 @@
 <?php
+// Load app configuration, database connection, and permissions helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Read filter inputs for the report view.
 $categoryId = isset($_GET['category_id']) ? (int) $_GET['category_id'] : 0;
 $startDate = trim($_GET['start_date'] ?? '');
 $endDate = trim($_GET['end_date'] ?? '');
@@ -10,17 +12,20 @@ $exportCsv = isset($_GET['export']) && $_GET['export'] === 'csv';
 $showCustomReport = ($startDate !== '' || $endDate !== '');
 $categories = [];
 
+// Load categories for the filter dropdown.
 $catResult = $conn->query(
 	"SELECT category_id, category_name
 	 FROM categories
 	 ORDER BY category_name ASC"
 );
+// Collect category rows for the view.
 if ($catResult) {
 	while ($row = $catResult->fetch_assoc()) {
 		$categories[] = $row;
 	}
 }
 
+// Base SQL for the stock summary report.
 $baseSql =
 	"SELECT b.book_id, b.title, c.category_name,
 		COUNT(cp.copy_id) AS total_copies,
@@ -49,6 +54,7 @@ $baseSql =
 
 $params = [];
 $types = '';
+// Apply category filter when provided.
 if ($categoryId > 0) {
 	$baseSql .= " AND b.category_id = ?";
 	$params[] = $categoryId;
@@ -56,16 +62,19 @@ if ($categoryId > 0) {
 }
 
 $dateFilters = [];
+// Apply start date filter when provided.
 if ($startDate !== '') {
 	$dateFilters[] = "DATE(cp.created_date) >= ?";
 	$params[] = $startDate;
 	$types .= 's';
 }
+// Apply end date filter when provided.
 if ($endDate !== '') {
 	$dateFilters[] = "DATE(cp.created_date) <= ?";
 	$params[] = $endDate;
 	$types .= 's';
 }
+// Append date filters when any are set.
 if ($dateFilters) {
 	$baseSql .= " AND " . implode(' AND ', $dateFilters);
 }
@@ -73,24 +82,29 @@ if ($dateFilters) {
 $baseSql .= " GROUP BY b.book_id ORDER BY b.title ASC";
 
 $stockRows = [];
+// Prepare and run the stock report query.
 $stmt = $conn->prepare($baseSql);
 if ($stmt) {
+	// Bind parameters only when filters are present.
 	if ($params) {
 		$stmt->bind_param($types, ...$params);
 	}
 	$stmt->execute();
 	$result = $stmt->get_result();
+	// Collect report rows for rendering.
 	while ($result && ($row = $result->fetch_assoc())) {
 		$stockRows[] = $row;
 	}
 	$stmt->close();
 }
 
+// Export the report as CSV when requested.
 if ($exportCsv) {
 	header('Content-Type: text/csv; charset=utf-8');
 	header('Content-Disposition: attachment; filename=\"library_stock_summary.csv\"');
 	$output = fopen('php://output', 'w');
 	fputcsv($output, ['Book ID', 'Title', 'Category', 'Loaned Copies', 'Pending Returns', 'Available Copies', 'Total Copies']);
+	// Write each report row to the CSV output.
 	foreach ($stockRows as $row) {
 		fputcsv($output, [
 			$row['book_id'],
@@ -106,6 +120,7 @@ if ($exportCsv) {
 	exit;
 }
 ?>
+<?php // Shared header resources and layout chrome. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
@@ -118,27 +133,33 @@ if ($exportCsv) {
 			<!--begin::Row-->
 			<div class="row">
 				<div class="container py-5">
+					<!-- Page header and report controls. -->
 					<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 						<h3 class="mb-0">Library Stock Summary</h3>
 						<div class="d-flex flex-wrap align-items-center gap-2">
+							<!-- Toggle for the custom report filters. -->
 							<button type="button" class="btn btn-sm btn-outline-primary" id="toggleCustomReport">
 								Custom Report
 							</button>
+							<!-- Category filter form. -->
 							<form method="get" class="d-flex align-items-center gap-2">
-							<select id="categoryFilter" name="category_id" class="form-select form-select-sm" onchange="this.form.submit()">
-								<option value="0">All Categories</option>
-								<?php foreach ($categories as $category): ?>
-									<option value="<?php echo (int) $category['category_id']; ?>" <?php echo $categoryId === (int) $category['category_id'] ? 'selected' : ''; ?>>
-										<?php echo htmlspecialchars($category['category_name']); ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
+								<!-- Category dropdown selection. -->
+								<select id="categoryFilter" name="category_id" class="form-select form-select-sm" onchange="this.form.submit()">
+									<option value="0">All Categories</option>
+									<?php foreach ($categories as $category): ?>
+										<option value="<?php echo (int) $category['category_id']; ?>" <?php echo $categoryId === (int) $category['category_id'] ? 'selected' : ''; ?>>
+											<?php echo htmlspecialchars($category['category_name']); ?>
+										</option>
+									<?php endforeach; ?>
+								</select>
 							</form>
 						</div>
 					</div>
+					<!-- Custom report date filters. -->
 					<div class="mb-4 custom-report-wrapper <?php echo $showCustomReport ? '' : 'd-none'; ?>" id="customReportRow">
 						<div class="custom-report-bar">
 							<button type="button" class="btn-close custom-report-close" aria-label="Close" id="customReportClose"></button>
+							<!-- Date range filter form. -->
 							<form method="get" class="d-flex flex-nowrap align-items-center gap-2 custom-report-form">
 								<input type="hidden" name="category_id" value="<?php echo (int) $categoryId; ?>">
 								<label for="startDate" class="form-label mb-0">From</label>
@@ -147,14 +168,17 @@ if ($exportCsv) {
 								<input type="date" id="endDate" name="end_date" class="form-control form-control-sm date-field custom-report-date-picker" value="<?php echo htmlspecialchars($endDate); ?>">
 								<button type="submit" class="btn btn-sm btn-outline-primary apply-btn">Apply</button>
 								<button type="button" class="btn btn-sm btn-outline-danger apply-btn" id="clearDateFilters">Clear</button>
+								<!-- CSV export link for the current filters. -->
 								<a class="btn btn-sm btn-outline-secondary export-btn" href="<?php echo BASE_URL; ?>library_stock_summary.php?category_id=<?php echo (int) $categoryId; ?>&start_date=<?php echo urlencode($startDate); ?>&end_date=<?php echo urlencode($endDate); ?>&export=csv">Export CSV</a>
 							</form>
 						</div>
 					</div>
+					<!-- Results table card. -->
 					<div class="card shadow-sm">
 						<div class="card-body">
 							<div class="table-responsive">
 								<table class="table table-bordered table-hover align-middle">
+									<!-- Table headers. -->
 									<thead class="table-light">
 										<tr>
 											<th>Book ID</th>
@@ -167,6 +191,7 @@ if ($exportCsv) {
 										</tr>
 									</thead>
 									<tbody>
+										<!-- Render stock rows when results exist. -->
 										<?php if ($stockRows): ?>
 											<?php foreach ($stockRows as $row): ?>
 											<tr>
@@ -180,6 +205,7 @@ if ($exportCsv) {
 											</tr>
 											<?php endforeach; ?>
 										<?php else: ?>
+											<!-- Empty state message. -->
 											<tr>
 												<td colspan="7" class="text-center text-muted">No records found.</td>
 											</tr>
@@ -194,6 +220,9 @@ if ($exportCsv) {
 		</div>
 	</div>
 </main>
+<?php // Shared footer layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Page-specific JS for report behavior. ?>
 <script src="<?php echo BASE_URL; ?>assets/js/pages/library_stock_summary.js"></script>
+<?php // Shared footer scripts. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

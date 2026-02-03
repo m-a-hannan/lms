@@ -1,13 +1,15 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . "/app/includes/connection.php";
 
-// Fetch categories for dropdown.
+// Fetch categories for the category dropdown.
 $categoryResult = $conn->query("SELECT category_id, category_name FROM categories ORDER BY category_name");
 if ($categoryResult === false) {
     die("Category query failed: " . $conn->error);
 }
 
+// Handle book creation submission.
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Basic input handling
@@ -22,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $book_type        = strtolower(trim($_POST["book_type"] ?? "physical"));
     $ebook_format     = strtolower(trim($_POST["ebook_format"] ?? ""));
 
+    // Normalize book type and ebook format values.
     $allowedTypes = ["physical", "ebook"];
     if (!in_array($book_type, $allowedTypes, true)) {
         $book_type = "physical";
@@ -37,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ebook_format = "";
     }
 
+    // Initialize upload paths for cover and ebook files.
     $uploadDir = ROOT_PATH . "/public/uploads/book_cover/";
     $imagePath = null;
     $ebookFilePath = null;
@@ -44,15 +48,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Handle image upload
     if (!empty($_FILES["book_cover"]["name"])) {
+        // Ensure the cover upload directory exists.
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 die("Upload directory not available.");
             }
         }
+        // Require writable upload directory.
         if (!is_writable($uploadDir)) {
             die("Upload directory is not writable.");
         }
 
+        // Validate upload error state.
         if (!empty($_FILES["book_cover"]["error"]) && $_FILES["book_cover"]["error"] !== UPLOAD_ERR_OK) {
             die("Image upload error: " . (int) $_FILES["book_cover"]["error"]);
         }
@@ -63,14 +70,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $allowedTypes = ["jpg", "jpeg", "png", "webp"];
 
+        // Enforce allowed cover image extensions.
         if (!in_array($fileType, $allowedTypes)) {
             die("Invalid image type.");
         }
 
+        // Enforce max cover image size.
         if ($_FILES["book_cover"]["size"] > 2 * 1024 * 1024) {
             die("Image size must be under 2MB.");
         }
 
+        // Move the uploaded cover into place.
         if (!move_uploaded_file($_FILES["book_cover"]["tmp_name"], $targetFile)) {
             die("Failed to upload image.");
         }
@@ -78,6 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $imagePath = "uploads/book_cover/" . $fileName;
     }
 
+    // Handle ebook upload when book type is ebook.
     if ($book_type === "ebook") {
         if (empty($_FILES["ebook_file"]["name"])) {
             die("Ebook file is required.");
@@ -93,6 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             die("Ebook upload directory is not writable.");
         }
 
+        // Validate ebook upload error state.
         if (!empty($_FILES["ebook_file"]["error"]) && $_FILES["ebook_file"]["error"] !== UPLOAD_ERR_OK) {
             die("Ebook upload error: " . (int) $_FILES["ebook_file"]["error"]);
         }
@@ -101,17 +113,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ebookTarget = $ebookDir . $ebookName;
         $ebookExt = strtolower(pathinfo($ebookTarget, PATHINFO_EXTENSION));
 
+        // Enforce allowed ebook extensions.
         if (!in_array($ebookExt, $allowedFormats, true)) {
             die("Invalid ebook file type.");
         }
+        // Ensure selected format matches uploaded file.
         if ($ebook_format !== "" && $ebookExt !== $ebook_format) {
             die("Selected ebook format does not match uploaded file.");
         }
 
+        // Enforce max ebook file size.
         if ($_FILES["ebook_file"]["size"] > 50 * 1024 * 1024) {
             die("Ebook file size must be under 50MB.");
         }
 
+        // Move the uploaded ebook into place.
         if (!move_uploaded_file($_FILES["ebook_file"]["tmp_name"], $ebookTarget)) {
             die("Failed to upload ebook file.");
         }
@@ -120,6 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ebookFileSize = (int) $_FILES["ebook_file"]["size"];
     }
 
+    // Build values for nullable book fields.
     $imageValue = $imagePath !== null ? "'" . $conn->real_escape_string($imagePath) . "'" : "NULL";
     $bookTypeValue = "'" . $conn->real_escape_string($book_type) . "'";
     $ebookFormatValue = $ebook_format !== "" ? "'" . $conn->real_escape_string($ebook_format) . "'" : "NULL";
@@ -128,6 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $sql = "INSERT INTO books (title, book_excerpt, author, isbn, publisher, publication_year, category_id, book_cover_path, book_type, ebook_format, ebook_file_path, ebook_file_size)
             VALUES ('$title', '$book_excerpt', '$author', '$isbn', '$publisher', $publication_year, $category_id, $imageValue, $bookTypeValue, $ebookFormatValue, $ebookPathValue, $ebookSizeValue)";
 
+    // Insert book and any related records in a transaction.
     $conn->begin_transaction();
     try {
         if (!$conn->query($sql)) {
@@ -137,6 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $bookId = (int) $conn->insert_id;
 
         if ($initial_copies > 0 && $bookId > 0) {
+            // Create the initial edition and requested copies.
             $yearValue = $publication_year > 0 ? $publication_year : "NULL";
             $editionSql = "INSERT INTO book_editions (book_id, edition_number, publication_year)
                            VALUES ($bookId, 1, $yearValue)";
@@ -155,10 +174,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
+        // Commit and redirect on success.
         $conn->commit();
         header("Location: " . BASE_URL . "book_list.php?success=1");
         exit;
     } catch (Throwable $e) {
+        // Roll back on any failure.
         $conn->rollback();
         die($e->getMessage());
     }
@@ -166,9 +187,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 ?>
 
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -222,6 +246,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											<label class="form-label">Category</label>
 											<select class="form-select" name="category_id" required>
 												<option value="" selected disabled>Select a category</option>
+												<?php // Render category options from the query. ?>
 												<?php while ($category = $categoryResult->fetch_assoc()): ?>
 												<option value="<?= (int) $category["category_id"] ?>">
 													<?= htmlspecialchars($category["category_name"]) ?>
@@ -288,10 +313,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<!-- Page-specific behavior for file inputs -->
 <script src="<?php echo BASE_URL; ?>assets/js/pages/add_book.js"></script>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>
 
+<?php // Show success alert after adding a book. ?>
 <?php if (isset($_GET["success"])): ?>
 <div class="alert alert-success">Book added successfully.</div>
 <?php endif; ?>
