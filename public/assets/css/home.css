@@ -8,6 +8,8 @@
   --text: #e5e7eb;
   --muted: #9ca3af;
   --accent: #22c55e;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.35);
+  --scrollbar-track: transparent;
 }
 
 [data-theme="light"] {
@@ -15,6 +17,8 @@
   --panel: #ffffff;
   --text: #111827;
   --muted: #6b7280;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.35);
+  --scrollbar-track: transparent;
 }
 
 /* ==============================
@@ -182,10 +186,29 @@ small {
   width: 240px;
   background: var(--panel);
   min-height: calc(100vh - 56px);
+  position: fixed;
+  top: 56px;
+  left: 0;
+  height: calc(100vh - 56px);
   padding: 1rem;
   transition: width 0.3s ease, transform 0.3s ease;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   flex-shrink: 0;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
 }
 
 .sidebar-section {
@@ -240,6 +263,10 @@ small {
   .sidebar.show {
     transform: translateX(0);
   }
+
+  .content {
+    margin-left: 0;
+  }
 }
 
 /* ==============================
@@ -251,6 +278,11 @@ small {
   padding: 1.5rem;
   transition: margin-left 0.3s ease;
   overflow-x: hidden;
+  margin-left: 240px;
+}
+
+.sidebar.collapsed + .content {
+  margin-left: 0;
 }
 
 section {
@@ -431,6 +463,7 @@ section h5 {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 /* ==============================
@@ -595,4 +628,7 @@ section h5 {
 .report-config-modal .modal-body {
   max-height: 65vh;
   overflow-y: auto;
+}
+div#categoryFilterModal {
+	z-index: 9999;
 }

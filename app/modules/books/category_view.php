@@ -16,6 +16,8 @@ $categoryName = '';
 $books = [];
 $availableByBook = [];
 $ebookResources = [];
+$sidebarCategories = [];
+$sidebarShowFilter = false;
 
 // Load category details and book list when a category is selected.
 if ($categoryId > 0) {
@@ -97,6 +99,25 @@ if ($categoryId > 0) {
 	}
 }
 
+// Load sidebar categories (top 10 with books) to avoid dummy links.
+$sidebarResult = $conn->query(
+	"SELECT c.category_id, c.category_name, COUNT(b.book_id) AS book_count
+	 FROM categories c
+	 JOIN books b ON b.category_id = c.category_id AND b.deleted_date IS NULL
+	 GROUP BY c.category_id, c.category_name
+	 ORDER BY COUNT(b.book_id) DESC, c.category_name ASC
+	 LIMIT 10"
+);
+if ($sidebarResult) {
+	while ($row = $sidebarResult->fetch_assoc()) {
+		$sidebarCategories[] = [
+			'id' => (int) ($row['category_id'] ?? 0),
+			'name' => $row['category_name'] ?? '',
+			'book_count' => (int) ($row['book_count'] ?? 0),
+		];
+	}
+}
+
 // Render safe values with default placeholders.
 function display_value($value)
 {
@@ -143,52 +164,12 @@ function format_file_size($bytes)
 
 <body class="app-body">
 
-	<!-- Top Navbar -->
-	<nav class="navbar navbar-dark fixed-top px-3">
-		<button class="btn btn-icon" id="sidebarToggle">
-			<i class="bi bi-list"></i>
-		</button>
-
-		<span class="navbar-brand ms-2">LMS</span>
-
-		<div class="mx-auto search-wrap">
-			<div class="search-container">
-				<form id="searchBox" class="search-box" action="<?php echo BASE_URL; ?>search_results.php" method="get" data-suggest-url="<?php echo BASE_URL; ?>actions/search_suggest.php" autocomplete="off">
-					<i class="bi bi-binoculars-fill"></i>
-					<input type="text" name="q" id="searchInput" placeholder="Type book or author name">
-					<i class="bi bi-mic-fill"></i>
-				</form>
-				<div id="searchSuggest" class="search-suggest"></div>
-			</div>
-		</div>
-
-		<div class="d-flex align-items-center gap-2">
-			<a href="<?php echo BASE_URL; ?>logout.php" class="btn btn-outline-light btn-sm">Logout</a>
-			<button class="btn btn-icon" id="themeToggle">
-				<i class="bi bi-moon"></i>
-			</button>
-		</div>
-	</nav>
+	<?php include(ROOT_PATH . '/app/views/partials/books_topbar.php'); ?>
 
 	<!-- Layout -->
 	<div class="layout">
 
-		<!-- Sidebar -->
-		<aside id="sidebar" class="sidebar">
-			<div class="sidebar-section">
-				<small>HOME</small>
-				<a class="active" href="<?php echo $dashboardUrl; ?>"><i class="bi bi-speedometer2"></i> Dashboard</a>
-				<a><i class="bi bi-book"></i> All Books</a>
-			</div>
-
-			<div class="sidebar-section">
-				<small>LIBRARIES</small>
-				<a><i class="bi bi-journal-bookmark"></i> Novels</a>
-				<a><i class="bi bi-cpu"></i> Technology</a>
-				<a><i class="bi bi-brush"></i> Comics</a>
-				<a href="<?php echo $dashboardUrl; ?>"><i class="bi bi-brush"></i> Dashboard</a>
-			</div>
-		</aside>
+		<?php include(ROOT_PATH . '/app/views/partials/books_sidebar.php'); ?>
 
 		<!-- Main Content -->
 		<main class="content">
@@ -351,12 +332,6 @@ function format_file_size($bytes)
 											<i class="bi bi-bookmark-plus"></i> Reserve
 										</button>
 									</form>
-									<button class="btn btn-outline-success" <?php echo $canRead ? '' : 'disabled'; ?>>
-										<i class="bi bi-book"></i> Read
-									</button>
-									<button class="btn btn-outline-primary">
-										<i class="bi bi-folder"></i> Shelf
-									</button>
 									<?php // Show download link only for available ebooks. ?>
 									<?php if ($canDownload): ?>
 									<a class="btn btn-outline-success" href="<?php echo BASE_URL; ?>actions/download_ebook.php?book_id=<?php echo $bookId; ?>">
@@ -367,16 +342,6 @@ function format_file_size($bytes)
 										<i class="bi bi-download"></i> Download
 									</button>
 									<?php endif; ?>
-									<div class="btn-group">
-										<button class="btn btn-outline-warning">
-											<i class="bi bi-lightning"></i> Fetch
-										</button>
-										<button class="btn btn-outline-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
-										<ul class="dropdown-menu dropdown-menu-dark">
-											<li><a class="dropdown-item" href="#">Fetch Cover</a></li>
-											<li><a class="dropdown-item" href="#">Fetch Metadata</a></li>
-										</ul>
-									</div>
 								</div>
 							</div>
 						</div>

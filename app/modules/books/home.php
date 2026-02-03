@@ -132,6 +132,10 @@ if ($categoryLimit > 0 && count($displayCategories) > $categoryLimit) {
 	$displayCategories = array_slice($displayCategories, 0, $categoryLimit);
 }
 
+// Share sidebar category data with the layout partial.
+$sidebarCategories = $displayCategories;
+$sidebarShowFilter = true;
+
 // Fetch recent books for each displayed category shelf.
 foreach ($displayCategories as $category) {
 	$categoryId = (int) ($category['id'] ?? 0);
@@ -366,78 +370,12 @@ if ($reserveStatus !== '') {
 
 <body class="app-body">
 
-	<!-- Top Navbar -->
-	<nav class="navbar navbar-dark fixed-top px-3">
-		<!-- Sidebar toggle button. -->
-		<button class="btn btn-icon" id="sidebarToggle">
-			<i class="bi bi-list"></i>
-		</button>
-
-		<!-- Brand label. -->
-		<span class="navbar-brand ms-2">LMS</span>
-
-		<!-- Search bar with live suggestions. -->
-		<div class="mx-auto search-wrap">
-			<div class="search-container">
-				<!-- Search form targets the results page. -->
-				<form id="searchBox" class="search-box" action="<?php echo BASE_URL; ?>search_results.php" method="get" data-suggest-url="<?php echo BASE_URL; ?>actions/search_suggest.php" autocomplete="off">
-					<i class="bi bi-binoculars-fill"></i>
-					<input type="text" name="q" id="searchInput" placeholder="Type book or author name">
-					<i class="bi bi-mic-fill"></i>
-				</form>
-				<!-- Suggestion dropdown container. -->
-				<div id="searchSuggest" class="search-suggest"></div>
-			</div>
-		</div>
-
-		<!-- User actions: logout and theme toggle. -->
-		<div class="d-flex align-items-center gap-2">
-			<a href="<?php echo BASE_URL; ?>logout.php" class="btn btn-outline-light btn-sm">Logout</a>
-			<button class="btn btn-icon" id="themeToggle">
-				<i class="bi bi-moon"></i>
-			</button>
-		</div>
-	</nav>
+	<?php include(ROOT_PATH . '/app/views/partials/books_topbar.php'); ?>
 
 	<!-- Layout -->
 	<div class="layout">
 
-		<!-- Sidebar -->
-		<aside id="sidebar" class="sidebar">
-			<!-- Home navigation links. -->
-			<div class="sidebar-section">
-				<small>HOME</small>
-				<a class="active" href="<?php echo $dashboardUrl; ?>"><i class="bi bi-speedometer2"></i> Dashboard</a>
-				<a><i class="bi bi-book"></i> All Books</a>
-			</div>
-
-			<!-- Category shortcuts. -->
-			<div class="sidebar-section">
-				<div class="d-flex align-items-center justify-content-between">
-					<small>CATEGORIES</small>
-					<!-- Category filter trigger. -->
-					<button class="btn btn-icon btn-sm sidebar-filter-btn" type="button" data-bs-toggle="modal" data-bs-target="#categoryFilterModal" aria-label="Filter categories">
-						<i class="bi bi-funnel"></i>
-					</button>
-				</div>
-				<?php if ($displayCategories): ?>
-					<!-- Render category links based on the current filter. -->
-					<?php foreach ($displayCategories as $category): ?>
-						<?php
-							// Prepare sidebar link data for the category.
-							$categoryId = (int) ($category['id'] ?? 0);
-							$categoryName = $category['name'] ?? 'Category';
-							$bookCount = (int) ($category['book_count'] ?? 0);
-						?>
-						<a href="<?php echo BASE_URL; ?>category_view.php?category_id=<?php echo $categoryId; ?>">
-							<i class="bi bi-tag"></i> <?php echo htmlspecialchars($categoryName); ?> (<?php echo $bookCount; ?>)
-						</a>
-					<?php endforeach; ?>
-				<?php else: ?>
-					<span class="text-muted small">No categories available.</span>
-				<?php endif; ?>
-			</div>
-		</aside>
+		<?php include(ROOT_PATH . '/app/views/partials/books_sidebar.php'); ?>
 
 		<!-- Main Content -->
 		<main class="content">
@@ -607,7 +545,7 @@ if ($reserveStatus !== '') {
 										</option>
 									<?php endforeach; ?>
 								</select>
-								<div class="form-text mt-2">
+								<div class="form-text mt-2 text-white">
 									Leave categories unchecked to show the top categories with books.
 								</div>
 							</div>
@@ -715,12 +653,6 @@ if ($reserveStatus !== '') {
 										</button>
 									</form>
 									<!-- Read and shelf quick actions. -->
-									<button class="btn btn-outline-success" <?php echo $canRead ? '' : 'disabled'; ?>>
-										<i class="bi bi-book"></i> Read
-									</button>
-									<button class="btn btn-outline-primary">
-										<i class="bi bi-folder"></i> Shelf
-									</button>
 									<!-- Conditional download action for ebooks. -->
 									<?php if ($canDownload): ?>
 									<a class="btn btn-outline-success" href="<?php echo BASE_URL; ?>actions/download_ebook.php?book_id=<?php echo $bookId; ?>">
@@ -731,17 +663,6 @@ if ($reserveStatus !== '') {
 										<i class="bi bi-download"></i> Download
 									</button>
 									<?php endif; ?>
-									<!-- Utility actions dropdown. -->
-									<div class="btn-group">
-										<button class="btn btn-outline-warning">
-											<i class="bi bi-lightning"></i> Fetch
-										</button>
-										<button class="btn btn-outline-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
-										<ul class="dropdown-menu dropdown-menu-dark">
-											<li><a class="dropdown-item" href="#">Fetch Cover</a></li>
-											<li><a class="dropdown-item" href="#">Fetch Metadata</a></li>
-										</ul>
-									</div>
 								</div>
 
 							</div>
