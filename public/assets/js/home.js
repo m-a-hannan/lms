@@ -148,3 +148,41 @@ if (searchSuggest && searchInput && searchBox) {
     searchBox.submit();
   });
 }
+
+const categoryModal = document.getElementById('categoryFilterModal');
+if (categoryModal) {
+  const categoryForm = categoryModal.querySelector('form');
+  const categoryChecks = Array.from(categoryModal.querySelectorAll('.category-check'));
+  const categoryLimitSelect = categoryModal.querySelector('#categoryLimit');
+
+  const setAllCategories = (checked) => {
+    categoryChecks.forEach((input) => {
+      input.checked = checked;
+    });
+  };
+
+  const resetCategoryFilters = () => {
+    setAllCategories(false);
+    if (categoryLimitSelect) {
+      categoryLimitSelect.value = '10';
+    }
+    if (categoryForm) {
+      categoryForm.submit();
+    }
+  };
+
+  categoryModal.addEventListener('click', (event) => {
+    const actionButton = event.target.closest('[data-category-action]');
+    if (!actionButton) {
+      return;
+    }
+    const action = actionButton.getAttribute('data-category-action');
+    if (action === 'enable-all') {
+      setAllCategories(true);
+    } else if (action === 'disable-all') {
+      setAllCategories(false);
+    } else if (action === 'reset') {
+      resetCategoryFilters();
+    }
+  });
+}

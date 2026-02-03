@@ -1,11 +1,14 @@
 <?php
+// Load core configuration, database connection, and RBAC helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Resolve permissions for delete actions.
 $context = rbac_get_context($conn);
 $canDelete = (bool) ($context['is_admin'] ?? false);
 
+// Normalize media paths for consistent comparisons.
 function normalize_media_path($path)
 {
 	$path = trim((string) $path);
@@ -17,6 +20,7 @@ function normalize_media_path($path)
 	return $path;
 }
 
+// Format byte sizes into human-readable labels.
 function format_media_bytes($bytes)
 {
 	$bytes = (int) $bytes;
@@ -31,6 +35,7 @@ function format_media_bytes($bytes)
 	return number_format($mb, 1) . ' MB';
 }
 
+// Collect files from a directory filtered by extension.
 function collect_media_files($directory, $relativePrefix, array $allowedExtensions)
 {
 	$files = [];
@@ -43,10 +48,12 @@ function collect_media_files($directory, $relativePrefix, array $allowedExtensio
 
 	$iterator = new DirectoryIterator($directory);
 	foreach ($iterator as $fileinfo) {
+		// Skip non-file entries.
 		if (!$fileinfo->isFile()) {
 			continue;
 		}
 		$ext = strtolower($fileinfo->getExtension());
+		// Enforce allowed file extensions.
 		if (!in_array($ext, $allowedExtensions, true)) {
 			continue;
 		}
@@ -62,6 +69,7 @@ function collect_media_files($directory, $relativePrefix, array $allowedExtensio
 	return $files;
 }
 
+// Human-friendly labels for media items.
 function media_label(array $item): string
 {
 	if (($item['category'] ?? '') === 'profile') {
@@ -80,12 +88,14 @@ function media_label(array $item): string
 	return 'Book Cover';
 }
 
+// Read filter selection and validate input.
 $filter = strtolower(trim((string) ($_GET['filter'] ?? 'all')));
 $allowedFilters = ['all', 'cover_physical', 'cover_ebook', 'profile', 'unused'];
 if (!in_array($filter, $allowedFilters, true)) {
 	$filter = 'all';
 }
 
+// Build alert data from action status.
 $status = strtolower(trim((string) ($_GET['status'] ?? '')));
 $deletedCount = isset($_GET['deleted']) ? (int) $_GET['deleted'] : 0;
 $skippedCount = isset($_GET['skipped']) ? (int) $_GET['skipped'] : 0;
@@ -101,9 +111,11 @@ $alertMap = [
 ];
 $alert = $alertMap[$status] ?? null;
 
+// Extensions to include in the gallery.
 $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
 $usedCovers = [];
+// Build a map of cover images referenced by books.
 $coverResult = $conn->query("SELECT book_cover_path, book_type FROM books WHERE book_cover_path IS NOT NULL AND book_cover_path <> ''");
 if ($coverResult) {
 	while ($row = $coverResult->fetch_assoc()) {
@@ -127,6 +139,7 @@ if ($coverResult) {
 }
 
 $usedProfiles = [];
+// Build a set of profile images referenced by users.
 $profileResult = $conn->query("SELECT profile_picture FROM user_profiles WHERE profile_picture IS NOT NULL AND profile_picture <> ''");
 if ($profileResult) {
 	while ($row = $profileResult->fetch_assoc()) {
@@ -138,9 +151,11 @@ if ($profileResult) {
 	}
 }
 
+// Collect media files from public uploads directories.
 $coverFiles = collect_media_files(ROOT_PATH . '/public/uploads/book_cover', 'uploads/book_cover', $allowedExtensions);
 $profileFiles = collect_media_files(ROOT_PATH . '/public/uploads/profile_picture', 'uploads/profile_picture', $allowedExtensions);
 
+// Assemble gallery items with usage metadata.
 $galleryItems = [];
 foreach ($coverFiles as $file) {
 	$path = $file['path'];
@@ -171,6 +186,7 @@ foreach ($coverFiles as $file) {
 	];
 }
 
+// Add profile images to the gallery list.
 foreach ($profileFiles as $file) {
 	$path = $file['path'];
 	$galleryItems[] = [
@@ -186,10 +202,12 @@ foreach ($profileFiles as $file) {
 	];
 }
 
+// Sort items by modification time (newest first).
 usort($galleryItems, function ($a, $b) {
 	return ($b['mtime'] ?? 0) <=> ($a['mtime'] ?? 0);
 });
 
+// Filter items based on the selected filter.
 $filteredItems = array_values(array_filter($galleryItems, function ($item) use ($filter) {
 	if ($filter === 'all') {
 		return true;
@@ -221,6 +239,7 @@ $filteredItems = array_values(array_filter($galleryItems, function ($item) use (
 	return true;
 }));
 
+// Compute summary counts for display.
 $totalCount = count($galleryItems);
 $unusedCount = 0;
 foreach ($galleryItems as $item) {
@@ -228,10 +247,14 @@ foreach ($galleryItems as $item) {
 		$unusedCount++;
 	}
 }
+// Count items after filtering for display.
 $shownCount = count($filteredItems);
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -253,6 +276,7 @@ $shownCount = count($filteredItems);
 						</div>
 					</div>
 
+					<?php // Show status alerts for delete actions. ?>
 					<?php if ($alert): ?>
 						<div class="alert alert-<?= htmlspecialchars($alert[0]) ?>" role="alert">
 							<?= htmlspecialchars($alert[1]) ?>
@@ -264,6 +288,7 @@ $shownCount = count($filteredItems);
 
 					<div class="card shadow-sm mb-4">
 						<div class="card-body">
+							<?php // Filter form for media categories. ?>
 							<form method="get" class="row g-3 align-items-end">
 								<div class="col-sm-6 col-md-4 col-lg-3">
 									<label class="form-label">Filter</label>
@@ -282,8 +307,10 @@ $shownCount = count($filteredItems);
 						</div>
 					</div>
 
+					<?php // Bulk delete form for unused media. ?>
 					<form method="post" action="<?= BASE_URL; ?>actions/bulk_delete_media.php" class="media-bulk-form">
 						<input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+						<?php // Only show bulk actions to admins. ?>
 						<?php if ($canDelete): ?>
 							<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 								<div class="form-check me-2">
@@ -294,15 +321,18 @@ $shownCount = count($filteredItems);
 							</div>
 						<?php endif; ?>
 
+						<?php // Gallery grid of media items. ?>
 						<div class="media-gallery-grid">
 							<?php if (!$filteredItems): ?>
 								<div class="media-empty text-muted">No images found for this filter.</div>
 							<?php else: ?>
+								<?php // Render each media card. ?>
 								<?php foreach ($filteredItems as $item): ?>
 									<div class="media-card<?= !empty($item['used']) ? ' is-locked' : '' ?>">
 										<div class="media-thumb">
 											<img src="<?= htmlspecialchars($item['url']) ?>" alt="<?= htmlspecialchars(media_label($item)) ?>">
 											<span class="media-label"><?= htmlspecialchars(media_label($item)) ?></span>
+											<?php // Lock used images and show selection for unused. ?>
 											<?php if (!empty($item['used'])): ?>
 												<div class="media-overlay" title="Used in database">
 													<i class="bi bi-lock"></i>
@@ -323,6 +353,7 @@ $shownCount = count($filteredItems);
 											</div>
 										</div>
 										<div class="media-actions">
+											<?php // Allow single delete only for unused items. ?>
 											<?php if (empty($item['used']) && $canDelete): ?>
 												<form method="post" action="<?= BASE_URL; ?>actions/delete_media.php" onsubmit="return confirm('Delete this image?');">
 													<input type="hidden" name="path" value="<?= htmlspecialchars($item['path']) ?>">
@@ -345,20 +376,25 @@ $shownCount = count($filteredItems);
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+	// Bulk select and delete controls for unused media.
 	const selectAll = document.getElementById('mediaSelectAll');
 	const bulkBtn = document.getElementById('bulkDeleteBtn');
 	const checkboxes = Array.from(document.querySelectorAll('.media-select'));
 
+	// Enable/disable bulk delete button based on selection.
 	const updateBulkState = () => {
 		if (!bulkBtn) return;
 		const anyChecked = checkboxes.some((box) => box.checked);
 		bulkBtn.disabled = !anyChecked;
 	};
 
+	// Toggle all checkboxes when "select all" changes.
 	if (selectAll) {
 		selectAll.addEventListener('change', () => {
 			checkboxes.forEach((box) => { box.checked = selectAll.checked; });
@@ -366,6 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	// Keep select-all state in sync with individual toggles.
 	checkboxes.forEach((box) => {
 		box.addEventListener('change', () => {
 			if (selectAll) {

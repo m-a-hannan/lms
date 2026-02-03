@@ -1,8 +1,10 @@
 <?php
+// Load core configuration, database connection, and RBAC helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Require an authenticated user context.
 $context = rbac_get_context($conn);
 $userId = (int) ($context['user_id'] ?? 0);
 if ($userId <= 0) {
@@ -11,13 +13,16 @@ if ($userId <= 0) {
 	exit;
 }
 
+// Collect alert messages for the UI.
 $alerts = [];
 
+// Handle password change submission.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$currentPassword = $_POST['current_password'] ?? '';
 	$newPassword = $_POST['new_password'] ?? '';
 	$confirmPassword = $_POST['confirm_password'] ?? '';
 
+	// Enforce basic password policy checks.
 	if ($newPassword === '' || $confirmPassword === '') {
 		$alerts[] = ['danger', 'New password and confirmation are required.'];
 	} elseif (strlen($newPassword) < 8) {
@@ -30,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$alerts[] = ['danger', 'New password and confirmation do not match.'];
 	}
 
+	// Verify the current password before updating.
 	if (!$alerts) {
 		$stmt = $conn->prepare('SELECT password_hash FROM users WHERE user_id = ? LIMIT 1');
 		if (!$stmt) {
@@ -48,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		}
 	}
 
+	// Update the password hash when all checks pass.
 	if (!$alerts) {
 		$newHash = password_hash($newPassword, PASSWORD_DEFAULT);
 		$update = $conn->prepare('UPDATE users SET password_hash = ? WHERE user_id = ?');
@@ -63,8 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <main class="app-main">
 	<div class="app-content">
@@ -75,8 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<h1 class="mb-0">Change Password</h1>
 					</div>
 
+					<?php // Show status alerts when present. ?>
 					<?php if ($alerts): ?>
 					<div class="mb-3">
+						<?php // Render each alert message. ?>
 						<?php foreach ($alerts as $alert): ?>
 						<div class="alert alert-<?php echo htmlspecialchars($alert[0]); ?> mb-2">
 							<?php echo htmlspecialchars($alert[1]); ?>
@@ -126,6 +138,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		</div>
 	</div>
 </main>
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<!-- Password visibility toggle behavior -->
 <script src="<?php echo BASE_URL; ?>assets/js/password_toggle.js"></script>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

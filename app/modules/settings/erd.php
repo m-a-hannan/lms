@@ -1,10 +1,13 @@
 <?php
+// Load app configuration, database connection, and permissions helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Build the dashboard link based on RBAC settings.
 $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 ?>
+<!-- ERD viewer page layout. -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,6 +59,7 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 		<section class="container">
 			<div class="row g-4">
 				<div class="col-md-12">
+					<!-- ERD header and viewer controls. -->
 					<h3 class="mb-4">Database Diagram</h3>
 					<div class="erd-toolbar mb-2">
 						<button type="button" class="btn btn-sm btn-outline-secondary" id="erd-zoom-out">-</button>
@@ -63,6 +67,7 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 						<button type="button" class="btn btn-sm btn-outline-secondary" id="erd-zoom-reset">Reset</button>
 						<button type="button" class="btn btn-sm btn-outline-secondary" id="erd-fullscreen">Fullscreen</button>
 					</div>
+					<!-- ERD image viewer. -->
 					<div class="erd-viewer" id="erd-viewer">
 						<img src="assets/img/ER Diagram.svg" alt="ER Diagram" id="erd-image">
 					</div>

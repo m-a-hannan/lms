@@ -1,4 +1,5 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . "/app/includes/connection.php";
 
@@ -11,6 +12,7 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
 
 $book_id = (int) $_GET["id"];
 
+// Load the book record for editing.
 $result = $conn->query("SELECT * FROM books WHERE book_id = $book_id");
 
 if ($result->num_rows !== 1) {
@@ -25,6 +27,7 @@ if ($categoryResult === false) {
     die("Category query failed: " . $conn->error);
 }
 
+// Compute copy totals for display.
 $copyCounts = ['total' => 0, 'available' => 0];
 $countResult = $conn->query(
     "SELECT COUNT(c.copy_id) AS total_copies,
@@ -44,6 +47,7 @@ if ($countResult && $countResult->num_rows === 1) {
 ---------------------------- */
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    // Sanitize incoming form values.
     $title            = $conn->real_escape_string(trim($_POST["title"]));
     $author           = $conn->real_escape_string(trim($_POST["author"]));
     $isbn             = $conn->real_escape_string(trim($_POST["isbn"]));
@@ -54,6 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $book_type        = strtolower(trim($_POST["book_type"] ?? ($book["book_type"] ?? "physical")));
     $ebook_format     = strtolower(trim($_POST["ebook_format"] ?? ($book["ebook_format"] ?? "")));
 
+    // Normalize book type and ebook format.
     $allowedTypes = ["physical", "ebook"];
     if (!in_array($book_type, $allowedTypes, true)) {
         $book_type = "physical";
@@ -69,11 +74,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ebook_format = "";
     }
 
+    // Initialize upload paths and defaults.
     $uploadDir = ROOT_PATH . "/public/uploads/book_cover/";
     $imagePath = $book["book_cover_path"]; // default: keep existing
     $ebookFilePath = $book["ebook_file_path"] ?? null;
     $ebookFileSize = $book["ebook_file_size"] ?? null;
 
+    // Handle cover replacement if a new file is provided.
     if (!empty($_FILES["book_cover"]["name"])) {
 
         $fileName = time() . "_" . basename($_FILES["book_cover"]["name"]);
@@ -82,10 +89,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $allowed = ["jpg", "jpeg", "png", "webp"];
 
+        // Validate cover file extension.
         if (!in_array($ext, $allowed)) {
             die("Invalid image format.");
         }
 
+        // Enforce max cover image size.
         if ($_FILES["book_cover"]["size"] > 2 * 1024 * 1024) {
             die("Image must be under 2MB.");
         }
@@ -106,6 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
+    // Handle ebook replacement if a new file is provided.
     if ($book_type === "ebook" && !empty($_FILES["ebook_file"]["name"])) {
         $ebookDir = ROOT_PATH . "/public/uploads/ebooks/";
         if (!is_dir($ebookDir)) {
@@ -117,6 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             die("Ebook upload directory is not writable.");
         }
 
+        // Validate ebook upload error state.
         if (!empty($_FILES["ebook_file"]["error"]) && $_FILES["ebook_file"]["error"] !== UPLOAD_ERR_OK) {
             die("Ebook upload error: " . (int) $_FILES["ebook_file"]["error"]);
         }
@@ -125,18 +136,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ebookTarget = $ebookDir . $ebookName;
         $ebookExt = strtolower(pathinfo($ebookTarget, PATHINFO_EXTENSION));
 
+        // Enforce allowed ebook extensions.
         if (!in_array($ebookExt, $allowedFormats, true)) {
             die("Invalid ebook file type.");
         }
+        // Ensure selected format matches uploaded file.
         if ($ebook_format !== "" && $ebookExt !== $ebook_format) {
             die("Selected ebook format does not match uploaded file.");
         }
 
+        // Enforce max ebook file size.
         if ($_FILES["ebook_file"]["size"] > 50 * 1024 * 1024) {
             die("Ebook file size must be under 50MB.");
         }
 
         if (move_uploaded_file($_FILES["ebook_file"]["tmp_name"], $ebookTarget)) {
+            // Remove previous ebook file when replacing.
             if (!empty($ebookFilePath)) {
                 $oldEbookPath = ROOT_PATH . '/' . ltrim((string) $ebookFilePath, '/');
                 if (file_exists($oldEbookPath)) {
@@ -151,15 +166,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
+    // Require an ebook file if the type is ebook.
     if ($book_type === "ebook" && empty($ebookFilePath) && empty($_FILES["ebook_file"]["name"])) {
         die("Ebook file is required.");
     }
 
+    // Clear ebook fields when switching to physical.
     if ($book_type !== "ebook") {
         $ebookFilePath = null;
         $ebookFileSize = null;
     }
 
+    // Build normalized values for SQL update.
     $imageValue = $conn->real_escape_string($imagePath);
     $bookTypeValue = $conn->real_escape_string($book_type);
     $ebookFormatValue = $ebook_format !== "" ? "'" . $conn->real_escape_string($ebook_format) . "'" : "NULL";
@@ -179,12 +197,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ebook_file_size = $ebookSizeValue
             WHERE book_id = $book_id";
 
+    // Update book and optional copies in a transaction.
     $conn->begin_transaction();
     try {
         if (!$conn->query($sql)) {
             throw new RuntimeException("Update failed: " . $conn->error);
         }
 
+        // Optionally add new copies to the latest edition.
         if ($add_copies > 0) {
             $editionResult = $conn->query(
                 "SELECT edition_id
@@ -197,6 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $editionRow = $editionResult->fetch_assoc();
                 $editionId = (int) ($editionRow['edition_id'] ?? 0);
             } else {
+                // Create an edition if none exists yet.
                 $yearValue = $publication_year > 0 ? $publication_year : "NULL";
                 $editionSql = "INSERT INTO book_editions (book_id, edition_number, publication_year)
                                VALUES ($book_id, 1, $yearValue)";
@@ -206,6 +227,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $editionId = (int) $conn->insert_id;
             }
 
+            // Insert the requested number of copies.
             if (!empty($editionId)) {
                 for ($i = 1; $i <= $add_copies; $i++) {
                     $barcode = $conn->real_escape_string("B{$book_id}-E{$editionId}-" . date('YmdHis') . "-{$i}");
@@ -218,19 +240,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
+        // Commit and redirect on success.
         $conn->commit();
         header("Location: " . BASE_URL . "book_list.php");
         exit;
     } catch (Throwable $e) {
+        // Roll back and surface the error.
         $conn->rollback();
         die($e->getMessage());
     }
 }
 ?>
 
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -296,6 +323,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 											<label class="form-label">Category</label>
 											<select class="form-select" name="category_id" required>
 												<option value="" disabled>Select a category</option>
+												<?php // Render category options from the query. ?>
 												<?php while ($category = $categoryResult->fetch_assoc()): ?>
 												<option value="<?= (int) $category["category_id"] ?>"
 													<?php if ((int) $book["category_id"] === (int) $category["category_id"]) echo 'selected'; ?>>
@@ -344,6 +372,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 												<h6 class="mb-3">Current Cover</h6>
 												<div class="preview-area">
 
+													<?php // Show current cover or fallback message. ?>
 													<?php if (!empty($book["book_cover_path"])): ?>
 													<img id="previewImage" src="<?= htmlspecialchars(BASE_URL . $book["book_cover_path"]) ?>"
 														class="img-fluid cover-preview" alt="Book Cover">
@@ -363,6 +392,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<!-- Page-specific behavior for edit form -->
 <script src="<?php echo BASE_URL; ?>assets/js/pages/edit_book.js"></script>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

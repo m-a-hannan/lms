@@ -1,42 +1,58 @@
 <?php
+// Load core configuration, database connection, and permission helpers.
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Build the role-aware dashboard URL for the top nav.
 $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 
+// Fetch all table names to populate the selector grid.
 $tables = [];
+// Query MySQL for the list of tables in the current schema.
 $tablesResult = $conn->query('SHOW TABLES');
+// Stop rendering if the table list cannot be loaded.
 if ($tablesResult === false) {
 	die('Failed to load tables: ' . $conn->error);
 }
+// Collect table names into a simple array.
 while ($row = $tablesResult->fetch_row()) {
 	$tables[] = $row[0];
 }
+// Keep table names sorted for predictable display.
 sort($tables);
 
+// Initialize selection state and data buffers.
 $selectedTable = null;
 $rows = [];
 $columns = [];
 $error = '';
 
+// Read the selected table from query string and validate it.
 if (isset($_GET['table'])) {
 	$table = $_GET['table'];
+	// Only allow selection from the discovered tables list.
 	if (in_array($table, $tables, true)) {
 		$selectedTable = $table;
+		// Load all rows for the selected table.
 		$result = $conn->query("SELECT * FROM `$selectedTable`");
+		// Capture DB errors for user feedback.
 		if ($result === false) {
 			$error = $conn->error;
 		} else {
+			// Build the column headers from result metadata.
 			$fields = $result->fetch_fields();
+			// Store column names for table header rendering.
 			foreach ($fields as $field) {
 				$columns[] = $field->name;
 			}
+			// Collect all rows for table body rendering.
 			while ($row = $result->fetch_assoc()) {
 				$rows[] = $row;
 			}
 		}
 	} else {
+		// Reject invalid table names from the query string.
 		$error = 'Invalid table selection.';
 	}
 }
@@ -87,6 +103,7 @@ if (isset($_GET['table'])) {
 		</div>
 	</nav>
 
+	<!-- Data viewer content area -->
 	<section class="py-4">
 		<div class="container">
 			<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
@@ -99,6 +116,7 @@ if (isset($_GET['table'])) {
 			<div class="card shadow-sm mb-4">
 				<div class="card-body">
 					<div class="table-grid">
+						<?php // Render a button for each available table. ?>
 						<?php foreach ($tables as $tableName): ?>
 						<a href="?table=<?= urlencode($tableName) ?>" class="btn <?= $selectedTable === $tableName ? 'btn-gradient' : 'btn-outline-secondary' ?> btn-sm">
 							<?= htmlspecialchars($tableName) ?>
@@ -110,12 +128,14 @@ if (isset($_GET['table'])) {
 
 			<div class="card shadow-sm">
 				<div class="card-body">
+					<?php // Show errors, empty state, or table data depending on selection. ?>
 					<?php if ($error): ?>
 					<div class="alert alert-danger mb-0"><?= htmlspecialchars($error) ?></div>
 					<?php elseif ($selectedTable === null): ?>
 					<p class="text-muted mb-0">Choose a table above to see its data.</p>
 					<?php else: ?>
 					<h5 class="mb-3">Table: <?= htmlspecialchars($selectedTable) ?></h5>
+					<?php // Handle the no-records state for a valid table. ?>
 					<?php if (!$rows): ?>
 					<p class="text-muted mb-0">No records found.</p>
 					<?php else: ?>
@@ -123,14 +143,17 @@ if (isset($_GET['table'])) {
 						<table class="table table-bordered table-hover align-middle">
 							<thead class="table-light">
 								<tr>
+									<?php // Render a header cell for each column. ?>
 									<?php foreach ($columns as $col): ?>
 									<th><?= htmlspecialchars($col) ?></th>
 									<?php endforeach; ?>
 								</tr>
 							</thead>
 							<tbody>
+								<?php // Render each row and its column values. ?>
 								<?php foreach ($rows as $row): ?>
 								<tr>
+									<?php // Render each cell in the current row. ?>
 									<?php foreach ($columns as $col): ?>
 									<td><?= htmlspecialchars((string) ($row[$col] ?? '')) ?></td>
 									<?php endforeach; ?>

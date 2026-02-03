@@ -1,11 +1,14 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Validate the profile id input.
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die('Invalid request.');
 }
 
+// Fetch the profile record for editing.
 $profile_id = (int) $_GET['id'];
 $result = $conn->query("SELECT * FROM user_profiles WHERE profile_id = $profile_id");
 if (!$result || $result->num_rows !== 1) {
@@ -13,7 +16,9 @@ if (!$result || $result->num_rows !== 1) {
 }
 $row = $result->fetch_assoc();
 
+// Handle update submission.
 if (isset($_POST['save'])) {
+    // Sanitize incoming form values.
     $user_id = (int) $_POST['user_id'];
     $first_name = $conn->real_escape_string(trim($_POST['first_name']));
     $last_name = $conn->real_escape_string(trim($_POST['last_name']));
@@ -24,9 +29,11 @@ if (isset($_POST['save'])) {
     $institution_name = $conn->real_escape_string(trim($_POST['institution_name']));
     $designation = $conn->real_escape_string(trim($_POST['designation']));
 
+    // Update the profile record.
     $sql = "UPDATE user_profiles SET user_id = $user_id, first_name = '$first_name', last_name = '$last_name', dob = '$dob', address = '$address', phone = '$phone', photo = '$photo', institution_name = '$institution_name', designation = '$designation' WHERE profile_id = $profile_id";
     $updated = $conn->query($sql);
 
+    // Redirect back to list on success.
     if ($updated) {
         header("Location: " . BASE_URL . "user_profile_list.php");
         exit;
@@ -35,8 +42,11 @@ if (isset($_POST['save'])) {
     }
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -101,5 +111,7 @@ if (isset($_POST['save'])) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

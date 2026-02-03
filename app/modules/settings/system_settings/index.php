@@ -1,7 +1,9 @@
 <?php
+// Load app configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Handle delete requests for menu items.
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 	$menu_id = (int) $_GET['delete'];
 	$deleted = $conn->query("DELETE FROM menus WHERE menu_id = $menu_id");
@@ -12,6 +14,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 	exit;
 }
 
+// Fetch menu items with their associated page data.
 $sql = "SELECT m.menu_id, m.menu_title, m.menu_order, m.icon, m.is_active, p.page_name, p.page_path
 	FROM menus m
 	LEFT JOIN page_list p ON m.page_id = p.page_id
@@ -21,6 +24,7 @@ if ($result === false) {
 	die('Query failed: ' . $conn->error);
 }
 ?>
+<?php // Shared header resources and layout chrome. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
@@ -30,17 +34,21 @@ if ($result === false) {
 		<div class="container-fluid">
 			<div class="row">
 				<div class="container py-5">
+					<!-- Page header with title and create action. -->
 					<div class="d-flex justify-content-between align-items-center mb-3">
 						<h3 class="mb-0">Menu Items</h3>
 						<a href="<?php echo BASE_URL; ?>system_settings/home.php" class="btn btn-primary btn-sm">Add Menu</a>
 					</div>
 
+					<!-- System settings sidebar tabs. -->
 					<?php include(__DIR__ . '/sidebar.php') ?>
 
+					<!-- Results table card. -->
 					<div class="card shadow-sm">
 						<div class="card-body">
 							<div class="table-responsive">
 								<table class="table table-bordered table-hover align-middle">
+									<!-- Table headers. -->
 									<thead class="table-light">
 										<tr>
 											<th>ID</th>
@@ -54,6 +62,7 @@ if ($result === false) {
 										</tr>
 									</thead>
 									<tbody>
+										<!-- Render rows when records exist. -->
 										<?php if ($result->num_rows > 0): ?>
 										<?php while ($row = $result->fetch_assoc()): ?>
 										<tr>
@@ -69,6 +78,7 @@ if ($result === false) {
 												</span>
 											</td>
 											<td class="text-center">
+												<!-- Row actions for edit and delete. -->
 												<a href="<?php echo BASE_URL; ?>system_settings/home.php?id=<?= $row['menu_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
@@ -79,6 +89,7 @@ if ($result === false) {
 										</tr>
 										<?php endwhile; ?>
 										<?php else: ?>
+										<!-- Empty state message. -->
 										<tr>
 											<td colspan="8" class="text-center text-muted">No menu items found.</td>
 										</tr>
@@ -94,5 +105,6 @@ if ($result === false) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer layout and scripts. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

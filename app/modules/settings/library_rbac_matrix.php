@@ -1,10 +1,13 @@
 <?php
+// Load app configuration, database connection, and permissions helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Build the dashboard link based on RBAC settings.
 $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 ?>
+<!-- RBAC matrix page layout. -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,8 +59,10 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 		<section class="container">
 			<div class="row g-4">
 				<div class="col-md-12">
+					<!-- RBAC matrix header. -->
 					<h3 class="mb-4">Role-Based Access Control (RBAC) Matrix for LMS</h3>
 
+					<!-- RBAC matrix table container. -->
 					<div class="table-responsive">
 						<table class="table table-striped table-bordered" id="rbacTable">
 							<thead class="table-dark">
@@ -84,6 +89,7 @@ $dashboardUrl = BASE_URL . rbac_dashboard_path($conn);
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+	<!-- Page-specific JS for RBAC matrix. -->
 	<script src="assets/js/pages/library_rbac_matrix.js"></script>
 </body>
 

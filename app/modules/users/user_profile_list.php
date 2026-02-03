@@ -1,7 +1,9 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Fetch user profile details with related user and role info.
 $result = $conn->query(
 	"SELECT up.profile_id, up.user_id, up.first_name, up.last_name, up.dob, up.address, up.phone,
 		up.institution_name, up.designation, up.profile_picture,
@@ -16,8 +18,11 @@ if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -55,7 +60,9 @@ if ($result === false) {
 										</tr>
 									</thead>
 									<tbody>
+										<?php // Show records when the result set has rows. ?>
 										<?php if ($result->num_rows > 0): ?>
+										<?php // Render each user profile row. ?>
 										<?php while ($row = $result->fetch_assoc()): ?>
 										<tr>
 											<td><?= $row["profile_id"] ?></td>
@@ -70,6 +77,7 @@ if ($result === false) {
 											<td><?= htmlspecialchars($row['phone'] ?? '') ?></td>
 											<td>
 												<?php
+													// Resolve profile image path with a default fallback.
 													$profilePic = $row['profile_picture'] ?? '';
 													$profilePic = $profilePic !== '' ? BASE_URL . ltrim($profilePic, '/') : BASE_URL . 'assets/img/user2-160x160.jpg';
 												?>

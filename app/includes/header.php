@@ -1,10 +1,13 @@
 <?php
+// Ensure session is active for user context and notifications.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
+// Load database connection and RBAC helpers.
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
+// Initialize display defaults for the header UI.
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 $displayName = 'User';
 $displayRole = 'Member';
@@ -13,35 +16,44 @@ $memberSince = '';
 $notificationCount = 0;
 $notifications = [];
 $reportsLinkVisible = false;
+// Determine whether reports link should be visible for this role.
 if (function_exists('rbac_get_context')) {
 	$context = rbac_get_context($conn);
 	$isLibrarian = strcasecmp($context['role_name'] ?? '', 'Librarian') === 0;
 	$reportsLinkVisible = $context['is_admin'] || $isLibrarian;
 }
 
+// Load user-specific header data when logged in.
 if ($userId > 0) {
+	// Prefer username stored in session.
 	if (!empty($_SESSION['user_username'])) {
 		$displayName = $_SESSION['user_username'];
 	}
 
+	// Pull profile details for display info and avatar.
 $profileResult = $conn->query("SELECT first_name, last_name, designation, profile_picture, created_date FROM user_profiles WHERE user_id = $userId ORDER BY profile_id DESC LIMIT 1");
 if ($profileResult && $profileResult->num_rows === 1) {
 	$row = $profileResult->fetch_assoc();
 		$fullName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+		// Update display name using full name when available.
 		if ($fullName !== '') {
 			$displayName = $fullName;
 		}
+		// Use designation as the display role when provided.
 		if (!empty($row['designation'])) {
 			$displayRole = $row['designation'];
 		}
+		// Use profile picture from the stored path.
 		if (!empty($row['profile_picture'])) {
 			$profileImage = BASE_URL . ltrim($row['profile_picture'], '/');
 		}
+		// Track "member since" based on profile creation date.
 		if (!empty($row['created_date'])) {
 			$memberSince = date('M Y', strtotime($row['created_date']));
 		}
 	}
 
+	// Fallback to role name when designation is still default.
 	if ($displayRole === 'Member') {
 		$roleResult = $conn->query("SELECT role_name FROM user_roles WHERE user_id = $userId ORDER BY user_role_id DESC LIMIT 1");
 		if ($roleResult && $roleResult->num_rows === 1) {
@@ -52,21 +64,25 @@ if ($profileResult && $profileResult->num_rows === 1) {
 		}
 	}
 
+	// Fallback to username/email if display name is still default.
 	if ($displayName === 'User') {
 		$userResult = $conn->query("SELECT username, email, created_date FROM users WHERE user_id = $userId LIMIT 1");
 		if ($userResult && $userResult->num_rows === 1) {
 			$userRow = $userResult->fetch_assoc();
+			// Prefer username, then email.
 			if (!empty($userRow['username'])) {
 				$displayName = $userRow['username'];
 			} elseif (!empty($userRow['email'])) {
 				$displayName = $userRow['email'];
 			}
+			// Fill in member-since date if missing.
 			if ($memberSince === '' && !empty($userRow['created_date'])) {
 				$memberSince = date('M Y', strtotime($userRow['created_date']));
 			}
 		}
 	}
 
+	// Final fallback for member since date.
 	if ($memberSince === '') {
 		$userResult = $conn->query("SELECT created_date FROM users WHERE user_id = $userId LIMIT 1");
 		if ($userResult && $userResult->num_rows === 1) {
@@ -77,6 +93,7 @@ if ($profileResult && $profileResult->num_rows === 1) {
 		}
 	}
 
+	// Count unread notifications for the header badge.
 	$countResult = $conn->query(
 		"SELECT COUNT(*) AS total\n\t\t FROM notifications\n\t\t WHERE user_id = $userId AND read_status = 0 AND deleted_date IS NULL"
 	);
@@ -85,16 +102,19 @@ if ($profileResult && $profileResult->num_rows === 1) {
 		$notificationCount = (int) ($countRow['total'] ?? 0);
 	}
 
+	// Load recent notifications for the dropdown list.
 	$notificationResult = $conn->query(
 		"SELECT notification_id, title, message, created_at, read_status\n\t\t FROM notifications\n\t\t WHERE user_id = $userId AND deleted_date IS NULL\n\t\t ORDER BY created_at DESC, notification_id DESC\n\t\t LIMIT 5"
 	);
 	if ($notificationResult) {
+		// Collect notification rows for rendering.
 		while ($row = $notificationResult->fetch_assoc()) {
 			$notifications[] = $row;
 		}
 	}
 }
 ?>
+	<?php // Allow pages to append custom body classes. ?>
 	<?php $bodyClass = isset($bodyClass) ? trim((string) $bodyClass) : ''; ?>
 	<body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary<?php echo $bodyClass !== '' ? ' ' . htmlspecialchars($bodyClass) : ''; ?>">
 		<!--begin::App Wrapper-->
@@ -111,9 +131,11 @@ if ($profileResult && $profileResult->num_rows === 1) {
 							</a>
 						</li>
 						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>home.php" class="nav-link">Library</a></li>
+						<?php // Conditionally show Reports for admin/librarian users. ?>
 						<?php if ($reportsLinkVisible): ?>
 						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>reports.php" class="nav-link">Reports</a></li>
 						<?php endif; ?>
+						<?php // Conditionally show stock summary link by RBAC. ?>
 						<?php if (rbac_can_access($conn, 'library_stock_summary.php')): ?>
 						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>library_stock_summary.php" class="nav-link">LS - Summary</a></li>
 						<?php endif; ?>
@@ -136,6 +158,7 @@ if ($profileResult && $profileResult->num_rows === 1) {
 						<li class="nav-item dropdown">
 							<a class="nav-link" data-bs-toggle="dropdown" href="#">
 								<i class="bi bi-bell-fill"></i>
+								<?php // Show a badge when unread notifications exist. ?>
 								<?php if ($notificationCount > 0): ?>
 								<span class="navbar-badge badge text-bg-warning"><?php echo $notificationCount; ?></span>
 								<?php endif; ?>
@@ -150,7 +173,9 @@ if ($profileResult && $profileResult->num_rows === 1) {
 									</form>
 								</div>
 								<div class="dropdown-divider"></div>
+								<?php // Render notification items when available. ?>
 								<?php if ($notifications): ?>
+								<?php // Loop through recent notifications. ?>
 								<?php foreach ($notifications as $note): ?>
 								<div class="dropdown-item">
 									<div class="d-flex align-items-start gap-2 notification-entry">

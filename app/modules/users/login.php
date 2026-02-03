@@ -1,16 +1,20 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Ensure session is active for auth flow.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 
+// Redirect already logged-in users to home.
 if (!empty($_SESSION['user_id'])) {
 	header('Location: ' . BASE_URL . 'home.php');
 	exit;
 }
 
+// Initialize form state and message flags.
 $errors = [];
 $identifier = '';
 $registered = isset($_GET['registered']) && $_GET['registered'] === '1';
@@ -18,13 +22,16 @@ $loggedOut = isset($_GET['logged_out']) && $_GET['logged_out'] === '1';
 $resetRequest = $_GET['reset_request'] ?? '';
 $resetSuccess = isset($_GET['reset']) && $_GET['reset'] === 'success';
 
+// Handle login form submission.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$identifier = trim($_POST['identifier'] ?? '');
 	$password = $_POST['password'] ?? '';
 
+	// Validate required credentials.
 	if ($identifier === '' || $password === '') {
 		$errors[] = 'Email/username and password are required.';
 	} else {
+		// Look up the user by email or username.
 		$stmt = $conn->prepare('SELECT user_id, username, email, password_hash, account_status FROM users WHERE email = ? OR username = ? LIMIT 1');
 		if ($stmt === false) {
 			$errors[] = 'Login failed. Please try again.';
@@ -35,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$user = $result ? $result->fetch_assoc() : null;
 			$stmt->close();
 
+			// Validate password and account status.
 			if (!$user || empty($user['password_hash']) || !password_verify($password, $user['password_hash'])) {
 				$errors[] = 'Invalid credentials.';
 			} elseif (isset($user['account_status']) && $user['account_status'] !== 'approved') {
@@ -49,12 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					$errors[] = 'Your account is pending approval.';
 				}
 			} else {
+				// Establish a fresh session for the authenticated user.
 				session_regenerate_id(true);
 				$userId = (int) $user['user_id'];
 				$_SESSION['user_id'] = $userId;
 				$_SESSION['user_email'] = $user['email'] ?? '';
 				$_SESSION['user_username'] = $user['username'] ?? '';
 
+				// Ensure a profile record exists for the user.
 				if ($userId > 0) {
 					$profileCheck = $conn->query("SELECT profile_id FROM user_profiles WHERE user_id = $userId LIMIT 1");
 					if (!$profileCheck || $profileCheck->num_rows === 0) {
@@ -63,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					}
 				}
 
+				// Respect safe local redirect targets.
 				$next = $_GET['next'] ?? '';
 				$redirect = BASE_URL . 'home.php';
 				if ($next !== '' && strpos($next, '://') === false && str_starts_with($next, '/')) {
@@ -94,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="auth-page" data-base-url="<?php echo BASE_URL; ?>">
 
+	<?php // Show logout confirmation toast. ?>
 	<?php if ($loggedOut): ?>
 	<div class="toast-container position-fixed top-0 end-0 p-3">
 		<div id="logoutToast" class="toast text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -115,20 +127,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 					<h2>Login</h2>
 
+					<?php // Show registration success message. ?>
 					<?php if ($registered): ?>
 						<div class="alert alert-success">Registration complete. Please log in.</div>
 					<?php endif; ?>
 
+					<?php // Show reset success message. ?>
 					<?php if ($resetSuccess): ?>
 						<div class="alert alert-success">Password updated. Please log in with your new password.</div>
 					<?php endif; ?>
 
+					<?php // Show reset request status messages. ?>
 					<?php if ($resetRequest === 'sent'): ?>
 						<div class="alert alert-success">If the email exists and is approved, a reset link has been sent.</div>
 					<?php elseif ($resetRequest === 'error'): ?>
 						<div class="alert alert-danger">Unable to send reset email. Please try again.</div>
 					<?php endif; ?>
 
+					<?php // Show validation errors when present. ?>
 					<?php if (!empty($errors)): ?>
 						<div class="alert alert-danger">
 							<?php echo htmlspecialchars(implode(' ', $errors)); ?>
@@ -178,6 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 	</section>
 
+	<!-- Forgot password modal -->
 	<div class="modal fade glass-modal" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
@@ -208,7 +225,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+	<!-- Page-specific behavior -->
 	<script src="<?php echo BASE_URL; ?>assets/js/pages/login.js"></script>
+	<!-- Password visibility toggle behavior -->
 	<script src="<?php echo BASE_URL; ?>assets/js/password_toggle.js"></script>
 
 </body>

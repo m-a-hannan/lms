@@ -1,7 +1,9 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Aggregate copy counts per book for the summary table.
 $summaryResult = $conn->query(
 	"SELECT b.book_id, b.title,
 		COUNT(c.copy_id) AS total_copies,
@@ -13,6 +15,7 @@ $summaryResult = $conn->query(
 	 ORDER BY b.book_id DESC"
 );
 
+// Fetch detailed copy records with related book titles.
 $result = $conn->query(
 	"SELECT c.copy_id, c.edition_id, c.barcode, c.status, c.location, b.title
 	 FROM book_copies c
@@ -24,8 +27,11 @@ if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -40,6 +46,7 @@ if ($result === false) {
 						<h3 class="mb-0">Book Copy List</h3>
 						<a href="<?php echo BASE_URL; ?>crud_files/add_book_copy.php" class="btn btn-primary btn-sm">Add Book Copy</a>
 					</div>
+					<?php // Summary table for total and available copies. ?>
 					<?php if ($summaryResult && $summaryResult->num_rows > 0): ?>
 					<div class="card shadow-sm mb-4">
 						<div class="card-body">
@@ -55,6 +62,7 @@ if ($result === false) {
 										</tr>
 									</thead>
 									<tbody>
+										<?php // Render each book summary row. ?>
 										<?php while ($summary = $summaryResult->fetch_assoc()): ?>
 										<tr>
 											<td><?= htmlspecialchars($summary['book_id']) ?></td>
@@ -85,7 +93,9 @@ if ($result === false) {
 										</tr>
 									</thead>
 									<tbody>
+										<?php // Show records when the result set has rows. ?>
 										<?php if ($result->num_rows > 0): ?>
+										<?php // Render each copy record. ?>
 										<?php while ($row = $result->fetch_assoc()): ?>
 										<tr>
 											<td><?= $row["copy_id"] ?></td>
@@ -121,5 +131,7 @@ if ($result === false) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

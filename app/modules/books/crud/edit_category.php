@@ -1,4 +1,5 @@
 <?php
+// Load app configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . "/app/includes/connection.php";
 
@@ -11,6 +12,7 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
 
 $category_id = (int) $_GET["id"];
 
+// Load the category record to prefill the form.
 $result = $conn->query("SELECT * FROM categories WHERE category_id = $category_id");
 
 if ($result->num_rows !== 1) {
@@ -30,8 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         die("Category name is required.");
     }
 
+    // Update the category name in the database.
     $sql = "UPDATE categories SET category_name = '$category_name' WHERE category_id = $category_id";
     if ($conn->query($sql)) {
+        // Return to the list after saving.
         header("Location: " . BASE_URL . "category_list.php");
         exit;
     } else {
@@ -40,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
+<?php // Shared header resources and layout chrome. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
@@ -54,26 +59,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			<div class="row">
 
 				<div class="container py-5">
-					<!-- Add contents Below-->
+					<!-- Page header with title and navigation. -->
 					<div class="mb-4 d-flex justify-content-between">
 						<h3>Edit Category</h3>
 						<a href="<?php echo BASE_URL; ?>category_list.php" class="btn btn-secondary btn-sm">Back</a>
 					</div>
 
+					<!-- Edit form card. -->
 					<div class="card shadow-sm">
 						<div class="card-body">
 
+							<!-- Submission form for updating the category. -->
 							<form method="post" enctype="multipart/form-data">
 								<div class="row g-4">
 
 									<div class="col-md-6">
+										<!-- Category name input. -->
 										<div class="mb-3">
 											<label class="form-label">Category Name</label>
 											<input type="text" name="category_name" class="form-control"
 												value="<?= htmlspecialchars($category["category_name"]) ?>" required>
 										</div>
 
-
+										<!-- Submit button. -->
 										<button type="submit" class="btn btn-primary">Update category</button>
 									</div>
 
@@ -89,5 +97,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer layout and scripts. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

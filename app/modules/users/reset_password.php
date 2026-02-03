@@ -1,11 +1,14 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Read token and initialize error state.
 $token = trim($_GET['token'] ?? '');
 $tokenError = '';
 $formError = '';
 
+// Validate the reset token and check expiry.
 if ($token === '') {
 	$tokenError = 'This reset link is invalid.';
 } else {
@@ -22,6 +25,7 @@ if ($token === '') {
 		$result = $stmt->get_result();
 		$user = $result ? $result->fetch_assoc() : null;
 		$stmt->close();
+		// Set error when the token is missing or expired.
 		if (!$user || empty($user['reset_token_expires_at'])) {
 			$tokenError = 'This reset link is invalid or has already been used.';
 		} elseif (strtotime($user['reset_token_expires_at']) <= time()) {
@@ -32,6 +36,7 @@ if ($token === '') {
 	}
 }
 
+// Translate error codes into user-friendly messages.
 if ($tokenError === '') {
 	$errorCode = $_GET['error'] ?? '';
 	if ($errorCode === 'missing') {
@@ -70,13 +75,16 @@ if ($tokenError === '') {
 			<div class="form-value w-100">
 				<h2>Reset Password</h2>
 
+				<?php // Show token error state or the reset form. ?>
 				<?php if ($tokenError !== ''): ?>
 					<div class="alert alert-danger"><?php echo htmlspecialchars($tokenError); ?></div>
 					<a class="helper-link" href="<?php echo BASE_URL; ?>login.php">Back to login</a>
 				<?php else: ?>
+					<?php // Show validation error if the last submit failed. ?>
 					<?php if ($formError !== ''): ?>
 						<div class="alert alert-danger"><?php echo htmlspecialchars($formError); ?></div>
 					<?php endif; ?>
+					<?php // Submit new password and confirmation to reset handler. ?>
 					<form method="post" action="<?php echo BASE_URL; ?>actions/process_reset_password.php">
 						<input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
 						<div class="mb-3">
@@ -105,6 +113,7 @@ if ($tokenError === '') {
 			</div>
 		</div>
 	</section>
+	<!-- Password visibility toggle behavior -->
 	<script src="<?php echo BASE_URL; ?>assets/js/password_toggle.js"></script>
 </body>
 

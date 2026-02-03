@@ -1,26 +1,31 @@
 <?php
+// Load app configuration, database connection, and permissions helpers.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 require_once ROOT_PATH . '/app/includes/permissions.php';
 
-
-
+// Ensure a session is active for RBAC context.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 
+// Resolve user context and enforce admin/librarian access.
 $context = rbac_get_context($conn);
 $isLibrarian = strcasecmp($context['role_name'] ?? '', 'Librarian') === 0;
+// Redirect non-privileged users to the dashboard.
 if (!($context['is_admin'] || $isLibrarian)) {
 	header('Location: ' . BASE_URL . 'dashboard.php');
 	exit;
 }
 
+// Run a grouped count query and return a key/value map.
 function fetch_kv($conn, $sql, $key, $value)
 {
 	$data = [];
 	$result = $conn->query($sql);
+	// Build the key/value map when results are available.
 	if ($result) {
+		// Collect each row into the map.
 		while ($row = $result->fetch_assoc()) {
 			$data[$row[$key]] = (int) $row[$value];
 		}
@@ -28,6 +33,7 @@ function fetch_kv($conn, $sql, $key, $value)
 	return $data;
 }
 
+// Check whether a column exists in the current database schema.
 function column_exists($conn, $table, $column)
 {
 	$table = $conn->real_escape_string($table);
@@ -35,19 +41,23 @@ function column_exists($conn, $table, $column)
 	$result = $conn->query("SELECT DATABASE() AS db");
 	$row = $result ? $result->fetch_assoc() : null;
 	$db = $conn->real_escape_string($row['db'] ?? '');
+	// Abort when the database name is unavailable.
 	if ($db === '') {
 		return false;
 	}
 	$sql = "SELECT COUNT(*) AS total FROM information_schema.COLUMNS
 		WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table' AND COLUMN_NAME = '$column'";
 	$result = $conn->query($sql);
+	// Return true when the column exists.
 	if ($result && ($row = $result->fetch_assoc())) {
 		return (int) $row['total'] > 0;
 	}
 	return false;
 }
 
+// Aggregate user account status counts.
 $userStatuses = ['pending' => 0, 'approved' => 0, 'blocked' => 0, 'suspended' => 0];
+// Load status breakdown when the column exists.
 if (column_exists($conn, 'users', 'account_status')) {
 	$userStatuses = fetch_kv(
 		$conn,
@@ -57,7 +67,9 @@ if (column_exists($conn, 'users', 'account_status')) {
 	) ?: $userStatuses;
 }
 
+// Aggregate inventory counts by type.
 $inventoryTypes = ['physical' => 0, 'ebook' => 0];
+// Load inventory types when the column exists.
 if (column_exists($conn, 'books', 'book_type')) {
 	$inventoryTypes = fetch_kv(
 		$conn,
@@ -66,16 +78,19 @@ if (column_exists($conn, 'books', 'book_type')) {
 		'total'
 	) ?: $inventoryTypes;
 } else {
+	// Fall back to total books when book_type is missing.
 	$totalBooks = $conn->query("SELECT COUNT(*) AS total FROM books WHERE deleted_date IS NULL");
 	if ($totalBooks && ($row = $totalBooks->fetch_assoc())) {
 		$inventoryTypes['physical'] = (int) ($row['total'] ?? 0);
 	}
 }
 
+// Aggregate circulation status counts.
 $loanStatus = ['pending' => 0, 'approved' => 0, 'returned' => 0];
 $reservationStatus = ['pending' => 0, 'approved' => 0];
 $returnStatus = ['pending' => 0, 'approved' => 0];
 
+// Load loan status counts when available.
 if (column_exists($conn, 'loans', 'status')) {
 	$loanStatus = fetch_kv(
 		$conn,
@@ -84,6 +99,7 @@ if (column_exists($conn, 'loans', 'status')) {
 		'total'
 	) ?: $loanStatus;
 }
+// Load reservation status counts when available.
 if (column_exists($conn, 'reservations', 'status')) {
 	$reservationStatus = fetch_kv(
 		$conn,
@@ -92,6 +108,7 @@ if (column_exists($conn, 'reservations', 'status')) {
 		'total'
 	) ?: $reservationStatus;
 }
+// Load return status counts when available.
 if (column_exists($conn, 'returns', 'status')) {
 	$returnStatus = fetch_kv(
 		$conn,
@@ -102,6 +119,7 @@ if (column_exists($conn, 'returns', 'status')) {
 }
 
 $overdueCount = 0;
+// Count overdue loans when a due date column exists.
 if (column_exists($conn, 'loans', 'due_date')) {
 	$overdueResult = $conn->query(
 		"SELECT COUNT(*) AS total
@@ -121,17 +139,20 @@ if (column_exists($conn, 'loans', 'due_date')) {
 	}
 }
 
+// Build pending approval metrics for the dashboard.
 $pendingApprovals = [
 	'loans' => (int) ($loanStatus['pending'] ?? 0),
 	'reservations' => (int) ($reservationStatus['pending'] ?? 0),
 	'returns' => (int) ($returnStatus['pending'] ?? 0),
 ];
 
+// Aggregate digital library counts and downloads.
 $digitalTotals = [
 	'resources' => 0,
 	'files' => 0,
 	'downloads' => 0,
 ];
+// Include ebook totals from books when available.
 if (column_exists($conn, 'books', 'book_type')) {
 	$ebookTotals = $conn->query(
 		"SELECT COUNT(*) AS total,
@@ -144,12 +165,14 @@ if (column_exists($conn, 'books', 'book_type')) {
 		$digitalTotals['files'] += (int) ($row['files'] ?? 0);
 	}
 }
+// Include digital resources table totals.
 if (column_exists($conn, 'digital_resources', 'resource_id')) {
 	$digitalResources = $conn->query("SELECT COUNT(*) AS total FROM digital_resources WHERE deleted_date IS NULL");
 	if ($digitalResources && ($row = $digitalResources->fetch_assoc())) {
 		$digitalTotals['resources'] += (int) ($row['total'] ?? 0);
 	}
 }
+// Include digital files and downloads totals.
 if (column_exists($conn, 'digital_files', 'file_id')) {
 	$digitalFiles = $conn->query("SELECT COUNT(*) AS total, COALESCE(SUM(download_count), 0) AS downloads FROM digital_files WHERE deleted_date IS NULL");
 	if ($digitalFiles && ($row = $digitalFiles->fetch_assoc())) {
@@ -158,6 +181,7 @@ if (column_exists($conn, 'digital_files', 'file_id')) {
 	}
 }
 
+// Include download audit logs when available.
 if (column_exists($conn, 'audit_logs', 'log_id')) {
 	$downloadLogs = $conn->query(
 		"SELECT COUNT(*) AS total
@@ -170,7 +194,9 @@ if (column_exists($conn, 'audit_logs', 'log_id')) {
 	}
 }
 
+// Aggregate fines totals.
 $fineTotals = ['count' => 0, 'amount' => 0];
+// Load fine totals when the table exists.
 if (column_exists($conn, 'fines', 'fine_id')) {
 	$fineAmountSql = column_exists($conn, 'fines', 'amount')
 		? 'COALESCE(SUM(amount), 0) AS amount'
@@ -182,7 +208,9 @@ if (column_exists($conn, 'fines', 'fine_id')) {
 	}
 }
 
+// Aggregate fine waiver totals.
 $waiverTotals = ['count' => 0, 'amount' => 0];
+// Load waiver totals when the table exists.
 if (column_exists($conn, 'fine_waivers', 'waiver_id')) {
 	$waiverAmountSql = column_exists($conn, 'fine_waivers', 'amount')
 		? 'COALESCE(SUM(amount), 0) AS amount'
@@ -194,7 +222,9 @@ if (column_exists($conn, 'fine_waivers', 'waiver_id')) {
 	}
 }
 
+// Aggregate payment totals.
 $paymentTotals = ['count' => 0, 'amount' => 0];
+// Load payment totals when the table exists.
 if (column_exists($conn, 'payments', 'payment_id')) {
 	$paymentAmountSql = column_exists($conn, 'payments', 'amount')
 		? 'COALESCE(SUM(amount), 0) AS amount'
@@ -206,34 +236,40 @@ if (column_exists($conn, 'payments', 'payment_id')) {
 	}
 }
 
+// Aggregate library catalog totals.
 $bookCount = 0;
 $authorCount = 0;
 $publisherCount = 0;
 $seriesCount = 0;
 $librarySizeBytes = 0;
 
+// Count total books in the catalog.
 $bookTotalResult = $conn->query("SELECT COUNT(*) AS total FROM books WHERE deleted_date IS NULL");
 if ($bookTotalResult && ($row = $bookTotalResult->fetch_assoc())) {
 	$bookCount = (int) ($row['total'] ?? 0);
 }
+// Count distinct authors when available.
 if (column_exists($conn, 'books', 'author')) {
 	$authorResult = $conn->query("SELECT COUNT(DISTINCT author) AS total FROM books WHERE deleted_date IS NULL AND author IS NOT NULL AND author <> ''");
 	if ($authorResult && ($row = $authorResult->fetch_assoc())) {
 		$authorCount = (int) ($row['total'] ?? 0);
 	}
 }
+// Count distinct publishers when available.
 if (column_exists($conn, 'books', 'publisher')) {
 	$publisherResult = $conn->query("SELECT COUNT(DISTINCT publisher) AS total FROM books WHERE deleted_date IS NULL AND publisher IS NOT NULL AND publisher <> ''");
 	if ($publisherResult && ($row = $publisherResult->fetch_assoc())) {
 		$publisherCount = (int) ($row['total'] ?? 0);
 	}
 }
+// Sum ebook file sizes when available.
 if (column_exists($conn, 'books', 'ebook_file_size')) {
 	$sizeResult = $conn->query("SELECT COALESCE(SUM(ebook_file_size), 0) AS total FROM books WHERE deleted_date IS NULL");
 	if ($sizeResult && ($row = $sizeResult->fetch_assoc())) {
 		$librarySizeBytes += (int) ($row['total'] ?? 0);
 	}
 }
+// Sum digital file sizes when available.
 if (column_exists($conn, 'digital_files', 'file_size')) {
 	$digitalSize = $conn->query("SELECT COALESCE(SUM(file_size), 0) AS total FROM digital_files WHERE deleted_date IS NULL");
 	if ($digitalSize && ($row = $digitalSize->fetch_assoc())) {
@@ -241,11 +277,14 @@ if (column_exists($conn, 'digital_files', 'file_size')) {
 	}
 }
 
+// Format the total library size for display.
 function format_kb($bytes)
 {
+	// Return a default label for empty sizes.
 	if ($bytes <= 0) {
 		return '0 KB';
 	}
+	// Convert bytes to KB/MB for display.
 	$kb = $bytes / 1024;
 	if ($kb < 1024) {
 		return number_format($kb, 0) . ' KB';
@@ -257,10 +296,12 @@ function format_kb($bytes)
 $librarySizeLabel = format_kb($librarySizeBytes);
 
 $searchTop = [];
+// Fetch top search queries when logging is available.
 if (column_exists($conn, 'search_logs', 'query_text')) {
 	$searchLogs = $conn->query(
 		"SELECT query_text, COUNT(*) AS total FROM search_logs GROUP BY query_text ORDER BY total DESC LIMIT 8"
 	);
+	// Build the top search list for the chart.
 	if ($searchLogs) {
 		while ($row = $searchLogs->fetch_assoc()) {
 			$searchTop[] = [
@@ -277,6 +318,7 @@ $activityData = [
 	'users' => [],
 ];
 
+// Load users for the activity filters.
 $userResult = $conn->query(
 	"SELECT user_id, username, email
 	 FROM users
@@ -284,11 +326,13 @@ $userResult = $conn->query(
 	 ORDER BY username ASC"
 );
 if ($userResult) {
+	// Collect users for the activity filter dropdown.
 	while ($row = $userResult->fetch_assoc()) {
 		$activityUsers[] = $row;
 	}
 }
 
+// Helper to accumulate activity counts into the store.
 $addActivity = function (&$store, string $type, string $day, int $userId, int $count) {
 	if (!isset($store['users'][$userId])) {
 		$store['users'][$userId] = ['loan' => [], 'reserve' => [], 'return' => [], 'download' => []];
@@ -297,6 +341,7 @@ $addActivity = function (&$store, string $type, string $day, int $userId, int $c
 	$store['all'][$type][$day] = ($store['all'][$type][$day] ?? 0) + $count;
 };
 
+// SQL definitions for activity aggregation by type.
 $activityQueries = [
 	'loan' => "SELECT DATE(created_date) AS day, user_id, COUNT(*) AS total
 		FROM loans
@@ -318,15 +363,19 @@ $activityQueries = [
 		GROUP BY DATE(COALESCE(time_stamp, created_date)), user_id",
 ];
 
+// Execute each activity query and aggregate results.
 foreach ($activityQueries as $type => $sql) {
 	$result = $conn->query($sql);
+	// Skip empty or failed result sets.
 	if (!$result) {
 		continue;
 	}
+	// Aggregate valid activity rows into the store.
 	while ($row = $result->fetch_assoc()) {
 		$day = $row['day'] ?? null;
 		$userId = (int) ($row['user_id'] ?? 0);
 		$count = (int) ($row['total'] ?? 0);
+		// Ignore invalid or empty activity rows.
 		if (!$day || $userId <= 0 || $count <= 0) {
 			continue;
 		}
@@ -335,16 +384,19 @@ foreach ($activityQueries as $type => $sql) {
 }
 
 ?>
+<?php // Shared header resources and layout chrome. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <main class="app-main">
 	<div class="app-content">
 		<div class="container-fluid py-4">
+			<!-- Report hero with summary stats and controls. -->
 			<div class="report-hero mb-4">
 				<div class="report-hero-header">
 					<h2 class="mb-0">Library Statistics</h2>
 					<div class="report-hero-controls">
+						<!-- Report group filter dropdown. -->
 						<div class="dropdown">
 							<button class="btn dropdown-toggle report-group-toggle" type="button" data-bs-toggle="dropdown"
 								aria-expanded="false" id="reportGroupDropdown">
@@ -356,12 +408,14 @@ foreach ($activityQueries as $type => $sql) {
 								<li><a class="dropdown-item report-group-item" href="#" data-report-group="user">User Reports</a></li>
 							</ul>
 						</div>
+						<!-- Chart settings trigger. -->
 						<button class="btn btn-outline-light btn-sm" type="button" aria-label="Settings" data-bs-toggle="modal"
 							data-bs-target="#chartConfigModal">
 							<i class="bi bi-gear"></i>
 						</button>
 					</div>
 				</div>
+				<!-- Key library stats. -->
 				<div class="report-hero-stats">
 					<div class="stat-pill">
 						<i class="bi bi-book"></i>
@@ -391,17 +445,20 @@ foreach ($activityQueries as $type => $sql) {
 				</div>
 			</div>
 
+			<!-- Report dashboard header. -->
 			<div class="d-flex align-items-center justify-content-between mb-3">
 				<div>
 					<h3 class="mb-1">Reports Dashboard</h3>
 					<p class="text-muted mb-0">Operational snapshot across users, inventory, circulation, and finance.</p>
 				</div>
+				<!-- Theme toggle buttons for charts. -->
 				<div class="report-controls">
 					<button class="btn btn-outline-primary btn-sm" type="button" data-chart-theme="default">Default Theme</button>
 					<button class="btn btn-outline-secondary btn-sm" type="button" data-chart-theme="muted">Muted Theme</button>
 				</div>
 			</div>
 
+			<!-- Library-focused report cards. -->
 			<div class="report-section" data-report-group="library">
 				<div class="report-section-header">Library Reports</div>
 				<div class="reports-grid">
@@ -440,6 +497,7 @@ foreach ($activityQueries as $type => $sql) {
 				</div>
 			</div>
 
+			<!-- User-focused report cards. -->
 			<div class="report-section" data-report-group="user">
 				<div class="report-section-header">User Reports</div>
 				<div class="reports-grid">
@@ -449,6 +507,7 @@ foreach ($activityQueries as $type => $sql) {
 							<div class="activity-controls d-flex align-items-center gap-2">
 								<select class="form-select form-select-sm activity-filter" id="activityUserFilter">
 									<option value="all" selected>All Users</option>
+									<!-- User options for the activity filter. -->
 									<?php foreach ($activityUsers as $user): ?>
 									<option value="<?php echo (int) $user['user_id']; ?>">
 										<?php echo htmlspecialchars($user['username'] ?: $user['email']); ?>
@@ -530,6 +589,7 @@ foreach ($activityQueries as $type => $sql) {
 	</div>
 </main>
 
+<!-- Chart configuration modal. -->
 <div class="modal fade report-config-modal" id="chartConfigModal" tabindex="-1">
 	<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
 		<div class="modal-content">
@@ -617,10 +677,12 @@ foreach ($activityQueries as $type => $sql) {
 	</div>
 </div>
 
+<?php // Shared footer layout and scripts. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>
 
 <?php
+// Bundle report metrics for the frontend charts.
 $reportPayload = [
 	'userStatuses' => $userStatuses,
 	'inventoryTypes' => $inventoryTypes,
@@ -639,5 +701,7 @@ $reportPayload = [
 	],
 ];
 ?>
+<!-- Embed report data for the charts. -->
 <script id="reports-data" type="application/json"><?php echo json_encode($reportPayload); ?></script>
+<!-- Page-specific JS for report charts. -->
 <script src="<?php echo BASE_URL; ?>assets/js/pages/reports.js"></script>

@@ -1,12 +1,15 @@
 <?php
+// Load app configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Fetch digital resource records for the listing table.
 $result = $conn->query("SELECT * FROM digital_resources ORDER BY resource_id DESC");
 if ($result === false) {
 	die("Query failed: " . $conn->error);
 }
 ?>
+<?php // Shared header resources and layout chrome. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
@@ -19,32 +22,37 @@ if ($result === false) {
 			<!--begin::Row-->
 			<div class="row">
 				<div class="container py-5">
+					<!-- Page header with title and create action. -->
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<h3 class="mb-0">Digital Resource List</h3>
 						<a href="<?php echo BASE_URL; ?>crud_files/add_digital_resource.php" class="btn btn-primary btn-sm">Add Digital Resource</a>
 					</div>
+					<!-- Results table card. -->
 					<div class="card shadow-sm">
 						<div class="card-body">
 							<div class="table-responsive">
 								<table class="table table-bordered table-hover align-middle">
+									<!-- Table headers. -->
 									<thead class="table-light">
 										<tr>
 											<th>#</th>
-									<th>Title</th>
-									<th>Description</th>
-									<th>Type</th>
+											<th>Title</th>
+											<th>Description</th>
+											<th>Type</th>
 											<th class="text-center">Actions</th>
 										</tr>
 									</thead>
 									<tbody>
+										<!-- Render rows when records exist. -->
 										<?php if ($result->num_rows > 0): ?>
 										<?php while ($row = $result->fetch_assoc()): ?>
 										<tr>
 											<td><?= $row["resource_id"] ?></td>
-									<td><?= htmlspecialchars($row['title']) ?></td>
-									<td><?= htmlspecialchars($row['description']) ?></td>
-									<td><?= htmlspecialchars($row['type']) ?></td>
+											<td><?= htmlspecialchars($row['title']) ?></td>
+											<td><?= htmlspecialchars($row['description']) ?></td>
+											<td><?= htmlspecialchars($row['type']) ?></td>
 											<td class="text-center">
+												<!-- Row actions for edit and delete. -->
 												<a href="<?php echo BASE_URL; ?>crud_files/edit_digital_resource.php?id=<?= $row['resource_id'] ?>" class="text-primary me-2" title="Edit">
 													<i class="bi bi-pencil-square fs-5"></i>
 												</a>
@@ -56,6 +64,7 @@ if ($result === false) {
 										</tr>
 										<?php endwhile; ?>
 										<?php else: ?>
+										<!-- Empty state message. -->
 										<tr>
 											<td colspan="5" class="text-center text-muted">No records found.</td>
 										</tr>
@@ -71,5 +80,6 @@ if ($result === false) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer layout and scripts. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

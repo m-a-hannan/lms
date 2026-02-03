@@ -1,14 +1,18 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Handle book-category assignment submission.
 if (isset($_POST['save'])) {
     $book_id = (int) $_POST['book_id'];
     $category_id = (int) $_POST['category_id'];
 
+    // Insert the new book/category relationship.
     $sql = "INSERT INTO book_categories (book_id, category_id) VALUES ($book_id, $category_id)";
     $result = $conn->query($sql);
 
+    // Redirect back to list on success.
     if ($result) {
         header("Location: " . BASE_URL . "book_category_list.php");
         exit;
@@ -17,8 +21,11 @@ if (isset($_POST['save'])) {
     }
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -57,5 +64,7 @@ if (isset($_POST['save'])) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

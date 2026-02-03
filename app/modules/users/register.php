@@ -1,25 +1,31 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Ensure session is active for registration flow.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
 }
 
+// Redirect logged-in users away from registration.
 if (!empty($_SESSION['user_id'])) {
 	header('Location: ' . BASE_URL . 'home.php');
 	exit;
 }
 
+// Initialize form state and error collection.
 $errors = [];
 $username = '';
 $email = '';
 
+// Handle registration submission.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$username = trim($_POST['username'] ?? '');
 	$email = trim($_POST['email'] ?? '');
 	$password = $_POST['password'] ?? '';
 
+	// Validate required fields and basic password policy.
 	if ($username === '' || $email === '' || $password === '') {
 		$errors[] = 'Username, email, and password are required.';
 	} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -31,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	} elseif (!preg_match('/[0-9]/', $password)) {
 		$errors[] = 'Password must contain at least one number.';
 	} else {
+		// Check for existing user by email or username.
 		$stmt = $conn->prepare('SELECT user_id, account_status FROM users WHERE email = ? OR username = ? LIMIT 1');
 		if ($stmt === false) {
 			$errors[] = 'Registration failed. Please try again.';
@@ -41,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$existing = $result ? $result->fetch_assoc() : null;
 			$stmt->close();
 
+			// Handle duplicate or blocked accounts.
 			if ($existing) {
 				if (($existing['account_status'] ?? '') === 'blocked') {
 					$errors[] = 'This account has been blocked. Contact the library.';
@@ -48,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					$errors[] = 'Email or username already exists.';
 				}
 			} else {
+				// Create the user account in pending state.
 				$passwordHash = password_hash($password, PASSWORD_DEFAULT);
 				$insert = $conn->prepare('INSERT INTO users (username, email, password_hash, account_status) VALUES (?, ?, ?, ?)');
 				if ($insert === false) {
@@ -56,12 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					$status = 'pending';
 					$insert->bind_param('ssss', $username, $email, $passwordHash, $status);
 					if ($insert->execute()) {
+						// Seed an empty profile record for the new user.
 						$newUserId = (int) $insert->insert_id;
 						$insert->close();
 						if ($newUserId > 0) {
 							$emptyPicture = $conn->real_escape_string('');
 							$conn->query("INSERT INTO user_profiles (user_id, profile_picture) VALUES ($newUserId, '$emptyPicture')");
 						}
+						// Redirect to login with a success flag.
 						header('Location: ' . BASE_URL . 'login.php?registered=1');
 						exit;
 					}
@@ -99,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				<form method="post">
 					<h2>Register</h2>
 
+					<?php // Show validation errors if present. ?>
 					<?php if (!empty($errors)): ?>
 						<div class="alert alert-danger">
 							<?php echo htmlspecialchars(implode(' ', $errors)); ?>
@@ -134,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	</section>
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- Password visibility toggle behavior -->
 	<script src="<?php echo BASE_URL; ?>assets/js/password_toggle.js"></script>
 
 </body>

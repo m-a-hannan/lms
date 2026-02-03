@@ -1,16 +1,20 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Handle book edition creation submission.
 if (isset($_POST['save'])) {
     $book_id = (int) $_POST['book_id'];
     $edition_number = (int) $_POST['edition_number'];
     $publication_year = (int) $_POST['publication_year'];
     $pages = (int) $_POST['pages'];
 
+    // Insert the new edition record.
     $sql = "INSERT INTO book_editions (book_id, edition_number, publication_year, pages) VALUES ($book_id, $edition_number, $publication_year, $pages)";
     $result = $conn->query($sql);
 
+    // Redirect back to list on success.
     if ($result) {
         header("Location: " . BASE_URL . "book_edition_list.php");
         exit;
@@ -19,8 +23,11 @@ if (isset($_POST['save'])) {
     }
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -67,5 +74,7 @@ if (isset($_POST['save'])) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>

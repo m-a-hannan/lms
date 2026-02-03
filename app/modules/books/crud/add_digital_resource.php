@@ -1,15 +1,19 @@
 <?php
+// Load core configuration and database connection.
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once ROOT_PATH . '/app/includes/connection.php';
 
+// Handle digital resource creation submission.
 if (isset($_POST['save'])) {
     $title = $conn->real_escape_string(trim($_POST['title']));
     $description = $conn->real_escape_string(trim($_POST['description']));
     $type = $conn->real_escape_string(trim($_POST['type']));
 
+    // Insert the new digital resource record.
     $sql = "INSERT INTO digital_resources (title, description, type) VALUES ('$title', '$description', '$type')";
     $result = $conn->query($sql);
 
+    // Redirect back to list on success.
     if ($result) {
         header("Location: " . BASE_URL . "digital_resource_list.php");
         exit;
@@ -18,8 +22,11 @@ if (isset($_POST['save'])) {
     }
 }
 ?>
+<?php // Shared CSS/JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header_resources.php') ?>
+<?php // Top navigation bar for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/header.php') ?>
+<?php // Sidebar navigation for admin sections. ?>
 <?php include(ROOT_PATH . '/app/views/sidebar.php') ?>
 <!--begin::App Main-->
 <main class="app-main">
@@ -62,5 +69,7 @@ if (isset($_POST['save'])) {
 	</div>
 </main>
 <!--end::App Main-->
+<?php // Shared footer markup for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer.php') ?>
+<?php // Shared JS resources for the admin layout. ?>
 <?php include(ROOT_PATH . '/app/includes/footer_resources.php') ?>
