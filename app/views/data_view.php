@@ -92,7 +92,7 @@ if (isset($_GET['table'])) {
 
 			<div class="collapse navbar-collapse" id="navMenu">
 				<ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-					<li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
+					<li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>home.php">Home</a></li>
 					<li class="nav-item"><a class="nav-link" href="#">Managers</a></li>
 					<li class="nav-item"><a class="nav-link" href="erd.php">ERD</a></li>
 					<li class="nav-item"><a class="nav-link" href="library_rbac_matrix.php">RBAC</a></li>

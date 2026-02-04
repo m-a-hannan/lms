@@ -139,7 +139,7 @@ if ($profileResult && $profileResult->num_rows === 1) {
 						<?php if (rbac_can_access($conn, 'library_stock_summary.php')): ?>
 						<li class="nav-item d-none d-md-block"><a href="<?php echo BASE_URL; ?>library_stock_summary.php" class="nav-link">LS - Summary</a></li>
 						<?php endif; ?>
-						<li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
+						<!-- <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li> -->
 					</ul>
 					<!--end::Start Navbar Links-->
 					<!--begin::End Navbar Links-->

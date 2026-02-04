@@ -34,7 +34,7 @@ if ($roleId <= 0 && !empty($roles)) {
 }
 
 // Load active pages and filter out auth-related routes.
-$skipPages = ['login.php', 'logout.php', 'register.php', 'index.php'];
+$skipPages = ['login.php', 'logout.php', 'register.php'];
 $pages = [];
 $pageResult = $conn->query("SELECT page_id, page_name, page_path FROM page_list WHERE is_active = 1 ORDER BY page_name ASC");
 if ($pageResult) {

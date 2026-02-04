@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Avoid rewrite loops for /public and existing files/dirs.
+RewriteCond %{REQUEST_URI} !^/lms/public/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L]
+
+

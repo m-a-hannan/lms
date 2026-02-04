@@ -55,7 +55,6 @@ if (!defined('AUTH_ENABLED')) {
 // Skip auth guards for public-facing pages.
 $script = basename($_SERVER['SCRIPT_NAME'] ?? '');
 $authSkip = [
-	'index.php',
 	'login.php',
 	'register.php',
 	'request_password_reset.php',
