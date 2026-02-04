@@ -370,12 +370,12 @@ if ($reserveStatus !== '') {
 
 <body class="app-body">
 
-	<?php include(ROOT_PATH . '/app/views/partials/books_topbar.php'); ?>
+	<?php include(ROOT_PATH . '/app/views/partials/home_topbar.php'); ?>
 
 	<!-- Layout -->
 	<div class="layout">
 
-		<?php include(ROOT_PATH . '/app/views/partials/books_sidebar.php'); ?>
+		<?php include(ROOT_PATH . '/app/views/partials/home_sidebar.php'); ?>
 
 		<!-- Main Content -->
 		<main class="content">

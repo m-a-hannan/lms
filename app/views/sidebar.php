@@ -85,7 +85,7 @@ $canSystemSettings = rbac_any_access($conn, $systemSettingsPages);
 				<!--begin::Sidebar Brand-->
 				<div class="sidebar-brand">
 					<!--begin::Brand Link-->
-					<a href="<?php echo BASE_URL; ?>index.php" class="brand-link">
+					<a href="<?php echo BASE_URL; ?>home.php" class="brand-link">
 						<!--begin::Brand Image-->
 						<img src="<?php echo BASE_URL; ?>assets/img/lms-logo.png" alt="LMS Logo"
 							class="brand-image opacity-75 shadow" />

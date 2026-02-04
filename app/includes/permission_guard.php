@@ -15,7 +15,7 @@ if (empty($_SESSION['user_id'])) {
 }
 
 // Define public pages that bypass RBAC checks.
-$skipPages = ['index.php', 'login.php', 'logout.php', 'register.php'];
+$skipPages = ['login.php', 'logout.php', 'register.php'];
 // Capture the current script path for normalization.
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 
