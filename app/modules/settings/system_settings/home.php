@@ -27,7 +27,7 @@ function scan_pages($root)
 		}
 		$relative = str_replace($root . DIRECTORY_SEPARATOR, '', $file->getPathname());
 		$relative = str_replace(DIRECTORY_SEPARATOR, '/', $relative);
-		if (preg_match('#^(include|crud_files|DB)/#', $relative)) {
+		if (preg_match('#^vendor/#', $relative)) {
 			continue;
 		}
 		if (strpos($relative, '.git/') !== false) {
@@ -43,7 +43,7 @@ function scan_pages($root)
 // Refresh the page_list table based on current files.
 function refresh_page_list($conn)
 {
-	$root = dirname(__DIR__);
+	$root = ROOT_PATH . '/public';
 	$paths = scan_pages($root);
 	$existing = [];
 	$existingResult = $conn->query('SELECT page_id, page_path FROM page_list');

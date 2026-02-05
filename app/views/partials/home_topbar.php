@@ -9,7 +9,7 @@
 	</button>
 
 	<!-- Brand label. -->
-	<span class="navbar-brand ms-2">LMS</span>
+	<span class="navbar-brand ms-2"><img src="<?php echo BASE_URL; ?>assets/img/LMS_Logo.png" alt="LMS Logo" style="width: 50px; height: auto;"> LMS</span>
 
 	<!-- Search bar with live suggestions. -->
 	<div class="mx-auto search-wrap">
