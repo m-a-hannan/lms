@@ -191,9 +191,24 @@ function is_checked($pageId, $key, $stored, $posted)
 											<tr>
 												<th>Page</th>
 												<th>Path</th>
-												<th class="text-center">Read</th>
-												<th class="text-center">Write</th>
-												<th class="text-center">Deny</th>
+												<th class="text-center">
+													Read
+													<div>
+														<input type="checkbox" class="form-check-input select-all" id="selectAllRead" aria-label="Select all read">
+													</div>
+												</th>
+												<th class="text-center">
+													Write
+													<div>
+														<input type="checkbox" class="form-check-input select-all" id="selectAllWrite" aria-label="Select all write">
+													</div>
+												</th>
+												<th class="text-center">
+													Deny
+													<div>
+														<input type="checkbox" class="form-check-input select-all" id="selectAllDeny" aria-label="Select all deny">
+													</div>
+												</th>
 											</tr>
 										</thead>
 										<tbody>

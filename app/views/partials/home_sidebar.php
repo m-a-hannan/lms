@@ -9,8 +9,8 @@ $sidebarFilterTarget = $sidebarFilterTarget ?? '#categoryFilterModal';
 	<!-- Home navigation links. -->
 	<div class="sidebar-section">
 		<small>HOME</small>
-		<a class="active" href="<?php echo $dashboardUrl; ?>"><i class="bi bi-speedometer2"></i> Dashboard</a>
-		<a><i class="bi bi-book"></i> All Books</a>
+		<a href="<?php echo $dashboardUrl; ?>"><i class="bi bi-speedometer2"></i> Dashboard</a>
+		<a class="active"><i class="bi bi-book"></i> All Books</a>
 	</div>
 
 	<!-- Category shortcuts. -->

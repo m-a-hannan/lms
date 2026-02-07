@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
 	<meta charset="UTF-8">
-	<title>Register – Booklore</title>
+	<title>Register – LMS</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<!-- Bootstrap 5.3 -->
@@ -108,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		<div class="form-box">
 			<div class="form-value">
 				<form method="post">
+				<img src="<?php echo BASE_URL; ?>assets/img/LMS_Logo.png" alt="LMS Logo" style="width: 150px; height: auto; display: block; margin: 0 auto;">
 					<h2>Register</h2>
 
 					<?php // Show validation errors if present. ?>

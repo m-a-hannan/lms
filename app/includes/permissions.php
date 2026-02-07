@@ -19,6 +19,11 @@ function rbac_normalize_path($path)
 		}
 	}
 
+	// Strip the public/ prefix when the rewrite target is exposed.
+	if (strpos($path, 'public/') === 0) {
+		$path = substr($path, strlen('public/'));
+	}
+
 	// Return a normalized, leading-slash-free path.
 	return ltrim($path, '/');
 }
